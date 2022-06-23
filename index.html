@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Basic Page Needs -->
+  <meta charset="utf-8">
+  <title>Welcome</title>
+  <!-- Mobile Specific Metas -->
+  <!-- FONT -->
+  <!-- CSS -->
+  <!-- Favicon -->
+  <script src="https://code.jquery.com/jquery-3.5.0.js"></script>
+</head>
+<body>
+  <h1>Welcome to Bowl Pick'em</h1>
+
+  <script>
+    $.getJSON( "data.json", function( data ) {
+      var items = []
+      $.each( data, function( key, val ) {
+        items.push( "<li id='" + key + "'>" + val + "</li>" );
+      });
+ 
+      $( "<ul/>", {
+        "class": "my-new-list",
+        html: items.join( "" )
+      }).appendTo( "body" );
+    });
+  </script>
+
+</body>
+</html>
