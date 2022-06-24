@@ -1,0 +1,51 @@
+{
+  "games": [
+    {
+      "name": "Orange Bowl",
+      "teams": ["UNC", "Duke"],
+      "date": [12,1,2022],
+      "result": 0,
+      "score": [28, 7]
+    },
+    {
+      "name": "Peach Bowl",
+      "teams": ["Oklahoma", "Oregon"],
+      "date": [12,4,2022],
+      "result": 0,
+      "score": [7, 3]
+    },
+    {
+      "name": "Strawberry Bowl",
+      "teams": ["USC", "Notre Dame"],
+      "date": [12,7,2022],
+      "result": 1,
+      "score": [30,31]
+    },
+    {
+      "name": "Banana Bowl",
+      "teams": ["Xavier", "Gonzaga"],
+      "date": [12,10,2022],
+      "result": null,
+      "score": []
+    }
+  ],
+  
+  "players": [
+    {
+      "name": "Pete",
+      "picks": [0, 0, 0, 1]
+    },
+    {
+      "name": "Tim",
+      "picks": [0, 0, 1, 1]
+    },
+    {
+      "name": "Kelly",
+      "picks": [0, 1, 0, 0]
+    },
+    {
+      "name": "Cathy",
+      "picks": [1, 1, 1, 0]
+    }
+  ]
+}

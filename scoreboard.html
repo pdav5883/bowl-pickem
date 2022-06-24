@@ -3,7 +3,7 @@
 <head>
   <!-- Basic Page Needs -->
   <meta charset="utf-8">
-  <title>Welcome</title>
+  <title>Scoreboard</title>
   <!-- Mobile Specific Metas -->
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- FONT -->
@@ -13,10 +13,25 @@
   <link rel="stylesheet" href="/static/styles/skeleton.css">  
   <!-- Favicon -->
   <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+  <!-- JQuery -->
+  <script src="https://code.jquery.com/jquery-3.5.0.js"></script>
 </head>
 <body>
   <h1>Welcome to Bowl Pick'em</h1>
-  <a href="/scoreboard.html">Scoreboard</a>
+
+  <script>
+    $.getJSON( "/data/data.json", function( data ) {
+      var items = []
+      $.each( data, function( key, val ) {
+        items.push( "<li id='" + key + "'>" + val + "</li>" );
+      });
+ 
+      $( "<ul/>", {
+        "class": "my-new-list",
+        html: items.join( "" )
+      }).appendTo( "body" );
+    });
+  </script>
 
 </body>
 </html>
