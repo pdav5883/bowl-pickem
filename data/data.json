@@ -3,13 +3,15 @@
     {
       "name": "Orange Bowl",
       "teams": ["UNC", "Duke"],
+      "teams_short": ["UNC", "DUK"],
       "date": [12,1,2022],
       "result": 0,
       "score": [28, 7]
     },
     {
       "name": "Peach Bowl",
-      "teams": ["Oklahoma", "Oregon"],
+      "teams": ["Oklahoma", "Texas"],
+      "teams_short": ["OU", "UT"],
       "date": [12,4,2022],
       "result": 0,
       "score": [7, 3]
@@ -17,6 +19,7 @@
     {
       "name": "Strawberry Bowl",
       "teams": ["USC", "Notre Dame"],
+      "teams_short": ["USC", "ND"],
       "date": [12,7,2022],
       "result": 1,
       "score": [30,31]
@@ -24,6 +27,7 @@
     {
       "name": "Banana Bowl",
       "teams": ["Xavier", "Gonzaga"],
+      "teams_short": ["XAV", "ZAG"],
       "date": [12,10,2022],
       "result": null,
       "score": []

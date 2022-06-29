@@ -9,8 +9,8 @@
   <!-- FONT -->
   <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
   <!-- CSS -->
-  <link rel="stylesheet" href="/static/styles/normalize.css"> 
-  <link rel="stylesheet" href="/static/styles/skeleton.css">  
+  <link rel="stylesheet" href="/styles/normalize.css"> 
+  <link rel="stylesheet" href="/styles/skeleton.css">  
   <!-- Favicon -->
   <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
   <!-- JQuery -->
@@ -19,17 +19,46 @@
 <body>
   <h1>Welcome to Bowl Pick'em</h1>
 
+  <table id="scoretable">
+  </table>
+
   <script>
     $.getJSON( "/data/data.json", function( data ) {
-      var items = []
-      $.each( data, function( key, val ) {
-        items.push( "<li id='" + key + "'>" + val + "</li>" );
-      });
- 
-      $( "<ul/>", {
-        "class": "my-new-list",
-        html: items.join( "" )
-      }).appendTo( "body" );
+      // header row with player names
+      // for each game
+      //   write game name (mark with completed)
+      //   for each player
+      //     write pick (mark with winner loser)
+      var table = document.getElementById("scoretable")
+      
+      // header row with player names
+      var row = document.createElement("tr")
+      var cell = document.createElement("th")
+      cell.innerHTML = "Game"
+      row.appendChild(cell)
+
+      for (var i = 0; i < data.players.length; i++) {
+	cell = document.createElement("th")
+	cell.innerHTML = data.players[i].name
+	row.appendChild(cell)
+      }
+
+      table.appendChild(row)
+
+      // row for each game, with picks for each player
+      for (var i = 0; i < data.games.length; i++) {
+	row = document.createElement("tr")
+	cell = document.createElement("th")
+	cell.innerHTML = data.games[i].name + "<BR>" + data.games[i].teams[0] + " vs " + data.games[i].teams[1]
+	row.appendChild(cell)
+
+	for (var j = 0; j < data.players.length; j++) {
+	  cell = document.createElement("td")
+	  cell.innerHTML = data.games[i].teams_short[data.players[j].picks[i]]
+	  row.appendChild(cell)
+	}
+	table.appendChild(row)
+      }
     });
   </script>
 
