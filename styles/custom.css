@@ -1,0 +1,16 @@
+/* Tables
+–––––––––––––––––––––––––––––––––––––––––––––––––– */
+.score-table td,th {
+  text-align: center;
+}
+.win-cell {
+  background-color: green;
+}
+.loss-cell {
+  background-color: red;
+}
+.score-cell {
+  background-color: lightgrey;
+  font-weight: bold;
+  font-size: 150%;
+}

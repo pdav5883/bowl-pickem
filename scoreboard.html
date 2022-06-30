@@ -11,50 +11,99 @@
   <!-- CSS -->
   <link rel="stylesheet" href="/styles/normalize.css"> 
   <link rel="stylesheet" href="/styles/skeleton.css">  
+  <link rel="stylesheet" href="/styles/custom.css">  
   <!-- Favicon -->
   <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
   <!-- JQuery -->
   <script src="https://code.jquery.com/jquery-3.5.0.js"></script>
 </head>
 <body>
-  <h1>Welcome to Bowl Pick'em</h1>
+  <h2>Scoreboard</h2>
 
-  <table id="scoretable">
+  <table id="scoretable" class="score-table">
   </table>
 
   <script>
+    function calcScores( data ) {
+      var scores = new Array(data.players.length).fill(0)
+      var res = null
+
+      for (var i = 0; i < data.games.length; i++) {
+	res = data.games[i].result
+
+	if (res == null) {
+	  continue
+	}
+
+	for (var j = 0; j < data.players.length; j++) {
+	  if (data.players[j].picks[i] == res) {
+	    scores[j]++
+	  }
+	}
+      }
+      return scores
+    }
     $.getJSON( "/data/data.json", function( data ) {
       // header row with player names
       // for each game
       //   write game name (mark with completed)
       //   for each player
       //     write pick (mark with winner loser)
+      var scores = calcScores(data)
       var table = document.getElementById("scoretable")
       
       // header row with player names
       var row = document.createElement("tr")
       var cell = document.createElement("th")
-      cell.innerHTML = "Game"
+      cell.innerHTML = ""
       row.appendChild(cell)
 
-      for (var i = 0; i < data.players.length; i++) {
+      for (var j = 0; j < data.players.length; j++) {
 	cell = document.createElement("th")
-	cell.innerHTML = data.players[i].name
+	cell.innerHTML = data.players[j].name
+	row.appendChild(cell)
+      }
+
+      table.appendChild(row)
+
+      // score row
+      row = document.createElement("tr")
+      cell = document.createElement("td")
+      cell.innerHTML = ""
+      row.appendChild(cell)
+
+      for (var j = 0; j < data.players.length; j++) {
+	cell = document.createElement("td")
+	cell.innerHTML = scores[j]
+        cell.setAttribute("class", "score-cell")
 	row.appendChild(cell)
       }
 
       table.appendChild(row)
 
       // row for each game, with picks for each player
+      var game = null
+      var player = null
       for (var i = 0; i < data.games.length; i++) {
+	game = data.games[i]
 	row = document.createElement("tr")
 	cell = document.createElement("th")
-	cell.innerHTML = data.games[i].name + "<BR>" + data.games[i].teams[0] + " vs " + data.games[i].teams[1]
+	cell.innerHTML = game.name + "<BR>" + game.teams[0] + " vs " + game.teams[1]
 	row.appendChild(cell)
 
 	for (var j = 0; j < data.players.length; j++) {
+	  player = data.players[j]
 	  cell = document.createElement("td")
-	  cell.innerHTML = data.games[i].teams_short[data.players[j].picks[i]]
+	  cell.innerHTML = game.teams_short[player.picks[i]]
+
+	  if (game.result != null) {
+	    if (game.result == player.picks[i]) {
+	      cell.setAttribute("class", "win-cell")
+	    } 
+	    else {
+	      cell.setAttribute("class", "loss-cell")
+	    }
+	  }
 	  row.appendChild(cell)
 	}
 	table.appendChild(row)
