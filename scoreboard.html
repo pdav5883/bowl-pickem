@@ -7,7 +7,8 @@
   <!-- Mobile Specific Metas -->
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- FONT -->
-  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+  <!-- <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css"> -->
+  <link href="/_tmp/fonts" rel="stylesheet" type="text/css">
   <!-- CSS -->
   <link rel="stylesheet" href="/styles/normalize.css"> 
   <link rel="stylesheet" href="/styles/skeleton.css">  
@@ -15,7 +16,8 @@
   <!-- Favicon -->
   <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
   <!-- JQuery -->
-  <script src="https://code.jquery.com/jquery-3.5.0.js"></script>
+  <!-- <script src="https://code.jquery.com/jquery-3.5.0.js"></script> -->
+  <script src="/_tmp/jquery-3.5.0.js"></script>
 </head>
 <body>
   <h2>Scoreboard</h2>
@@ -88,7 +90,31 @@
 	game = data.games[i]
 	row = document.createElement("tr")
 	cell = document.createElement("th")
-	cell.innerHTML = game.name + "<BR>" + game.teams[0] + " vs " + game.teams[1]
+	cell.setAttribute("class", "bowl-cell")
+
+	var span_bowl = document.createElement("span")
+	span_bowl.innerHTML = game.name
+	span_bowl.setAttribute("class", "bowl-span")
+	cell.appendChild(span_bowl)
+	cell.innerHTML += "<BR>"
+
+	var span_team0 = document.createElement("span")
+	var span_team1 = document.createElement("span")
+	span_team0.innerHTML = game.teams[0]
+	span_team1.innerHTML = game.teams[1]
+
+	if (game.result == 0) {
+	  span_team0.setAttribute("class", "winner-span")
+	}
+
+	else if (game.result == 1) {
+	  span_team1.setAttribute("class", "winner-span")
+	}
+	
+	cell.appendChild(span_team0)
+	cell.innerHTML += " vs "
+	cell.appendChild(span_team1)
+
 	row.appendChild(cell)
 
 	for (var j = 0; j < data.players.length; j++) {

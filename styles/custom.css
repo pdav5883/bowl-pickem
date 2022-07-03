@@ -3,14 +3,39 @@
 .score-table td,th {
   text-align: center;
 }
+.score-table td {
+  border-left: 1px solid #E1E1E1;
+  border-right: 1px solid #E1E1E1;
+}
+.score-table th:first-child {
+  padding-left: 15px;
+}
+.score-table td:last-child,th:last-child {
+  padding-right: 15px;
+}
 .win-cell {
-  background-color: green;
+  background-color: #7df04f;
 }
 .loss-cell {
-  background-color: red;
+  background-color: #ed7864;
 }
 .score-cell {
-  background-color: lightgrey;
+  background-color: #e6e6e6;
   font-weight: bold;
   font-size: 150%;
+}
+.bowl-cell {
+  font-weight: normal;
+  font-size: 90%;
+}
+.bowl-span {
+  font-size: 100%;
+  font-weight: bold;
+}
+.date-span {
+  font-size: 75%;
+}
+.winner-span {
+  text-decoration: underline;
+  font-weight: bold
 }
