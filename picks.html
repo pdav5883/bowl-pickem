@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Basic Page Needs -->
+  <meta charset="utf-8">
+  <title>Scoreboard</title>
+  <!-- Mobile Specific Metas -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- FONT -->
+  <!-- <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css"> -->
+  <link href="/_tmp/fonts" rel="stylesheet" type="text/css">
+  <!-- CSS -->
+  <link rel="stylesheet" href="/styles/normalize.css"> 
+  <link rel="stylesheet" href="/styles/skeleton.css">  
+  <link rel="stylesheet" href="/styles/custom.css">  
+  <!-- Favicon -->
+  <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+  <!-- JQuery -->
+  <!-- <script src="https://code.jquery.com/jquery-3.5.0.js"></script> -->
+  <script src="/_tmp/jquery-3.5.0.js"></script>
+  <script src="/scripts/picks.js"></script>
+</head>
+<body>
+  <h2>Picks</h2>
+  <form id="pickform" method="post">
+    <button type="button" onClick="submitForm()">Submit</button>
+    <span id="statustext"></span>
+    <BR>
+    Name: <input type="text" name="name">
+    <table id="picktable" class="score-table">
+      <!-- <tr>
+	<th>UNC vs Duke</th>
+	<td>UNC<br><input type="radio" name="game0" value=0></td>
+	<td>Duke<br><input type="radio" name="game0" value1=></td>
+      </tr>
+      <tr>
+	<th>OU vs Texas</th>
+	<td>UNC<br><input type="radio" name="game1" value=0></td>
+	<td>Duke<br><input type="radio" name="game1" value1=></td>
+      </tr> -->
+    </table>
+  </form>
+
+</body>
+</html>
