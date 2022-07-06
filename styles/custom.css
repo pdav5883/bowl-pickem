@@ -27,6 +27,9 @@
 .bowl-cell {
   font-weight: normal;
   font-size: 90%;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  line-height: 140%; 
 }
 .bowl-span {
   font-size: 100%;

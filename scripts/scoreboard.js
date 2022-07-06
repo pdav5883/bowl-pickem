@@ -68,12 +68,14 @@ function populateScoreboard(){
 	cell = document.createElement("th")
 	cell.setAttribute("class", "bowl-cell")
 
+	// name of bowl
 	var span_bowl = document.createElement("span")
 	span_bowl.innerHTML = game.name
 	span_bowl.setAttribute("class", "bowl-span")
 	cell.appendChild(span_bowl)
 	cell.innerHTML += "<BR>"
-
+	
+	// head to head teams in bowl
 	var span_team0 = document.createElement("span")
 	var span_team1 = document.createElement("span")
 	span_team0.innerHTML = game.teams[0]
@@ -90,9 +92,17 @@ function populateScoreboard(){
 	cell.appendChild(span_team0)
 	cell.innerHTML += " vs "
 	cell.appendChild(span_team1)
+	cell.innerHTML += "<BR>"
+	
+	// date of bowl
+	var span_date = document.createElement("span")
+	span_date.innerHTML = game.date[0].toString() + "/" + game.date[1].toString() + "/" + game.date[2].toString()
+	span_date.setAttribute("class", "date-span")
+	cell.appendChild(span_date)
 
 	row.appendChild(cell)
 
+	// each players pick for game
 	for (var j = 0; j < data.players.length; j++) {
 	  player = data.players[j]
 	  cell = document.createElement("td")
