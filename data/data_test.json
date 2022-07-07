@@ -1,0 +1,55 @@
+{
+  "games": [
+    {
+      "name": "Orange Bowl",
+      "teams": ["UNC", "Duke"],
+      "teams_short": ["UNC", "DUK"],
+      "date": [12,1,22],
+      "result": 0,
+      "score": [28, 7]
+    },
+    {
+      "name": "Peach Bowl",
+      "teams": ["Oklahoma", "Texas"],
+      "teams_short": ["OU", "UT"],
+      "date": [12,4,22],
+      "result": 0,
+      "score": [7, 3]
+    },
+    {
+      "name": "Strawberry Bowl",
+      "teams": ["USC", "Notre Dame"],
+      "teams_short": ["USC", "ND"],
+      "date": [12,7,22],
+      "result": 1,
+      "score": [30,31]
+    },
+    {
+      "name": "Banana Bowl",
+      "teams": ["Xavier", "Gonzaga"],
+      "teams_short": ["XAV", "ZAG"],
+      "date": [12,10,22],
+      "result": null,
+      "score": []
+    }
+  ],
+  
+  "players": [
+    {
+      "name": "Pete",
+      "picks": [0, 0, 0, 1]
+    },
+    {
+      "name": "Tim",
+      "picks": [0, 0, 1, 1]
+    },
+    {
+      "name": "Kelly",
+      "picks": [0, 1, 0, 0]
+    },
+    {
+      "name": "Cathy",
+      "picks": [1, 1, 1, 0]
+    }
+  ]
+}
