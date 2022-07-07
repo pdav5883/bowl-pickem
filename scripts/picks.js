@@ -31,7 +31,23 @@ function submitForm() {
     "picks": picks
   }
 
-  statustext.innerHTML = "Success!"
+  $.ajax({
+    type: "POST",
+    url: "https://nstpyzzfae.execute-api.us-east-1.amazonaws.com/pickem",
+    dataType: "json",
+    crossDomain: true,
+    contentType: "application/json; charset=utf-8",
+    data: JSON.stringify(data),
+
+    success: function() {
+      statustext.innerHTML = "Success!"
+    },
+
+    error: function() {
+      statustext.innerHTML = "Error: submission issue"
+    }
+  })
+
 }
 
 function populateForm(){
@@ -57,16 +73,9 @@ function populateForm(){
 	span_bowl.setAttribute("class", "bowl-span")
 	cell.appendChild(span_bowl)
 	cell.innerHTML += "<BR>"
-	
-	// head to head teams in bowl
-	//var span_team0 = document.createElement("span")
-	//var span_team1 = document.createElement("span")
-	//span_team0.innerHTML = game.teams[0]
-	//span_team1.innerHTML = game.teams[1]
-	
-	//cell.appendChild(span_team0)
+
+	// teams in bowl
 	cell.innerHTML += game.teams[0] + " vs " + game.teams[1]
-	//cell.appendChild(span_team1)
 	cell.innerHTML += "<BR>"
 	
 	// date of bowl
