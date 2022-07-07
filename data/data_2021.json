@@ -1,0 +1,318 @@
+{
+  "games": [
+    {
+      "name": "Bahamas Bowl",
+      "teams": ["Middle Tenn", "Toledo"],
+      "teams_short": ["MTN", "TOL"],
+      "date": [12,17,21],
+      "result": 0,
+      "score": [31, 24]
+    },
+    {
+      "name": "Cure Bowl",
+      "teams": ["Coastal Carolina", "Northern Illinois"],
+      "teams_short": ["CCA", "NIL"],
+      "date": [12,17,21],
+      "result": 0,
+      "score": [47, 41]
+    },
+    {
+      "name": "Boca Raton Bowl",
+      "teams": ["App State","Western Kentucky"],
+      "teams_short": ["APP","WKU"],
+      "date": [12,18,21],
+      "result": 1,
+      "score": [38,59]
+    },
+    {
+      "name": "Celebration Bowl",
+      "teams": ["Jackson St","South Carolina"],
+      "teams_short": ["JAX","USC"],
+      "date": [12,19,21],
+      "result": 1,
+      "score": [10,31]
+    },
+    {
+      "name": "New Mexico Bowl",
+      "teams": ["Fresno St", "UTEP"],
+      "teams_short": ["FRE", "UTP"],
+      "date": [12,18,21],
+      "result": 0,
+      "score": [31,24]
+    },
+    {
+      "name": "Independence Bowl",
+      "teams": ["BYU", "UAB"],
+      "teams_short": ["BYU", "UAB"],
+      "date": [12,18,21],
+      "result": 1,
+      "score": [28,31]
+    },
+    {
+      "name": "Lendingtree Bowl",
+      "teams": ["Eastern Mich", "Liberty"],
+      "teams_short": ["EMU", "LIB"],
+      "date": [12,18,21],
+      "result": 1,
+      "score": [20,56]
+    },
+    {
+      "name": "LA Bowl",
+      "teams": ["Oregon St", "Utah St"],
+      "teams_short": ["OSU", "USU"],
+      "date": [12,18,21],
+      "result": 1,
+      "score": [13,24]
+    },
+    {
+      "name": "New Orleans Bowl",
+      "teams": ["Louisiana", "Marshall"],
+      "teams_short": ["LOU", "MAR"],
+      "date": [12,18,21],
+      "result": 0,
+      "score": [36,21]
+    },
+    {
+      "name": "Myrtle Beach Bowl",
+      "teams": ["Old Dominion", "Tulsa"],
+      "teams_short": ["ODU", "TUL"],
+      "date": [12,20,21],
+      "result": 1,
+      "score": [17,30]
+    },
+    {
+      "name": "Potato Bowl",
+      "teams": ["Kent St", "Wyoming"],
+      "teams_short": ["KEN", "WYO"],
+      "date": [12,21,21],
+      "result": 1,
+      "score": [38,52]
+    },
+    {
+      "name": "Frisco Bowl",
+      "teams": ["San Diego St", "UTSA"],
+      "teams_short": ["SDS", "UTS"],
+      "date": [12,21,21],
+      "result": 0,
+      "score": [38,24]
+    },
+    {
+      "name": "Armed Forces Bowl",
+      "teams": ["Army", "Missouri"],
+      "teams_short": ["ARM", "MIZ"],
+      "date": [12,22,21],
+      "result": 0,
+      "score": [24,22]
+    },
+    {
+      "name": "Frisco Football Classic",
+      "teams": ["Miami (OH)", "North Texas"],
+      "teams_short": ["MOH", "UNT"],
+      "date": [12,23,21],
+      "result": 0,
+      "score": [27,14]
+    },
+    {
+      "name": "Gasparilla Bowl",
+      "teams": ["Florida", "Central Florida"],
+      "teams_short": ["FLO", "UCF"],
+      "date": [12,23,21],
+      "result": 1,
+      "score": [17,29]
+    },
+    {
+      "name": "Camelia Bowl",
+      "teams": ["Ball St", "Georgia State"],
+      "teams_short": ["BST", "GST"],
+      "date": [12,25,21],
+      "result": 1,
+      "score": [20,51]
+    },
+    {
+      "name": "Quick Lane Bowl",
+      "teams": ["Nevada", "Western Mich"],
+      "teams_short": ["NEV", "WMU"],
+      "date": [12,27,21],
+      "result": 1,
+      "score": [24,52]
+    },
+    {
+      "name": "Birmingham Bowl",
+      "teams": ["Auburn", "Houston"],
+      "teams_short": ["AUB", "HOU"],
+      "date": [12,28,21],
+      "result": 1,
+      "score": [13,17]
+    },
+    {
+      "name": "First Responder Bowl",
+      "teams": ["Air Force", "Louisville"],
+      "teams_short": ["AFA", "LOU"],
+      "date": [12,28,21],
+      "result": 0,
+      "score": [31,28]
+    },
+    {
+      "name": "Liberty Bowl",
+      "teams": ["Mississippi St", "Texas Tech"],
+      "teams_short": ["MSU", "TTU"],
+      "date": [12,28,21],
+      "result": 1,
+      "score": [7,34]
+    },
+    {
+      "name": "Guaranteed Rate Bowl",
+      "teams": ["Minnesota", "West Virginia"],
+      "teams_short": ["MIN", "WVU"],
+      "date": [12,28,21],
+      "result": 0,
+      "score": [18,6]
+    },
+    {
+      "name": "Pinstripe Bowl",
+      "teams": ["Maryland", "Virginia Tech"],
+      "teams_short": ["MAR", "VT"],
+      "date": [12,29,21],
+      "result": 0,
+      "score": [54,10]
+    },
+    {
+      "name": "Cheez-It Bowl",
+      "teams": ["Clemson", "Iowa St"],
+      "teams_short": ["CLM", "ISU"],
+      "date": [12,29,21],
+      "result": 0,
+      "score": [20,13]
+    },
+    {
+      "name": "Alamo Bowl",
+      "teams": ["Oklahoma", "Oregon"],
+      "teams_short": ["OU", "ORG"],
+      "date": [12,29,21],
+      "result": 0,
+      "score": [47,32]
+    },
+    {
+      "name": "Dukes Mayo Bowl",
+      "teams": ["North Carolina", "South Carolina"],
+      "teams_short": ["UNC", "USC"],
+      "date": [12,30,21],
+      "result": 1,
+      "score": [21,38]
+    },
+    {
+      "name": "Music City Bowl",
+      "teams": ["Purdue", "Tennessee"],
+      "teams_short": ["PUR", "TEN"],
+      "date": [12,30,21],
+      "result": 0,
+      "score": [48,45]
+    },
+    {
+      "name": "Peach Bowl",
+      "teams": ["Michigan St", "Pittsburgh"],
+      "teams_short": ["MSU", "PIT"],
+      "date": [12,30,21],
+      "result": 0,
+      "score": [31,21]
+    },
+    {
+      "name": "Las Vegas Bowl",
+      "teams": ["Arizona St", "Wisconsin"],
+      "teams_short": ["ASU", "WIS"],
+      "date": [12,30,21],
+      "result": 1,
+      "score": [13,20]
+    },
+    {
+      "name": "Gator Bowl",
+      "teams": ["Rutgers", "Wake Forest"],
+      "teams_short": ["RUT", "WFU"],
+      "date": [12,31,21],
+      "result": 1,
+      "score": [10,38]
+    },
+    {
+      "name": "Sun Bowl",
+      "teams": ["Central Mich", "Washington St"],
+      "teams_short": ["CMU", "WSU"],
+      "date": [12,31,21],
+      "result": 0,
+      "score": [24,21]
+    },
+    {
+      "name": "Cotton Bowl",
+      "teams": ["Alabama", "Cincinnati"],
+      "teams_short": ["ALA", "CIN"],
+      "date": [12,31,21],
+      "result": 0,
+      "score": [27,6]
+    },
+    {
+      "name": "Orange Bowl",
+      "teams": ["Georgia", "Michigan"],
+      "teams_short": ["UGA", "UM"],
+      "date": [12,31,21],
+      "result": 0,
+      "score": [34,11]
+    },
+    {
+      "name": "Outback Bowl",
+      "teams": ["Arkansas", "Penn St"],
+      "teams_short": ["ARK", "PSU"],
+      "date": [1,1,22],
+      "result": 0,
+      "score": [24,10]
+    },
+    {
+      "name": "Fiesta Bowl",
+      "teams": ["Notre Dame", "Oklahoma St"],
+      "teams_short": ["ND", "OSU"],
+      "date": [1,1,22],
+      "result": 1,
+      "score": [35,37]
+    },
+    {
+      "name": "Citrus Bowl",
+      "teams": ["Iowa", "Kentucky"],
+      "teams_short": ["IOW", "KEN"],
+      "date": [1,1,22],
+      "result": 1,
+      "score": [17,20]
+    },
+    {
+      "name": "Rose Bowl",
+      "teams": ["Ohio St", "Utah"],
+      "teams_short": ["OSU", "UTA"],
+      "date": [1,1,22],
+      "result": 0,
+      "score": [48,45]
+    },
+    {
+      "name": "Sugar Bowl",
+      "teams": ["Baylor", "Ole Miss"],
+      "teams_short": ["BAY", "MIS"],
+      "date": [1,1,22],
+      "result": 0,
+      "score": [21,7]
+    },
+    {
+      "name": "Texas Bowl",
+      "teams": ["Louisiana St", "Kansas St"],
+      "teams_short": ["LSU", "KSU"],
+      "date": [1,4,22],
+      "result": 1,
+      "score": [20,42]
+    },
+    {
+      "name": "CFP Championship",
+      "teams": ["Bama/Cincy", "Georgia/Mich"],
+      "teams_short": ["B/C", "G/M"],
+      "date": [1,10,22],
+      "result": 1,
+      "score": [18,33]
+    }
+  ],
+  
+  "players": []
+}
