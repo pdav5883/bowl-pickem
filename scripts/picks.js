@@ -41,6 +41,7 @@ function submitForm() {
 
     success: function() {
       statustext.innerHTML = "Success!"
+      form.reset()
     },
 
     error: function() {
