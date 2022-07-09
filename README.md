@@ -15,3 +15,9 @@ To update data.json (TODO: need to sync in other direction first) run `bash sync
 ## TODO
 - Fix CORS policy in API
 - Sync s3 data.json to local, edit, then sync back
+
+## Upgrades
+- Deploy with cloud formation -- need to figure out how to reference API gateway URL in picks.js
+- Add year option for data file
+- Tim/Pete picking style
+- Move data to DB
