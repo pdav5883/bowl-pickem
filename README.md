@@ -1,6 +1,34 @@
 # Bowl Pickem
 This repo contains the client side code and python lambda code for a College Football bowl picking web application. Currently the site is set up as a static site hosted in AWS S3, with a JSON data file containing picks and results. Whenever new picks are made a lambda call updates and republishes the data file. This eventually should turn into an actual database. 
 
+## Rework
+- Two pages: scoreboard (root), submit
+- Don't download data.json, get at it through lambda
+- Scoreboard has default load call to lambda, but also dropdown to select years + competition type
+- Picks has dropdown to select year + competition type
+
+## data.json format
+```
+{
+  year: {
+    games: [{
+      name
+      teams: [a, b]
+      teams_short: [a, b]
+      date: [m, d, y]
+      result: 0/1
+      score: [x, y]
+    },...]
+    players: [{
+      name
+      picks: [0/1,....]
+      category: [1-6,...] (optional)
+      spread: [0-n,...] (optional)
+    },...]
+
+```
+
+
 ## Notes
 Test with `python -m http.server`
 

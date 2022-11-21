@@ -17,19 +17,28 @@
   <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
   <!-- JQuery -->
   <script src="https://code.jquery.com/jquery-3.5.0.js"></script>
-  <!-- <script src="/_tmp/jquery-3.5.0.js"></script> -->
   <script src="/scripts/picks.js"></script>
+  <script src="/scripts/menu.js"></script>
 </head>
 <body>
-  <h2>Picks</h2>
-  <a href="/">Home</a>
-  
-  <form id="pickform" method="post">
-    <button type="button" onClick="submitForm()" class="submit-button">Submit</button>
-    <span id="statustext"></span>
-    <BR>
-    Name: <input type="text" name="name">
-    <table id="picktable" class="score-table">
+  <div class="navbar-spacer"></div>
+  <nav class="navbar">
+    <div id="navmenucontainer" class="container navcontainer">
+    <script>
+      document.getElementById("navmenucontainer").innerHTML = navmenu
+    </script>
+    </div>
+  </nav>
+  <div class="top container">
+    <h2>Picks</h2>
+    <a href="/">Home</a>
+    
+    <form id="pickform" method="post">
+      <button type="button" onClick="submitForm()" class="submit-button">Submit</button>
+      <span id="statustext"></span>
+      <BR>
+      Name: <input type="text" name="name">
+      <table id="picktable" class="score-table">
       <!-- <tr>
 	<th>UNC vs Duke</th>
 	<td>UNC<br><input type="radio" name="game0" value=0></td>
@@ -40,8 +49,8 @@
 	<td>UNC<br><input type="radio" name="game1" value=0></td>
 	<td>Duke<br><input type="radio" name="game1" value1=></td>
       </tr> -->
-    </table>
-  </form>
-
+      </table>
+    </form>
+  </div>
 </body>
 </html>

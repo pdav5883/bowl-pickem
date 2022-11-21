@@ -30,6 +30,6 @@ $(document).ready(function() {
 var navmenu =
 '<ul class="navbar-list">' +
   '<li class="navbar-item"><a class="navbar-link" href="https://home.bearloves.rocks">Home</a></li>' +
-  '<li class="navbar-item"><a class="navbar-link" href="/scoreboard.html">Scoreboard</a></li>' +
-  '<li class="navbar-item"><a class="navbar-link" href="/picks.html"></a></li>' +
+  '<li class="navbar-item"><a class="navbar-link" href="/">Scoreboard</a></li>' +
+  '<li class="navbar-item"><a class="navbar-link" href="/picks.html">Make Picks</a></li>' +
 '</ul>';
