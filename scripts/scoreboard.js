@@ -1,4 +1,6 @@
-window.onload = populateScoreboard
+let api_url = "https://nstpyzzfae.execute-api.us-east-1.amazonaws.com/pickem"
+
+window.onload = initPopulateScoreboard
 
 function calcScores( data ) {
   var scores = new Array(data.players.length).fill(0)
@@ -20,12 +22,17 @@ function calcScores( data ) {
   return scores
 }
 
-function populateScoreboard(){
+function initPopulateScoreboard() {
+  populateScoreboard(0)
+}
+
+function populateScoreboard(year){
   // need to use this form rather than $.getJSON in order to disable caching of data.json
   $.ajax({
-    url: "/data/data.json",
-    dataType: "json",
-    cache: false,
+    method: "GET",
+    url: api_url,
+    data: {"qtype": "scoreboard", "year": year},
+    crossDomain: true,
     success: populateScoreboardInner
   })
 }

@@ -1,4 +1,6 @@
-window.onload = populateForm
+let api_url = "https://nstpyzzfae.execute-api.us-east-1.amazonaws.com/pickem"
+
+window.onload = initPopulateForm
 
 function submitForm() {
   var statustext = document.getElementById("statustext")
@@ -33,7 +35,7 @@ function submitForm() {
 
   $.ajax({
     type: "POST",
-    url: "https://nstpyzzfae.execute-api.us-east-1.amazonaws.com/pickem",
+    url: api_url,
     dataType: "json",
     crossDomain: true,
     contentType: "application/json; charset=utf-8",
@@ -51,8 +53,17 @@ function submitForm() {
 
 }
 
-function populateForm(){
-    $.getJSON( "/data/data.json", function( data ) {
+function initPopulateForm() {
+  populateForm(0)
+}
+
+function populateForm(year){
+  $.ajax({
+    method: "GET",
+    url: api_url,
+    data: {"qtype": "games", "year": year},
+    crossDomain: true,
+    success: function( games ) {
       // read each game
       // two new radio inputs for each
       var table = document.getElementById("picktable")
@@ -62,8 +73,8 @@ function populateForm(){
       var cell = null
       var game = null
       
-      for (var i = 0; i < data.games.length; i++) {
-	game = data.games[i]
+      for (var i = 0; i < games.length; i++) {
+	game = games[i]
 	row = document.createElement("tr")
 	cell = document.createElement("th")
 	cell.setAttribute("class", "bowl-cell")
@@ -108,5 +119,7 @@ function populateForm(){
         
 	table.appendChild(row)
       }
-    })
+    }
+  })
 }
+

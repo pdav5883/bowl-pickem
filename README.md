@@ -45,6 +45,7 @@ To update data.json (TODO: need to sync in other direction first) run `bash sync
 ## TODO
 - Fix CORS policy in API
 - Sync s3 data.json to local, edit, then sync back
+- Error handling in lambdas to send error messages back in response rather than just "internal server error"
 
 ## Future Work
 - Add year option for data file and picks/scoreboard
