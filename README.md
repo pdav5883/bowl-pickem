@@ -1,6 +1,19 @@
 # Bowl Pickem
 This repo contains the client side code and python lambda code for a College Football bowl picking web application. Currently the site is set up as a static site hosted in AWS S3, with a JSON data file containing picks and results. Whenever new picks are made a lambda call updates and republishes the data file. This eventually should turn into an actual database. 
 
+## TODO
+- Script/notebook to update data.json
+- Dropdown on scoreboard/picks to select old year (link to make dropdown appear)
+- Flag to show ? on other peoples picks
+- Advanced picking style
+
+## Future Work
+- Show points remaining
+- Auto deploy for lambdas
+- Error handling in lambdas to send error messages back in response rather than just "internal server error"
+- Fix CORS policy in API
+- Move data to DB
+
 ## data.json format
 ```
 {
@@ -36,16 +49,3 @@ To update lambda code run `zip pickem_lambda.zip lambda_function.py`, then sync 
 
 To update data.json (TODO: need to sync in other direction first) run `bash sync_data.sh` within directory
 
-## TODO
-- Fix CORS policy in API
-- Error handling in lambdas to send error messages back in response rather than just "internal server error"
-- Script/notebook to update data.json
-- Dropdown on scoreboard/picks to select old year (link to make dropdown appear)
-- Flag to show ? on other peoples picks
-- Show points remaining
-- Auto deploy for lambdas
-
-## Future Work
-- Add year option for data file and picks/scoreboard
-- Advanced picking style
-- Move data to DB
