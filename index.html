@@ -30,9 +30,19 @@
     </div>
   </nav>
   <div class="top container">
-    <h2>Scoreboard</h2>
+    <h2 id="scoretitle"></h2>
     <table id="scoretable" class="score-table">
     </table>
+    <div class="row">
+      <div class="three columns">
+        <label for="yearsel">Historical Scoreboards</label>
+        <select id="yearsel">
+        </select>
+      </div>
+      <div class="two columns">
+	<button type="button" id="yearbutton" class="submit-button" onclick="changeYear()">Go</button>
+      </div>
+    </div>
   </div>
 </body>
 </html>

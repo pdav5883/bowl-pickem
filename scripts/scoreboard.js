@@ -24,6 +24,12 @@ function calcScores( data ) {
 
 function initPopulateScoreboard() {
   populateScoreboard(0)
+  getHistoricalYears()
+}
+
+function changeYear() {
+  var year = document.getElementById("yearsel").value
+  populateScoreboard(year)
 }
 
 function populateScoreboard(year){
@@ -33,7 +39,16 @@ function populateScoreboard(year){
     url: api_url,
     data: {"qtype": "scoreboard", "year": year},
     crossDomain: true,
-    success: populateScoreboardInner
+    success: function(res) {
+      if (year == 0) {
+	var titlestr = "Current Scoreboard"
+      }
+      else {
+	var titlestr = "Scoreboard " + year + "-" + (parseInt(year) + 1)
+      }
+      document.getElementById("scoretitle").innerHTML = titlestr
+      populateScoreboardInner(res)
+    }
   })
 }
 
@@ -45,6 +60,9 @@ function populateScoreboardInner(data) {
   //     write pick (mark with winner loser)
   var scores = calcScores(data)
   var table = document.getElementById("scoretable")
+  
+  // clear the table
+  table.innerHTML = ""
   
   // header row with player names
   var row = document.createElement("tr")
@@ -63,7 +81,8 @@ function populateScoreboardInner(data) {
   // score row
   row = document.createElement("tr")
   cell = document.createElement("td")
-  cell.innerHTML = ""
+  cell.innerHTML = "Total Points"
+  cell.setAttribute("class", "score-cell")
   row.appendChild(cell)
 
   for (var j = 0; j < data.players.length; j++) {
@@ -137,4 +156,26 @@ function populateScoreboardInner(data) {
     }
     table.appendChild(row)
   }
+}
+
+function getHistoricalYears() {
+  var yearsel = document.getElementById("yearsel")
+  
+  // server returns the years that are available in the data file
+  $.ajax({
+    method: "GET",
+    url: api_url,
+    data: {"qtype": "years"},
+    crossDomain: true,
+    success: function(res) {
+      res.sort()
+      res.reverse()
+      res.forEach(function(item, index) {
+	var opt = document.createElement("option")
+	opt.innerHTML = item
+	opt.setAttribute("value", item)
+	yearsel.appendChild(opt)
+      })
+    }
+  })
 }
