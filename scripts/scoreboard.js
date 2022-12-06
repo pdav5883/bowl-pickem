@@ -41,14 +41,9 @@ function populateScoreboard(year){
     data: {"qtype": "scoreboard", "year": year},
     crossDomain: true,
     success: function(res) {
-      if (year == 0) {
-	var titlestr = "Current Scoreboard"
-      }
-      else {
-	var titlestr = "Scoreboard " + year + "-" + (parseInt(year) + 1)
-      }
+      var titlestr = "Scoreboard " + res.year + "-" + (parseInt(res.year) + 1)
       document.getElementById("scoretitle").innerHTML = titlestr
-      populateScoreboardInner(res)
+      populateScoreboardInner(res.data)
     }
   })
 }

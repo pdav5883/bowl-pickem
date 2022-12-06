@@ -70,14 +70,9 @@ function populateForm(year){
     url: api_url,
     data: {"qtype": "games", "year": year},
     crossDomain: true,
-    success: function( games ) {
+    success: function( res ) {
       // title of page
-      if (year == 0) {
-	var titlestr = "Current Pick'Em"
-      }
-      else {
-	var titlestr = "Pick'Em " + year + "-" + (parseInt(year) + 1)
-      }
+      var titlestr = "Pick'Em " + res.year + "-" + (parseInt(res.year) + 1)
       document.getElementById("picktitle").innerHTML = titlestr
 
       var table = document.getElementById("picktable")
@@ -86,6 +81,7 @@ function populateForm(year){
       table.innerHTML = ""
       
       // row for each game
+      var games = res.data
       var row = null
       var cell = null
       var game = null

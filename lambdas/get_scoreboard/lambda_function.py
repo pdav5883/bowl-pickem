@@ -46,13 +46,16 @@ def handle_scoreboard(data, year):
     Return the full data dict for year
     """
     if year in data:
-        return data[year]
+        yeardata =  data[year]
     elif year == "0":
         max_year = str(max([int(yr) for yr in data.keys()]))
-        return data[max_year]
+        yeardata = data[max_year]
+        year = max_year
     else:
         print("ERROR: year {} is not contained in scoreboard dict".format(year))
         raise Exception("Invalid year {}".format(year))
+
+    return {"year": str(year), "data": yeardata}
 
 
 def handle_games(data, year):
@@ -60,13 +63,16 @@ def handle_games(data, year):
     Return games only without picks
     """
     if year in data:
-        return data[year]["games"]
+        yeardata = data[year]["games"]
     elif year == "0":
         max_year = str(max([int(yr) for yr in data.keys()]))
-        return data[max_year]["games"]
+        yeardata = data[max_year]["games"]
+        year = max_year
     else:
         print("ERROR: year {} is not contained in scoreboard dict".format(year))
         raise Exception("Invalid year {}".format(year))
+
+    return {"year": str(year), "data": yeardata}
 
 
 def handle_years(data):
