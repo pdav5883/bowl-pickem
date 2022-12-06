@@ -55,6 +55,13 @@ function submitForm() {
 
 function initPopulateForm() {
   populateForm(0)
+  getHistoricalYears()
+}
+
+function changeYear() {
+  var year = document.getElementById("yearsel").value
+  populateForm(year)
+  scroll(0, 0)
 }
 
 function populateForm(year){
@@ -64,9 +71,19 @@ function populateForm(year){
     data: {"qtype": "games", "year": year},
     crossDomain: true,
     success: function( games ) {
-      // read each game
-      // two new radio inputs for each
+      // title of page
+      if (year == 0) {
+	var titlestr = "Current Pick'Em"
+      }
+      else {
+	var titlestr = "Pick'Em " + year + "-" + (parseInt(year) + 1)
+      }
+      document.getElementById("picktitle").innerHTML = titlestr
+
       var table = document.getElementById("picktable")
+
+      // clear the table
+      table.innerHTML = ""
       
       // row for each game
       var row = null
@@ -85,7 +102,6 @@ function populateForm(year){
 	span_bowl.setAttribute("class", "bowl-span")
 	cell.appendChild(span_bowl)
 	cell.innerHTML += "<BR>"
-
 	// teams in bowl
 	cell.innerHTML += game.teams[0] + " vs " + game.teams[1]
 	cell.innerHTML += "<BR>"
@@ -123,3 +139,24 @@ function populateForm(year){
   })
 }
 
+function getHistoricalYears() {
+  var yearsel = document.getElementById("yearsel")
+  
+  // server returns the years that are available in the data file
+  $.ajax({
+    method: "GET",
+    url: api_url,
+    data: {"qtype": "years"},
+    crossDomain: true,
+    success: function(res) {
+      res.sort()
+      res.reverse()
+      res.forEach(function(item, index) {
+	var opt = document.createElement("option")
+	opt.innerHTML = item
+	opt.setAttribute("value", item)
+	yearsel.appendChild(opt)
+      })
+    }
+  })
+}

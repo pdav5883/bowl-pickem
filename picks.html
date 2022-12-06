@@ -30,7 +30,7 @@
     </div>
   </nav>
   <div class="top container">
-    <h2>Pick'Em</h2>
+    <h2 id="picktitle"></h2>
     
     <form id="pickform" method="post">
       <button type="button" onClick="submitForm()" class="submit-button">Submit</button>
@@ -40,6 +40,13 @@
       <table id="picktable" class="score-table">
       </table>
     </form>
+    <div class="row">
+      <div class="three columns">
+        <label for="yearsel">Historical Scoreboards</label>
+        <select id="yearsel" onchange="changeYear()">
+        </select>
+      </div>
+    </div>
   </div>
 </body>
 </html>

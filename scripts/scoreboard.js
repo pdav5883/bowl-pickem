@@ -30,6 +30,7 @@ function initPopulateScoreboard() {
 function changeYear() {
   var year = document.getElementById("yearsel").value
   populateScoreboard(year)
+  scroll(0, 0)
 }
 
 function populateScoreboard(year){
