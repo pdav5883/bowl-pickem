@@ -1,4 +1,5 @@
 let api_url = "https://nstpyzzfae.execute-api.us-east-1.amazonaws.com/pickem"
+let current_year = 0
 
 window.onload = initPopulateForm
 
@@ -39,7 +40,7 @@ function submitForm() {
     dataType: "json",
     crossDomain: true,
     contentType: "application/json; charset=utf-8",
-    data: JSON.stringify(data),
+    data: JSON.stringify({"year": current_year, "data": data}),
 
     success: function() {
       statustext.innerHTML = "Success!"
@@ -75,9 +76,11 @@ function populateForm(year){
       var titlestr = "Pick'Em " + res.year + "-" + (parseInt(res.year) + 1)
       document.getElementById("picktitle").innerHTML = titlestr
 
-      var table = document.getElementById("picktable")
+      // store the year for later submission
+      current_year = res.year
 
       // clear the table
+      var table = document.getElementById("picktable")
       table.innerHTML = ""
       
       // row for each game
