@@ -138,7 +138,13 @@ function populateScoreboardInner(data) {
     for (var j = 0; j < data.players.length; j++) {
       player = data.players[j]
       cell = document.createElement("td")
-      cell.innerHTML = game.teams_short[player.picks[i]]
+
+      if (player.picks[i] == null) {
+	cell.innerHTML = "?"
+      }
+      else {
+	cell.innerHTML = game.teams_short[player.picks[i]]
+      }
       
       if (game.result != null) {
 	if (game.result == player.picks[i]) {

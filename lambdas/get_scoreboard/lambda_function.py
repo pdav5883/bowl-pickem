@@ -55,6 +55,15 @@ def handle_scoreboard(data, year):
         print("ERROR: year {} is not contained in scoreboard dict".format(year))
         raise Exception("Invalid year {}".format(year))
 
+    # filter based on data.json flags for year
+    if not yeardata["show_results"]:
+        for game in yeardata["games"]:
+            game["result"] = None
+            game["score"] = []
+    if not yeardata["show_picks"]:
+        for player in yeardata["players"]:
+            player["picks"] = [None] * len(player["picks"])
+
     return {"year": str(year), "data": yeardata}
 
 
