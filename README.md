@@ -3,8 +3,11 @@ This repo contains the client side code and python lambda code for a College Foo
 
 ## TODO
 - Denote bonus point picks
+	- Add bonus field in game
 - Advanced picking style
 - What to do about CFP
+	- Assume last game is final, two preceeding are semis
+	- Still 0/1 picks for each, but must get semi right to get final right
 
 ## Future Work
 - Lock scoreboard for no more picks (flag is in data.json, but no implemented)
@@ -23,14 +26,16 @@ This repo contains the client side code and python lambda code for a College Foo
       teams: [a, b]
       teams_short: [a, b]
       date: [m, d, y]
+      bonus: 0-n
       result: 0/1
       score: [x, y]
     },...]
     players: [{
       name
+      advanced: true/false
       picks: [0/1,....]
       category: [1-6,...] (optional)
-      spread: [0-n,...] (optional)
+      spread: [0-n,...] (later)
     },...]
 
 ```

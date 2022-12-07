@@ -98,6 +98,11 @@ function populateForm(year){
 	// name of bowl
 	var span_bowl = document.createElement("span")
 	span_bowl.innerHTML = game.name
+    	
+	if (game.bonus > 0) {
+	  span_bowl.innerHTML += " [+" + game.bonus + "]"
+    	}
+
 	span_bowl.setAttribute("class", "bowl-span")
 	cell.appendChild(span_bowl)
 	cell.innerHTML += "<BR>"
@@ -113,9 +118,22 @@ function populateForm(year){
 
 	row.appendChild(cell)
 
-	// pick options
+	// pick options, with logic for CFP
 	cell = document.createElement("td")
-	cell.innerHTML = game.teams_short[0] + "<BR>"
+	var shortname = "?"
+	if (i == games.length - 1) {
+	  shortname = "?"}
+	  /*if (table.children[-2].children[1].children[0].value == 1) {
+	    shortname = games[i - 2].teams_short[0]
+	  }
+	  else if (table.children[-2].children[2].children[0].value == 1) {
+	    shortname = games[i - 2].teams_short[1]
+	  cell.setAttribute("id", "finalCell1")
+	}*/
+	else {
+	  shortname = game.teams_short[0]
+	}
+	cell.innerHTML = shortname + "<BR>"
 	var radio = document.createElement("input")
 	radio.setAttribute("type", "radio")
 	radio.setAttribute("name", "game" + i)

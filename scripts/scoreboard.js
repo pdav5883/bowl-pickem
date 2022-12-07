@@ -5,9 +5,11 @@ window.onload = initPopulateScoreboard
 function calcScores( data ) {
   var scores = new Array(data.players.length).fill(0)
   var res = null
+  var bonus = null
   
   for (var i = 0; i < data.games.length; i++) {
     res = data.games[i].result
+    bonus = data.games[i].bonus
 
     if (res == null) {
       continue
@@ -15,7 +17,7 @@ function calcScores( data ) {
 
     for (var j = 0; j < data.players.length; j++) {
       if (data.players[j].picks[i] == res) {
-	scores[j]++
+	scores[j] += 1 + bonus
       }
     }
   }
@@ -103,6 +105,11 @@ function populateScoreboardInner(data) {
     // name of bowl
     var span_bowl = document.createElement("span")
     span_bowl.innerHTML = game.name
+
+    if (game.bonus > 0) {
+      span_bowl.innerHTML += " [+" + game.bonus + "]"
+    }
+
     span_bowl.setAttribute("class", "bowl-span")
     cell.appendChild(span_bowl)
     cell.innerHTML += "<BR>"
