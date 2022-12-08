@@ -7,7 +7,8 @@ function calcScores( data ) {
   var res = null
   var bonus = null
   
-  for (var i = 0; i < data.games.length; i++) {
+  // all but finals
+  for (var i = 0; i < data.games.length - 1; i++) {
     res = data.games[i].result
     bonus = data.games[i].bonus
 
@@ -18,6 +19,27 @@ function calcScores( data ) {
     for (var j = 0; j < data.players.length; j++) {
       if (data.players[j].picks[i] == res) {
 	scores[j] += 1 + bonus
+      }
+    }
+  }
+
+  // handle final
+  var ind_semi1 = data.games.length - 3
+  var ind_semi2 = data.games.length - 2
+  var ind_final = data.games.length - 1
+
+  res_semi1 = data.games[ind_semi1].result
+  res_semi2 = data.games[ind_semi2].result
+  res_final = data.games[ind_final].result
+  bonus = data.games[ind_final].bonus
+
+  if (res_final != null) {
+    for (var j = 0; j < data.players.length; j++) {
+      if (data.players[j].picks[ind_final] == res_final) {
+	// also must pick the semi correctly
+        if ((res_final == 0 && data.players[j].picks[ind_semi1] == res_semi1) || (res_final == 1 && data.players[j].picks[ind_semi2] == res_semi2)) {
+	  scores[j] += 1 + bonus
+	}
       }
     }
   }
@@ -146,6 +168,7 @@ function populateScoreboardInner(data) {
       player = data.players[j]
       cell = document.createElement("td")
 
+      // text in cell
       if (player.picks[i] == null) {
 	cell.innerHTML = "?"
       }
@@ -153,13 +176,29 @@ function populateScoreboardInner(data) {
 	cell.innerHTML = game.teams_short[player.picks[i]]
       }
       
+      // has game been played?
       if (game.result != null) {
-	if (game.result == player.picks[i]) {
+
+      // style of cell
+      if (game.result == player.picks[i]) {
+	cell.setAttribute("class", "win-cell")
+      } 
+      else {
+	cell.setAttribute("class", "loss-cell")
+      }
+
+      // special case for final
+      if (i == data.games.length - 1) {
+	var semiInd = i - 2 + player.picks[i]
+	cell.innerHTML = data.games[semiInd].teams_short[player.picks[semiInd]]
+
+	if (game.result == player.picks[i] && data.games[semiInd].result == player.picks[semiInd]) {
 	  cell.setAttribute("class", "win-cell")
-	} 
+	}
 	else {
 	  cell.setAttribute("class", "loss-cell")
 	}
+      }
       }
       row.appendChild(cell)
     }
