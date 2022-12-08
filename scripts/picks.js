@@ -107,7 +107,19 @@ function populateForm(year){
 	cell.appendChild(span_bowl)
 	cell.innerHTML += "<BR>"
 	// teams in bowl
-	cell.innerHTML += game.teams[0] + " vs " + game.teams[1]
+	var span_team0 = document.createElement("span")
+	var span_team1 = document.createElement("span")
+	span_team0.innerHTML = game.teams[0]
+	span_team1.innerHTML = game.teams[1]
+
+	if (i == games.length - 1) {
+	  span_team0.innerHTML = "?"
+	  span_team1.innerHTML = "?"
+	}
+
+	cell.appendChild(span_team0)
+	cell.innerHTML += " vs "
+	cell.appendChild(span_team1)
 	cell.innerHTML += "<BR>"
 	
 	// date of bowl
@@ -120,33 +132,48 @@ function populateForm(year){
 
 	// pick options, with logic for CFP
 	cell = document.createElement("td")
-	var shortname = "?"
+	var shortname = game.teams_short[0]
+	
 	if (i == games.length - 1) {
-	  shortname = "?"}
-	  /*if (table.children[-2].children[1].children[0].value == 1) {
-	    shortname = games[i - 2].teams_short[0]
-	  }
-	  else if (table.children[-2].children[2].children[0].value == 1) {
-	    shortname = games[i - 2].teams_short[1]
-	  cell.setAttribute("id", "finalCell1")
-	}*/
-	else {
-	  shortname = game.teams_short[0]
+	  shortname = "?"
 	}
-	cell.innerHTML = shortname + "<BR>"
+
+	var nameSpan = document.createElement("span")
+	nameSpan.innerHTML = shortname
+	cell.appendChild(nameSpan)
+	cell.innerHTML += "<BR>"
 	var radio = document.createElement("input")
 	radio.setAttribute("type", "radio")
 	radio.setAttribute("name", "game" + i)
 	radio.setAttribute("value", 0)
+
+	if (i == games.length - 2 || i == games.length - 3) {
+	  radio.addEventListener("change", updateBracket)
+	}
+	
 	cell.appendChild(radio)
 	row.appendChild(cell)
 
 	cell = document.createElement("td")
-	cell.innerHTML = game.teams_short[1] + "<BR>"
-	var radio = document.createElement("input")
+	shortname = game.teams_short[1]
+
+	if (i == games.length - 1) {
+	  shortname = "?"
+	}
+
+	nameSpan = document.createElement("span")
+	nameSpan.innerHTML = shortname
+	cell.appendChild(nameSpan)
+	cell.innerHTML += "<BR>"
+	radio = document.createElement("input")
 	radio.setAttribute("type", "radio")
 	radio.setAttribute("name", "game" + i)
 	radio.setAttribute("value", 1)
+	
+	if (i == games.length - 2 || i == games.length - 3) {
+	  radio.addEventListener("change", updateBracket)
+	}
+	
 	cell.appendChild(radio)
 	row.appendChild(cell)
         
@@ -154,6 +181,45 @@ function populateForm(year){
       }
     }
   })
+}
+
+function updateBracket() {
+  var form = document.getElementById("pickform")
+  var table = document.getElementById("picktable")
+  
+  var picksemi1 = form.elements["game" + (table.children.length - 3)].value
+  var picksemi2 = form.elements["game" + (table.children.length - 2)].value
+
+  var semi1 = table.children[table.children.length - 3]
+  var semi2 = table.children[table.children.length - 2]
+  var fina = table.children[table.children.length - 1]
+
+  if (picksemi1 == "") {
+    fina.children[0].children[2].innerHTML = "?"
+    fina.children[1].children[0].innerHTML = "?"
+  }
+  else if (picksemi1 == 0) {
+    fina.children[0].children[2].innerHTML = semi1.children[0].children[2].innerHTML
+    fina.children[1].children[0].innerHTML = semi1.children[1].children[0].innerHTML
+  }
+  else if (picksemi1 == 1) {
+    fina.children[0].children[2].innerHTML = semi1.children[0].children[3].innerHTML
+    fina.children[1].children[0].innerHTML = semi1.children[2].children[0].innerHTML
+  }
+
+  
+  if (picksemi2 == "") {
+    fina.children[0].children[3].innerHTML = "?"
+    fina.children[2].children[0].innerHTML = "?"
+  }
+  else if (picksemi2 == 0) {
+    fina.children[0].children[3].innerHTML = semi2.children[0].children[2].innerHTML
+    fina.children[2].children[0].innerHTML = semi2.children[1].children[0].innerHTML
+  }
+  else if (picksemi2 == 1) {
+    fina.children[0].children[3].innerHTML = semi2.children[0].children[3].innerHTML
+    fina.children[2].children[0].innerHTML = semi2.children[2].children[0].innerHTML
+  }
 }
 
 function getHistoricalYears() {
