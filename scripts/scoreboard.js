@@ -172,33 +172,37 @@ function populateScoreboardInner(data) {
       if (player.picks[i] == null) {
 	cell.innerHTML = "?"
       }
+      
+      // special case for final
+      else if (i == data.games.length - 1) {
+	var semiInd = i - 2 + player.picks[i]
+	cell.innerHTML = data.games[semiInd].teams_short[player.picks[semiInd]]
+      }
+
       else {
 	cell.innerHTML = game.teams_short[player.picks[i]]
       }
-      
+
       // has game been played?
       if (game.result != null) {
 
-      // style of cell
-      if (game.result == player.picks[i]) {
-	cell.setAttribute("class", "win-cell")
-      } 
-      else {
-	cell.setAttribute("class", "loss-cell")
-      }
-
-      // special case for final
-      if (i == data.games.length - 1) {
-	var semiInd = i - 2 + player.picks[i]
-	cell.innerHTML = data.games[semiInd].teams_short[player.picks[semiInd]]
-
-	if (game.result == player.picks[i] && data.games[semiInd].result == player.picks[semiInd]) {
+	// style of cell
+	if (game.result == player.picks[i]) {
 	  cell.setAttribute("class", "win-cell")
-	}
-	else {
+        } 
+        else {
 	  cell.setAttribute("class", "loss-cell")
-	}
-      }
+        }
+
+        // special case for final (use semiInd from above special case)
+        if (i == data.games.length - 1) {
+	  if (game.result == player.picks[i] && data.games[semiInd].result == player.picks[semiInd]) {
+	    cell.setAttribute("class", "win-cell")
+	  }
+	  else {
+	    cell.setAttribute("class", "loss-cell")
+	  }
+        }
       }
       row.appendChild(cell)
     }
