@@ -66,6 +66,11 @@
   background-color: #96fa6e;
 }
 
+input[type="radio"] {
+  height: 20px;
+  width: 20px;
+}
+
 /* Navbar 
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
 @media (min-width: 300px) {
