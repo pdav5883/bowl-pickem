@@ -65,8 +65,14 @@ function populateScoreboard(year){
     data: {"qtype": "scoreboard", "year": year},
     crossDomain: true,
     success: function(res) {
-      var titlestr = "Scoreboard " + res.year + "-" + (parseInt(res.year) + 1)
-      document.getElementById("scoretitle").innerHTML = titlestr
+      //var titlestr = "Scoreboard " + res.year + "-" + (parseInt(res.year) + 1)
+      //document.getElementById("scoretitle").innerHTML = titlestr
+      var title = document.getElementById("scoretitle")
+      title.innerHTML = "Scoreboard "
+      var yearspan = document.createElement("span")
+      yearspan.innerHTML = res.year + "-" + (parseInt(res.year) + 1)
+      yearspan.setAttribute("class", "nowrap")
+      title.appendChild(yearspan)
       populateScoreboardInner(res.data)
     }
   })
