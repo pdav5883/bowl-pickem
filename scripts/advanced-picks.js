@@ -190,15 +190,24 @@ function populateFormAdv(year){
 	dropdown.addEventListener("change", updateCategories)
 	
 	var opt = document.createElement("option")
-	opt.innerHTML = "-"
-	opt.setAttribute("value", "")
-	dropdown.appendChild(opt)
 
-	for (var k = 1; k <=6; k++) {
-	  opt = document.createElement("option")
-	  opt.innerHTML = k
-	  opt.setAttribute("value", k)
+	// semis and final are always cat3
+	if (i >= games.length - 3) {
+	  opt.innerHTML = 3
+	  opt.setAttribute("value", 3)
 	  dropdown.appendChild(opt)
+	}
+	else {
+	  opt.innerHTML = "-"
+	  opt.setAttribute("value", "")
+	  dropdown.appendChild(opt)
+
+	  for (var k = 1; k <=6; k++) {
+	    opt = document.createElement("option")
+	    opt.innerHTML = k
+	    opt.setAttribute("value", k)
+	    dropdown.appendChild(opt)
+	  }
 	}
 
 	cell.appendChild(dropdown)
