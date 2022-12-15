@@ -65,6 +65,13 @@
 .submit-button {
   background-color: #96fa6e;
 }
+.cat-select {
+  margin-bottom: 0;
+}
+.scratch-text {
+  width: 100px;
+  margin-bottom: 0;
+}
 
 input[type="radio"] {
   height: 20px;
