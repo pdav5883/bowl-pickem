@@ -17,6 +17,9 @@
 .nowrap {
   display: inline-block; }
 
+.tight {
+  margin: 0; }
+
 
 /* Tables
 –––––––––––––––––––––––––––––––––––––––––––––––––– */

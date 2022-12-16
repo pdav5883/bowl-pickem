@@ -21,12 +21,17 @@ function submitFormAdv() {
   var pick = null
   var category = null
 
+  if (!updateCategories()) {
+    statustext.innerHTML = "Error: check categories remaining"
+    return
+  }
+
   for (var i = 0; i < numgames; i++) {
     pick = form.elements["game" + i].value
     category = form.elements["cat" + i].value
 
     if (pick == "" || category == "") {
-      statustext.innerHTML = "Error: all games must be selected"
+      statustext.innerHTML = "Error: all games must be selected with category"
       return
     }
     picks.push(pick)
@@ -224,6 +229,7 @@ function populateFormAdv(year){
         
 	table.appendChild(row)
       }
+      updateCategories()
     }
   })
 }
@@ -269,7 +275,38 @@ function updateBracket() {
 
 
 function updateCategories() {
-  return true
+  // returns true if categories have correct number of picks
+  
+  var form = document.getElementById("pickform")
+  var remlist = document.getElementById("remaininglist")
+
+  var numGames = document.getElementById("picktable").rows.length
+
+  // start remaining with the total allowed, then decrement based on picks
+  var catRemaining = Array(6).fill(Math.floor((numGames - 3) / 6))
+
+  for (var i = 0; i < (numGames - 3) % 6; i++) {
+    catRemaining[i]++
+  }
+  catRemaining[2] += 3 // the three CFP games
+
+  // count the selections
+  for (var i = 0; i < form.elements.length; i++) {
+    if (form.elements[i].className == "cat-select") {
+      var val = form.elements[i].value
+      if (val != "") {
+	catRemaining[parseInt(val) - 1]--
+      }
+    }
+  }
+
+  // populate categories remaining text
+  for (var i = 1; i < 7; i++) {
+    remlist.children[i].children[0].innerHTML = catRemaining[i - 1]
+  }
+
+  // return true if all categories remaining are zero
+  return catRemaining.every(item => item === 0)
 }
 
 function getHistoricalYears() {
