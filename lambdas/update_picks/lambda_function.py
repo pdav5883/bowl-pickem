@@ -14,6 +14,9 @@ def lambda_handler(event, context):
     
     # convert string pick indices to int
     new_picks["picks"] = [int(p) for p in new_picks["picks"]]
+
+    if "categories" in new_picks:
+        new_picks["categories"] = [int(c) for c in new_picks["categories"]]
     
     # retrieve existing data file from s3
     data_s3 = s3.get_object(Bucket=obj_bucket, Key=obj_key)
@@ -22,7 +25,10 @@ def lambda_handler(event, context):
     # print(data)
     
     # append new picks
-    data[year]["players"].append({"name": new_picks["name"], "picks": new_picks["picks"]})
+    if "categories" in new_picks:
+        data[year]["players"].append({"name": new_picks["name"], "picks": new_picks["picks"], "categories": new_picks["categories"]})
+    else:
+        data[year]["players"].append({"name": new_picks["name"], "picks": new_picks["picks"]})
     
     # upload new data to s3
     response = s3.put_object(Body=bytes(json.dumps(data, indent=2).encode('UTF-8')), Bucket=obj_bucket, Key=obj_key)
