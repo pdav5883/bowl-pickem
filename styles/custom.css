@@ -81,6 +81,26 @@ input[type="radio"] {
   width: 20px;
 }
 
+.leader-table td {
+  font-size: 125%;
+  padding-top: 2px;
+  padding-bottom: 2px
+}
+
+.leader-header {
+  font-size: 125%; 
+}
+
+.num-cell {
+  text-align: center;
+  font-weight: bold;
+}
+
+super {
+  font-size: 75%;
+  vertical-align: super;
+}
+
 /* Navbar 
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
 @media (min-width: 300px) {
@@ -131,7 +151,7 @@ input[type="radio"] {
 
   /* Popover */
   .popover.open {
-    display: block;
+ display   display: block;
   }
   .popover {
     display: none;
