@@ -215,6 +215,18 @@ function populateScoreboardInner(data) {
     }
     table.appendChild(row)
   }
+
+  // final pass to add spaced header rows
+  var arr = []
+  for (var i = 8; i < table.children.length; i += 6) {
+    arr.push(table.children[i])
+  }
+
+  var namerow = table.children[0]
+
+  for (var i = 0; i < arr.length; i++) {
+    table.insertBefore(namerow.cloneNode(true), arr[i])
+  }
 }
 
 
