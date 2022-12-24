@@ -24,7 +24,7 @@ def lambda_handler(event, context):
 
     print("Query type {}".format(qtype))
 
-    if qtype not in ("scoreboard", "games", "years"):
+    if qtype not in ("scoreboard", "advanced-scoreboard", "games", "years"):
         print("Error: {} is not a valid qtype".format(qtype))
         raise Exception("Invalid qtype {}".format(qtype))
 
@@ -34,6 +34,9 @@ def lambda_handler(event, context):
     if qtype == "scoreboard":
         year = event["queryStringParameters"]["year"]
         return handle_scoreboard(data, year)
+    elif qtype == "advanced-scoreboard":
+        year = event["queryStringParameters"]["year"]
+        return handle_advanced_scoreboard(data, year)
     elif qtype == "games":
         year = event["queryStringParameters"]["year"]
         return handle_games(data, year)
@@ -65,6 +68,22 @@ def handle_scoreboard(data, year):
             player["picks"] = [None] * len(player["picks"])
 
     return {"year": str(year), "data": yeardata}
+
+
+def handle_advanced_scoreboard(data, year):
+    """
+    Return the data dict for year, but only with players who have "categories" field
+    """
+    return_dict = handle_scoreboard(data, year)
+
+    adv_players = []
+
+    for player in return_dict["data"]["players"]:
+        if "categories" in player:
+            adv_players.append(player)
+
+    return_dict["data"]["players"] = adv_players
+    return return_dict
 
 
 def handle_games(data, year):

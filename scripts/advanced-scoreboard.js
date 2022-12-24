@@ -1,8 +1,8 @@
 let api_url = "https://nstpyzzfae.execute-api.us-east-1.amazonaws.com/pickem"
 
-window.onload = initPopulateScoreboard
+window.onload = initPopulateScoreboardAdv
 
-function calcScores( data ) {
+function calcScoresAdv( data ) {
   var scores = new Array(data.players.length).fill(0)
   var res = null
   var bonus = null
@@ -18,7 +18,7 @@ function calcScores( data ) {
 
     for (var j = 0; j < data.players.length; j++) {
       if (data.players[j].picks[i] == res) {
-	scores[j] += 1 + bonus
+	scores[j] += data.players[j].categories[i] + bonus
       }
     }
   }
@@ -46,46 +46,43 @@ function calcScores( data ) {
   return scores
 }
 
-function initPopulateScoreboard() {
-  populateScoreboard(0)
+function initPopulateScoreboardAdv() {
+  populateScoreboardAdv(0)
   getHistoricalYears()
 }
 
 function changeYear() {
   var year = document.getElementById("yearsel").value
-  populateScoreboard(year)
+  populateScoreboardAdv(year)
   scroll(0, 0)
 }
 
-function populateScoreboard(year){
+function populateScoreboardAdv(year){
   // need to use this form rather than $.getJSON in order to disable caching of data.json
   $.ajax({
     method: "GET",
     url: api_url,
-    data: {"qtype": "scoreboard", "year": year},
+    data: {"qtype": "advanced-scoreboard", "year": year},
     crossDomain: true,
     success: function(res) {
-      //var titlestr = "Scoreboard " + res.year + "-" + (parseInt(res.year) + 1)
-      //document.getElementById("scoretitle").innerHTML = titlestr
       var title = document.getElementById("scoretitle")
-      title.innerHTML = "Scoreboard "
+      title.innerHTML = "Advanced Scoreboard "
       var yearspan = document.createElement("span")
       yearspan.innerHTML = res.year + "-" + (parseInt(res.year) + 1)
       yearspan.setAttribute("class", "nowrap")
       title.appendChild(yearspan)
-      populateScoreboardInner(res.data)
-      populateLeaderboardInner(res.data)
+      populateScoreboardInnerAdv(res.data)
     }
   })
 }
 
-function populateScoreboardInner(data) {
+function populateScoreboardInnerAdv(data) {
   // header row with player names
   // for each game
   //   write game name (mark with completed)
   //   for each player
   //     write pick (mark with winner loser)
-  var scores = calcScores(data)
+  var scores = calcScoresAdv(data)
   var table = document.getElementById("scoretable")
   
   // clear the table
@@ -108,12 +105,8 @@ function populateScoreboardInner(data) {
   // score row
   row = document.createElement("tr")
   cell = document.createElement("td")
+  cell.innerHTML = "Total Points"
   cell.setAttribute("class", "score-cell")
-  var advlink = document.createElement("a")
-  advlink.setAttribute("class", "invisi-link")
-  advlink.setAttribute("href", "/advanced-scoreboard.html")
-  advlink.innerHTML = "Total Points"
-  cell.appendChild(advlink)
   row.appendChild(cell)
 
   for (var j = 0; j < data.players.length; j++) {
@@ -188,10 +181,12 @@ function populateScoreboardInner(data) {
       else if (i == data.games.length - 1) {
 	var semiInd = i - 2 + player.picks[i]
 	cell.innerHTML = data.games[semiInd].teams_short[player.picks[semiInd]]
+	cell.innerHTML += " - " + player.categories[semiInd]
       }
 
       else {
 	cell.innerHTML = game.teams_short[player.picks[i]]
+	cell.innerHTML += " - " + player.categories[i]
       }
 
       // has game been played?
@@ -219,94 +214,6 @@ function populateScoreboardInner(data) {
     }
     table.appendChild(row)
   }
-
-  // final pass to add spaced header rows
-  var arr = []
-  for (var i = 8; i < table.children.length; i += 6) {
-    arr.push(table.children[i])
-  }
-
-  var namerow = table.children[0]
-
-  for (var i = 0; i < arr.length; i++) {
-    table.insertBefore(namerow.cloneNode(true), arr[i])
-  }
-}
-
-
-function populateLeaderboardInner(data) {
-  
-  var scores = calcScores(data)
-
-  var leaders = []
-  for (var i = 0; i < data.players.length; i++) {
-    leaders.push({"name": data.players[i].name, "score": scores[i]})
-  }
-
-  // sort names by descending score
-  leaders.sort(function(a, b) {
-    return ((a.score >= b.score) ? -1 : 1)})
-
-  var table = document.getElementById("leadertable")
-
-  // clear the table
-  table.innerHTML = ""
-  
-  // header row with player names
-  var row = document.createElement("tr")
-  var cell = document.createElement("th")
-  var sup = null
-  cell.setAttribute("class", "leader-header")
-  cell.innerHTML = "Rank"
-  row.appendChild(cell)
-  cell = document.createElement("th")
-  cell.setAttribute("class", "leader-header")
-  cell.innerHTML = "Name"
-  row.appendChild(cell)
-  cell = document.createElement("th")
-  cell.setAttribute("class", "leader-header")
-  cell.innerHTML = "Score"
-  row.appendChild(cell)
-
-  table.appendChild(row)
-
-  // row for each player, in order
-  var lastRank = -1
-  var lastScore = -1
-  var rank = null
-
-  for (var i = 0; i < leaders.length; i++) {
-    if (leaders[i].score != lastScore) {
-      rank = i + 1
-      lastRank = rank
-    }
-    else {
-      rank = lastRank
-      //rank = "T-" + lastRank
-    }
-
-    row = document.createElement("tr")
-    cell = document.createElement("td")
-    cell.setAttribute("class", "num-cell")
-    cell.innerHTML = rank
-    sup = document.createElement("super")
-    sup.innerHTML = ordinalSuper(rank)
-    cell.appendChild(sup)
-    row.appendChild(cell)
-
-    cell = document.createElement("td")
-    cell.innerHTML = leaders[i].name
-    row.appendChild(cell)
-
-    cell = document.createElement("td")
-    cell.setAttribute("class", "num-cell")
-    cell.innerHTML = leaders[i].score
-    row.appendChild(cell)
-
-    table.appendChild(row)
-
-    lastScore = leaders[i].score
-  }
 }
 
 
@@ -332,15 +239,3 @@ function getHistoricalYears() {
   })
 }
 
-
-function ordinalSuper(num) {
-  if (num == 1) {
-    return "st" }
-  else if (num == 2) {
-    return "nd" }
-  else if (num == 3) {
-    return "rd" }
-  else {
-    return "th"
-  }
-}

@@ -20,6 +20,10 @@
 .tight {
   margin: 0; }
 
+.invisi-link {
+  color: inherit;
+  text-decoration: inherit; }
+
 
 /* Tables
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
