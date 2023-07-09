@@ -155,7 +155,7 @@ super {
 
   /* Popover */
   .popover.open {
- display   display: block;
+    display: block;
   }
   .popover {
     display: none;
