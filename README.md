@@ -2,43 +2,65 @@
 This repo contains the client side code and python lambda code for a College Football bowl picking web application. Currently the site is set up as a static site hosted in AWS S3, with a set of JSON data files containing picks and results. Whenever new picks are made a lambda call updates and republishes the data file. This eventually should turn into an actual database. 
 
 ## TODO
+- Auto deploy for lambdas
+- Multipe games
+	- year folder in S3
+	- one file for results
+	- one file for each game
+	- Frontend
+		- Dropdown for year on picks and scoreboard
+		- Dropdown for game on picks and scoreboard
 - Allow multiple games
 	- Scoreboard looks for localStorage game ID
 	- Picks looks for query arg
 	- Both have selectors to switch games and years
-- Allow game creation
-- Site interface 
-- Separate score and picks into separate files
+- Functional
+	- Option to lock scoreboard
+	- Lambda error handling
+	- Validate number of each category in advanced picker
+	- Add point spread to advanced
+- Cosmetic
+	- BLR about 
+	- Show points remaining
+	- Store game ID in localstorage for next time
+	- Looks for query arg on picks page
+	- Option to copy picks to another game
+- New game page
+- Score edit page
 
 ## Future Work
-- Lock scoreboard for no more picks (flag is in data.json, but no implemented)
-- Show points remaining
-- Auto deploy for lambdas
-- Error handling in lambdas to send error messages back in response rather than just "internal server error"
-- Fix CORS policy in API
 - Move data to DB
-- Current advanced picking method relies on client validation of number of each category, this should also happen on server side
+- Edit/view picks after made
 
-## data.json format
+## year/results.json format
 ```
 {
-  year: {
-    games: [{
-      name
-      teams: [a, b]
-      teams_short: [a, b]
-      date: [m, d, y]
-      bonus: 0-n
-      result: 0/1
-      score: [x, y]
-    },...]
-    players: [{
-      name
-      advanced: true/false
-      picks: [0/1,....]
-      category: [1-6,...] (optional)
-      spread: [0-n,...] (later)
-    },...]
+  "year": year,
+  "games": [{
+    "name": bowlname,
+    "teams": [a, b],
+    "teams_short": [a, b],
+    "date": [m, d, y],
+    "bonus": 0-n,
+    "result": 0/1,
+    "score": [x, y]
+  },...]
+}
+```
+### year/game-id.json format
+```
+{
+  "year": year,
+  "id": game-id,
+  "type": advanced/basic
+  "long_name": full name with spaces, 
+  "players": [{
+    "name": name,
+    "picks": [0/1,....]
+    "category": [1-6,...] (optional)
+    "spread": [0-n,...] (optional)
+  },...]
+}
 
 ```
 
@@ -47,8 +69,6 @@ This repo contains the client side code and python lambda code for a College Foo
 Test with `python -m http.server`
 
 S3 bucket: `bowl-pickem-public`
-
-Static site endpoint: http://bowl-pickem-public.s3-website-us-east-1.amazonaws.com/
 
 To update website code run `bash sync_code.sh` within directory
 
