@@ -53,7 +53,10 @@ This repo contains the client side code and python lambda code for a College Foo
   "year": year,
   "id": game-id,
   "type": advanced/basic
-  "long_name": full name with spaces, 
+  "long_name": full name with spaces,
+  "show_results": true/false,
+  "show_picks": true/false,
+  "lock_picks": true/false,
   "players": [{
     "name": name,
     "picks": [0/1,....]
