@@ -26,7 +26,7 @@ def lambda_handler(event, context):
 
     print("Query type {}".format(qtype))
 
-    if qtype not in ("scoreboard", "advanced-scoreboard", "games", "years"):
+    if qtype not in ("scoreboard", "bowls", "games", "years"):
         msg = f"Error: {qtype} is not a valid qtype"
         print(msg)
         return {"statusCode": 400,
@@ -46,63 +46,66 @@ def lambda_handler(event, context):
         return handle_years()
 
 
-def handle_scoreboard(data, year):
+def handle_scoreboard(year, gid):
     """
     Return the full data dict for year
     """
-    if year in data:
-        yeardata =  data[year]
-    elif year == "0":
-        max_year = str(max([int(yr) for yr in data.keys()]))
-        yeardata = data[max_year]
-        year = max_year
-    else:
-        print("ERROR: year {} is not contained in scoreboard dict".format(year))
-        raise Exception("Invalid year {}".format(year))
 
-    # filter based on data.json flags for year
-    if not yeardata["show_results"]:
-        for game in yeardata["games"]:
-            game["result"] = None
-            game["score"] = []
-    if not yeardata["show_picks"]:
-        for player in yeardata["players"]:
+    game_key = year + "/" + gid + ".json"
+    game_s3 = s3.get_object(Bucket=obj_bucket, Key=obj_key)
+
+    # if not game_s3:
+    #   return {"statusCode": 400, "body": f"Year/Game {year}/{gid} not found"}
+    
+    game = json.loads(game_s3["Body"].read().decode("UTF-8"))
+    
+    bowls_key = year + "/results.json"
+    bowls_s3 = s3.get_object(Bucket=obj_bucket, Key=obj_key)
+    bowls = json.loads(bowl_s3["Body"].read().decode("UTF-8"))
+
+    game["bowls"] = bowls["bowls"]
+
+    # filter based on game flags
+    if not game["show_results"]:
+        for bowl in game["bowls"]:
+            bowl["result"] = None
+            bowl["score"] = []
+    if not game["show_picks"]:
+        for player in game["players"]:
             player["picks"] = [None] * len(player["picks"])
 
-    return {"year": str(year), "data": yeardata}
+    return {"year": str(year), "data": game}
 
 
-def handle_advanced_scoreboard(data, year):
+#def handle_advanced_scoreboard(data, year):
+#    """
+#    Return the data dict for year, but only with players who have "categories" field
+#    """
+#    return_dict = handle_scoreboard(data, year)
+#
+#    adv_players = []
+#
+#    for player in return_dict["data"]["players"]:
+#        if "categories" in player:
+#            adv_players.append(player)
+#
+#    return_dict["data"]["players"] = adv_players
+#    return return_dict
+
+
+def handle_bowls(year):
     """
-    Return the data dict for year, but only with players who have "categories" field
+    Return bowls only without picks
     """
-    return_dict = handle_scoreboard(data, year)
+    obj_key = year + "/results.json"
 
-    adv_players = []
+    bowls_s3 = s3.get_object(Bucket=obj_bucket, Key=obj_key)
 
-    for player in return_dict["data"]["players"]:
-        if "categories" in player:
-            adv_players.append(player)
+    # if not bowls_s3:
+    #   return {"statusCode": 400, "body": f"Year {year} not found"}
+    bowls = json.loads(bowls_s3["Body"].read().decode("UTF-8"))
 
-    return_dict["data"]["players"] = adv_players
-    return return_dict
-
-
-def handle_bowls(data, year):
-    """
-    Return games only without picks
-    """
-    if year in data:
-        yeardata = data[year]["games"]
-    elif year == "0":
-        max_year = str(max([int(yr) for yr in data.keys()]))
-        yeardata = data[max_year]["games"]
-        year = max_year
-    else:
-        print("ERROR: year {} is not contained in scoreboard dict".format(year))
-        raise Exception("Invalid year {}".format(year))
-
-    return {"year": str(year), "data": yeardata}
+    return bowls["bowls"]
 
 
 def handle_games(year):
@@ -121,9 +124,10 @@ def handle_games(year):
         game_s3 = s3.get_object(Bucket=obj_bucket, Key=obj_key)
         game = json.loads(game_s3["Body"].read().decode("UTF-8"))
         players = [p["name"] for p in game["players"]]
+        gtype = game["type"]
         locked = game["lock_picks"]
 
-        res[gid] = {"players": players, "locked": locked}
+        res[gid] = {"players": players, "type": gtype, "locked": locked}
 
     return res
 

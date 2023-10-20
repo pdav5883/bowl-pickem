@@ -35,7 +35,7 @@ This repo contains the client side code and python lambda code for a College Foo
 ```
 {
   "year": year,
-  "games": [{
+  "bowls": [{
     "name": bowlname,
     "teams": [a, b],
     "teams_short": [a, b],
