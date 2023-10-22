@@ -36,9 +36,14 @@
     <table id="scoretable" class="score-table">
     </table>
     <div class="row">
-      <div class="three columns">
-        <label for="yearsel">Historical Scoreboards</label>
-        <select id="yearsel" onchange="changeYear()">
+      <div class="two columns">
+        <label for="yearsel">Year</label>
+        <select id="yearsel" onchange="populateGames()">
+        </select>
+      </div>
+      <div class="two columns">
+        <label for="gamesel">Game ID</label>
+        <select id="gamesel" onchange="changeGame()">
         </select>
       </div>
     </div>

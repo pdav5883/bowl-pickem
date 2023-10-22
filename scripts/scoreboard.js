@@ -1,6 +1,6 @@
 let api_url = "https://nstpyzzfae.execute-api.us-east-1.amazonaws.com/pickem"
 
-window.onload = initPopulateScoreboard
+window.onload = initScoreboardPage
 
 function calcScores( data ) {
   var scores = new Array(data.players.length).fill(0)
@@ -45,6 +45,77 @@ function calcScores( data ) {
   }
   return scores
 }
+
+
+function initScoreboardPage() {
+  // check for args to set year/gameid
+  // TODO
+  
+  // check for localStorage to set year/gameid
+  // TODO
+
+  // if we have year/gameid show edit button, hide selects
+  // TODO
+  
+  // populate scoreboard
+  // TODO
+
+  // if we don't have year/gameid hide edit button, show selects
+  // TODO
+
+  // populate select with years
+  populateYears(true) // also populates games
+}
+
+
+function populateYears(defaultLatest) {
+  $.ajax({
+    method: "GET",
+    url: api_url,
+    data: {"qtype": "years"},
+    crossDomain: true,
+    success: function(res) {
+      var yr
+
+      for (var i = 0; i < res.length; i++) {
+	yr = document.createElement("option")
+	yr.value = res[i]
+	yr.innerHTML = res[i]
+	$("#yearsel").append(yr)
+      }
+
+      // set to latest year
+      // changeGame() will call here on .change()
+      if (defaultLatest) {
+	$("#yearsel").val(yr.value).change()
+      }
+    }
+  })
+}
+
+
+function populateGames() {
+  // need to clear options, or list will always grow
+  $("#gamesel").empty()
+
+  $.ajax({
+    method: "GET",
+    url: api_url,
+    data: {"qtype": "games", "year": $("#yearsel").val()},
+    crossDomain: true,
+    success: function(res) {
+      let game
+
+      Object.keys(res).forEach(gid => {
+	game = document.createElement("option")
+	game.value = gid
+	game.textContent = gid
+	$("#gamesel").append(game)
+      })
+    }
+  })
+}
+
 
 function initPopulateScoreboard() {
   populateScoreboard(0)
