@@ -74,7 +74,7 @@ def handle_scoreboard(year, gid):
         for player in game["players"]:
             player["picks"] = [None] * len(player["picks"])
 
-    return {"year": str(year), "data": game}
+    return game 
 
 
 #def handle_advanced_scoreboard(data, year):
