@@ -3,8 +3,8 @@ let api_url = "https://nstpyzzfae.execute-api.us-east-1.amazonaws.com/pickem"
 
 // window.onload = initScoreboardPage
 $(document).ready(function() {
-  $("#yearsel").on("change", populateGames)
-  $("#gamesel").on("change", changeGame)
+  $("#yearsel").on("change", populateGameList)
+  $("#gobutton").on("click", changeGame)
   initScoreboardPage()
 })
 
@@ -36,27 +36,27 @@ function populateYears(defaultLatest) {
     url: api_url,
     data: {"qtype": "years"},
     crossDomain: true,
-    success: function(res) {
-      let year
+    success: function(years) {
+      let yearOpt
 
-      res.forEach(yr => {
-	year = document.createElement("option")
-	year.value = yr
-	yr.textContent = yr
-	$("#yearsel").append(year)
+      years.forEach((year) => {
+	yearOpt = document.createElement("option")
+	yearOpt.value = year
+	yearOpt.textContent = year
+	$("#yearsel").append(yearOpt)
       })
 
       // set to latest year
       // changeGame() will call here on .change()
       if (defaultLatest) {
-	$("#yearsel").val(yr.value).change()
+	$("#yearsel").val(yearOpt.value).change()
       }
     }
   })
 }
 
 
-function populateGames() {
+function populateGameList() {
   // need to clear options, or list will always grow
   $("#gamesel").empty()
 
@@ -71,7 +71,7 @@ function populateGames() {
       Object.keys(res).forEach(gid => {
 	game = document.createElement("option")
 	game.value = gid
-	game.textContent = gid
+	game.textContent = gid.replace("-", " ")
 	$("#gamesel").append(game)
       })
     }
@@ -103,20 +103,18 @@ function populateGame(args){
     method: "GET",
     url: api_url,
     data: {"qtype": "scoreboard",
-           "year":year),
+           "year":year,
            "gid": gid},
     crossDomain: true,
     success: function(game) {
       let title = document.getElementById("scoretitle")
-      title.textContent = "Scoreboard "
+      title.textContent = gid.replace("-", " ") + " "
       
       let yearspan = document.createElement("span")
       yearspan.textContent = year + "-" + (parseInt(year) + 1)
       yearspan.setAttribute("class", "nowrap")
       title.appendChild(yearspan)
 
-      // TODO correctly add gid
-      title.textContent += " " + gid
       populateScoreboard(game)
       populateLeaderboard(game)
     }
@@ -199,12 +197,12 @@ function populateScoreboard(game) {
     }
 	
     cell.appendChild(spanTeam0)
-    cell.textContent += " vs "
+    cell.innerHTML += " vs "
     cell.appendChild(spanTeam1)
     cell.innerHTML += "<BR>"
 	
     // date of bowl
-    var spanDate = document.createElement("span")
+    let spanDate = document.createElement("span")
     spanDate.textContent = bowl.date[0].toString() + "/" + bowl.date[1].toString() + "/" + bowl.date[2].toString()
     spanDate.setAttribute("class", "date-span")
     cell.appendChild(spanDate)
@@ -214,6 +212,7 @@ function populateScoreboard(game) {
     // each players pick for game
     game.players.forEach(player => {
       cell = document.createElement("td")
+      let semiInd
 
       // text in cell
       if (player.picks[i] == null) {
@@ -222,7 +221,7 @@ function populateScoreboard(game) {
       
       // special case for final
       else if (i == game.bowls.length - 1) {
-	let semiInd = i - 2 + player.picks[i]
+	semiInd = i - 2 + player.picks[i]
 	cell.textContent = game.bowls[semiInd].teams_short[player.picks[semiInd]]
       }
 
@@ -252,140 +251,141 @@ function populateScoreboard(game) {
         }
       }
       row.appendChild(cell)
-    }
+    })
     table.appendChild(row)
-  }
+  })
 
   // final pass to add spaced header rows
-  var arr = []
-  for (var i = 8; i < table.children.length; i += 6) {
-    arr.push(table.children[i])
+  let breakRows = []
+  let i = 0
+  for (i = 8; i < table.children.length; i += 6) {
+    breakRows.push(table.children[i])
   }
 
-  var namerow = table.children[0]
+  let nameRow = table.children[0]
 
-  for (var i = 0; i < arr.length; i++) {
-    table.insertBefore(namerow.cloneNode(true), arr[i])
-  }
+  breakRows.forEach((br) => {
+    table.insertBefore(nameRow.cloneNode(true), br)
+  })
 }
 
 
-function populateLeaderboardInner(data) {
+function populateLeaderboard(game) {
   
-  var scores = calcScores(data)
+  let scores = calcScores(game)
 
-  var leaders = []
-  for (var i = 0; i < data.players.length; i++) {
-    leaders.push({"name": data.players[i].name, "score": scores[i]})
-  }
+  let leaders = []
+  game.players.forEach((player, i) => {
+    leaders.push({"name": player.name, "score": scores[i]})
+  })
 
   // sort names by descending score
-  leaders.sort(function(a, b) {
-    return ((a.score >= b.score) ? -1 : 1)})
+  leaders.sort((a, b) => ((a.score >= b.score) ? -1 : 1))
+    //return ((a.score >= b.score) ? -1 : 1)})
 
-  var table = document.getElementById("leadertable")
+  let table = document.getElementById("leadertable")
 
   // clear the table
   table.innerHTML = ""
   
   // header row with player names
-  var row = document.createElement("tr")
-  var cell = document.createElement("th")
-  var sup = null
+  let row = document.createElement("tr")
+  let cell = document.createElement("th")
+  let sup = null
   cell.setAttribute("class", "leader-header")
-  cell.innerHTML = "Rank"
+  cell.textContent = "Rank"
   row.appendChild(cell)
   cell = document.createElement("th")
   cell.setAttribute("class", "leader-header")
-  cell.innerHTML = "Name"
+  cell.textContent = "Name"
   row.appendChild(cell)
   cell = document.createElement("th")
   cell.setAttribute("class", "leader-header")
-  cell.innerHTML = "Score"
+  cell.textContent = "Score"
   row.appendChild(cell)
 
   table.appendChild(row)
 
   // row for each player, in order
-  var lastRank = -1
-  var lastScore = -1
-  var rank = null
+  let lastRank = -1
+  let lastScore = -1
+  let rank = null
 
-  for (var i = 0; i < leaders.length; i++) {
-    if (leaders[i].score != lastScore) {
+  leaders.forEach((leader, i) => {
+    if (leader.score != lastScore) {
       rank = i + 1
       lastRank = rank
     }
     else {
       rank = lastRank
-      //rank = "T-" + lastRank
     }
 
     row = document.createElement("tr")
     cell = document.createElement("td")
     cell.setAttribute("class", "num-cell")
-    cell.innerHTML = rank
+    cell.textContent = rank
     sup = document.createElement("super")
-    sup.innerHTML = ordinalSuper(rank)
+    sup.textContent = ordinalSuper(rank)
     cell.appendChild(sup)
     row.appendChild(cell)
 
     cell = document.createElement("td")
-    cell.innerHTML = leaders[i].name
+    cell.textContent = leader.name
     row.appendChild(cell)
 
     cell = document.createElement("td")
     cell.setAttribute("class", "num-cell")
-    cell.innerHTML = leaders[i].score
+    cell.textContent = leader.score
     row.appendChild(cell)
 
     table.appendChild(row)
 
-    lastScore = leaders[i].score
-  }
+    lastScore = leader.score
+  })
 }
 
 
-function calcScores( data ) {
-  let scores = new Array(data.players.length).fill(0)
+function calcScores(game) {
+  let scores = new Array(game.players.length).fill(0)
   let res = null
   let bonus = null
   
   // all but finals
-  for (var i = 0; i < data.games.length - 1; i++) {
-    res = data.games[i].result
-    bonus = data.games[i].bonus
+  let i = 0
+  for (i = 0; i < game.bowls.length - 1; i++) {
+    res = game.bowls[i].result
+    bonus = game.bowls[i].bonus
 
-    if (res == null) {
+    if (res === null) {
       continue
     }
 
-    for (var j = 0; j < data.players.length; j++) {
-      if (data.players[j].picks[i] == res) {
+    game.players.forEach((player, j) => {
+      if (player.picks[i] == res) {
 	scores[j] += 1 + bonus
       }
-    }
+    })
   }
 
   // handle final
-  var ind_semi1 = data.games.length - 3
-  var ind_semi2 = data.games.length - 2
-  var ind_final = data.games.length - 1
+  let indSemi1 = game.bowls.length - 3
+  let indSemi2 = game.bowls.length - 2
+  let indFinal = game.bowls.length - 1
 
-  res_semi1 = data.games[ind_semi1].result
-  res_semi2 = data.games[ind_semi2].result
-  res_final = data.games[ind_final].result
-  bonus = data.games[ind_final].bonus
+  resSemi1 = game.bowls[indSemi1].result
+  resSemi2 = game.bowls[indSemi2].result
+  resFinal = game.bowls[indFinal].result
+  bonus = game.bowls[indFinal].bonus
 
-  if (res_final != null) {
-    for (var j = 0; j < data.players.length; j++) {
-      if (data.players[j].picks[ind_final] == res_final) {
+  if (resFinal !== null) {
+    game.players.forEach((player, j) => {
+      if (player.picks[indFinal] == resFinal) {
 	// also must pick the semi correctly
-        if ((res_final == 0 && data.players[j].picks[ind_semi1] == res_semi1) || (res_final == 1 && data.players[j].picks[ind_semi2] == res_semi2)) {
+        if ((resFinal == 0 && player.picks[indSemi1] == resSemi1) || (resFinal == 1 && player.picks[indSemi2] == resSemi2)) {
 	  scores[j] += 1 + bonus
 	}
       }
-    }
+    })
   }
   return scores
 }

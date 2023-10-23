@@ -52,7 +52,7 @@ def handle_scoreboard(year, gid):
     """
 
     game_key = year + "/" + gid + ".json"
-    game_s3 = s3.get_object(Bucket=obj_bucket, Key=obj_key)
+    game_s3 = s3.get_object(Bucket=obj_bucket, Key=game_key)
 
     # if not game_s3:
     #   return {"statusCode": 400, "body": f"Year/Game {year}/{gid} not found"}
@@ -60,8 +60,8 @@ def handle_scoreboard(year, gid):
     game = json.loads(game_s3["Body"].read().decode("UTF-8"))
     
     bowls_key = year + "/results.json"
-    bowls_s3 = s3.get_object(Bucket=obj_bucket, Key=obj_key)
-    bowls = json.loads(bowl_s3["Body"].read().decode("UTF-8"))
+    bowls_s3 = s3.get_object(Bucket=obj_bucket, Key=bowls_key)
+    bowls = json.loads(bowls_s3["Body"].read().decode("UTF-8"))
 
     game["bowls"] = bowls["bowls"]
 
