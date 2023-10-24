@@ -115,8 +115,8 @@ function populateGame(args){
       yearspan.setAttribute("class", "nowrap")
       title.appendChild(yearspan)
 
-      populateScoreboard(game)
-      populateLeaderboard(game)
+      let scores = populateScoreboard(game)
+      populateLeaderboard(game, scores)
     }
   })
 }
@@ -129,7 +129,9 @@ function populateScoreboard(game) {
   //   write game name (mark with completed)
   //   for each player
   //     write pick (mark with winner loser)
+  
   let scores = calcScores(game)
+  
   let table = document.getElementById("scoretable")
   
   // clear the table
@@ -223,10 +225,18 @@ function populateScoreboard(game) {
       else if (i == game.bowls.length - 1) {
 	semiInd = i - 2 + player.picks[i]
 	cell.textContent = game.bowls[semiInd].teams_short[player.picks[semiInd]]
+	
+	if (game.type == "advanced") {
+	  cell.textContent += " - " + player.categories[i]
+	}
       }
 
       else {
 	cell.textContent = bowl.teams_short[player.picks[i]]
+	
+	if (game.type == "advanced") {
+	  cell.textContent += " - " + player.categories[i]
+	}
       }
 
       // has bowl been played?
@@ -267,12 +277,16 @@ function populateScoreboard(game) {
   breakRows.forEach((br) => {
     table.insertBefore(nameRow.cloneNode(true), br)
   })
+
+  return scores
 }
 
 
-function populateLeaderboard(game) {
+function populateLeaderboard(game, scores) {
   
-  let scores = calcScores(game)
+  if (scores === undefined) {
+    scores = calcScores(game)
+  }
 
   let leaders = []
   game.players.forEach((player, i) => {
@@ -348,13 +362,21 @@ function populateLeaderboard(game) {
 function calcScores(game) {
   let scores = new Array(game.players.length).fill(0)
   let res = null
-  let bonus = null
+
+  // calculate number of points for game based on game type
+  let points = function(bowlInd, playerInd) {
+    if (game.type === "basic") {
+      return 1 + game.bowls[bowlInd].bonus
+    }
+    else if (game.type === "advanced") {
+      return game.players[playerInd].categories[bowlInd] + game.bowls[bowlInd].bonus
+    }
+  }
   
   // all but finals
-  let i = 0
+  let i
   for (i = 0; i < game.bowls.length - 1; i++) {
     res = game.bowls[i].result
-    bonus = game.bowls[i].bonus
 
     if (res === null) {
       continue
@@ -362,7 +384,7 @@ function calcScores(game) {
 
     game.players.forEach((player, j) => {
       if (player.picks[i] == res) {
-	scores[j] += 1 + bonus
+	scores[j] += points(i, j)
       }
     })
   }
@@ -375,14 +397,13 @@ function calcScores(game) {
   resSemi1 = game.bowls[indSemi1].result
   resSemi2 = game.bowls[indSemi2].result
   resFinal = game.bowls[indFinal].result
-  bonus = game.bowls[indFinal].bonus
 
   if (resFinal !== null) {
     game.players.forEach((player, j) => {
       if (player.picks[indFinal] == resFinal) {
 	// also must pick the semi correctly
         if ((resFinal == 0 && player.picks[indSemi1] == resSemi1) || (resFinal == 1 && player.picks[indSemi2] == resSemi2)) {
-	  scores[j] += 1 + bonus
+	  scores[j] += points(indFinal, j)
 	}
       }
     })
