@@ -1,32 +1,55 @@
-let api_url = "https://nstpyzzfae.execute-api.us-east-1.amazonaws.com/pickem"
+const api_url = "https://nstpyzzfae.execute-api.us-east-1.amazonaws.com/pickem"
 
 
 // window.onload = initScoreboardPage
 $(document).ready(function() {
   $("#yearsel").on("change", populateGameList)
   $("#gobutton").on("click", changeGame)
+  $("#editbutton").on("click", function() {
+    editMode()
+    populateYears(true)
+  })
   initScoreboardPage()
 })
 
 
 function initScoreboardPage() {
   // check for args to set year/gameid selects
-  // TODO
-  
+  const params = new URLSearchParams(window.location.search)
+
   // check for localStorage to set year/gameid
-  // TODO
+  if (params.has("year") && params.has("gid")) {
+    displayMode()
+    populateGame({"year": params.get("year"), "gid": params.get("gid")})
+  }
+  else if (localStorage.getItem("year") !== null && localStorage.getItem("gid") !== null) {
+    displayMode()
+    populateGame({"year": localStorage.getItem("year"), "gid": localStorage.getItem("gid")})
+  }
+  else {
+    editMode()
+    populateYears(true) // also populates games
+  }
+}
 
-  // if we have year/gameid show edit button, hide
-  // TODO
-  
-  // populate scoreboard
-  // populateGame({"year": year, "gid": gid})
 
-  // if we don't have year/gameid hide edit button, show selects
-  // TODO
+function editMode() {
+    $("#editbutton").hide()
+    $("#yearsel").show()
+    $("#gamesel").show()
+    $("#yearlab").show()
+    $("#gamelab").show()
+    $("#gobutton").show()
+}
 
-  // populate select with years
-  populateYears(true) // also populates games
+
+function displayMode() {
+    $("#editbutton").show()
+    $("#yearsel").hide()
+    $("#gamesel").hide()
+    $("#yearlab").hide()
+    $("#gamelab").hide()
+    $("#gobutton").hide()
 }
 
 
@@ -47,7 +70,7 @@ function populateYears(defaultLatest) {
       })
 
       // set to latest year
-      // changeGame() will call here on .change()
+      // populateGameList() will be called on .change()
       if (defaultLatest) {
 	$("#yearsel").val(yearOpt.value).change()
       }
@@ -80,9 +103,9 @@ function populateGameList() {
 
 
 function changeGame() {
+  // nests within function to avoid passing click argument
+  // to populateGame with jquery .on listener
   populateGame()
-
-  // TODO: save config
 }
 
 
@@ -117,6 +140,10 @@ function populateGame(args){
 
       let scores = populateScoreboard(game)
       populateLeaderboard(game, scores)
+
+      // set localStorage for next time
+      localStorage.setItem("year", year)
+      localStorage.setItem("gid", gid)
     }
   })
 }
@@ -130,9 +157,9 @@ function populateScoreboard(game) {
   //   for each player
   //     write pick (mark with winner loser)
   
-  let scores = calcScores(game)
+  const scores = calcScores(game)
   
-  let table = document.getElementById("scoretable")
+  const table = document.getElementById("scoretable")
   
   // clear the table
   table.innerHTML = ""
@@ -297,7 +324,7 @@ function populateLeaderboard(game, scores) {
   leaders.sort((a, b) => ((a.score >= b.score) ? -1 : 1))
     //return ((a.score >= b.score) ? -1 : 1)})
 
-  let table = document.getElementById("leadertable")
+  const table = document.getElementById("leadertable")
 
   // clear the table
   table.innerHTML = ""
@@ -364,7 +391,7 @@ function calcScores(game) {
   let res = null
 
   // calculate number of points for game based on game type
-  let points = function(bowlInd, playerInd) {
+  const points = function(bowlInd, playerInd) {
     if (game.type === "basic") {
       return 1 + game.bowls[bowlInd].bonus
     }
@@ -390,9 +417,9 @@ function calcScores(game) {
   }
 
   // handle final
-  let indSemi1 = game.bowls.length - 3
-  let indSemi2 = game.bowls.length - 2
-  let indFinal = game.bowls.length - 1
+  const indSemi1 = game.bowls.length - 3
+  const indSemi2 = game.bowls.length - 2
+  const indFinal = game.bowls.length - 1
 
   resSemi1 = game.bowls[indSemi1].result
   resSemi2 = game.bowls[indSemi2].result

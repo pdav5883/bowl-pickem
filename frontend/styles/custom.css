@@ -72,6 +72,11 @@
 .submit-button {
   background-color: #96fa6e;
 }
+.edit-button {
+  background-color: #ffffff;
+  padding: 0 15px;
+  font-size: 9px;
+}
 .cat-select {
   margin-bottom: 0;
 }

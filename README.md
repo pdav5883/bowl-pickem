@@ -2,9 +2,7 @@
 This repo contains the client side code and python lambda code for a College Football bowl picking web application. Currently the site is set up as a static site hosted in AWS S3, with a set of JSON data files containing picks and results. Whenever new picks are made a lambda call updates and republishes the data file. This eventually should turn into an actual database. 
 
 ## TODO
-- Allow multiple games
-	- Scoreboard looks for localStorage game ID
-	- Picks looks for query arg
+- Pick page update
 - Functional
 	- Option to lock scoreboard
 	- Lambda error handling
@@ -13,8 +11,6 @@ This repo contains the client side code and python lambda code for a College Foo
 - Cosmetic
 	- BLR about 
 	- Show points remaining
-	- Store game ID in localstorage for next time
-	- Looks for query arg on picks page
 	- Option to copy picks to another game
 - New game page
 - Score edit page
