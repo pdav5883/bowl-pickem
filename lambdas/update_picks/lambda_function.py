@@ -10,7 +10,7 @@ def lambda_handler(event, context):
     year = res["year"]
     gid = res["gid"]
     new_picks = res["data"]
-    print("Year: " + year + "; Adding: " + json.dumps(new_picks))
+    print("Year: " + year + "; Game ID: " + gid + "; Adding: " + json.dumps(new_picks))
     
     # convert string pick indices to int
     new_picks["picks"] = [int(p) for p in new_picks["picks"]]
