@@ -10,7 +10,7 @@ $(document).ready(function() {
   $("#subbutton1").on("click", submitPicks)
   $("#subbutton2").on("click", submitPicks)
   $("#gobutton").on("click", changePickOptions)
-  initSubmitPage()()
+  initSubmitPage()
 })
 
 
@@ -32,6 +32,10 @@ function initSubmitPage() {
   }
   
   else {
+    $("#nametext").hide()
+    $("#namelab").hide()
+    $("#subbutton1").hide()
+    $("#subbutton2").hide()
     populateYears(true) // also populates games
   }
 }
@@ -87,6 +91,11 @@ function populateGameList() {
 
 // need gid as arg to know if it's advanced
 function populatePickOptions(year, gid){
+  $("#nametext").show()
+  $("#namelab").show()
+  $("#subbutton1").show()
+  $("#subbutton2").show()
+  
   $.ajax({
     method: "GET",
     url: api_url,
@@ -94,7 +103,7 @@ function populatePickOptions(year, gid){
     crossDomain: true,
     success: function(game) {
       // title of page
-      let title = document.getElementById("titlestr")
+      let title = document.getElementById("picktitle")
       title.textContent = gid.replace("-", " ") + " "
       
       let yearspan = document.createElement("span")
@@ -155,7 +164,7 @@ function populatePickOptions(year, gid){
 	let shortName = bowl.teams_short[0]
 	
 	if (i == game.bowls.length - 1) {
-	  shortname = "?"
+	  shortName = "?"
 	}
 
 	let nameSpan = document.createElement("span")
@@ -198,7 +207,7 @@ function populatePickOptions(year, gid){
 	row.appendChild(cell)
         
 	table.appendChild(row)
-      }
+      })
     }
   })
 }
@@ -207,14 +216,14 @@ function populatePickOptions(year, gid){
 function updateBracket() {
   let table = document.getElementById("picktable")
   
-  let pickSemi1 = $('radio[name="bowl' + (table.children.length - 3) + '"]').val()
-  let pickSemi2 = $('radio[name="bowl' + (table.children.length - 2) + '"]').val()
+  let pickSemi1 = $('input[name="bowl' + (table.children.length - 3) + '"]:checked').val()
+  let pickSemi2 = $('input[name="bowl' + (table.children.length - 2) + '"]:checked').val()
 
   let semi1 = table.children[table.children.length - 3]
   let semi2 = table.children[table.children.length - 2]
   let fina = table.children[table.children.length - 1]
 
-  if (pickSemi1 == "") {
+  if (pickSemi1 === undefined) {
     fina.children[0].children[2].textContent = "?"
     fina.children[1].children[0].textContent = "?"
   }
@@ -228,7 +237,7 @@ function updateBracket() {
   }
 
   
-  if (pickSemi2 == "") {
+  if (pickSemi2 === undefined) {
     fina.children[0].children[3].textContent = "?"
     fina.children[2].children[0].textContent = "?"
   }
@@ -260,12 +269,11 @@ function submitPicks() {
   let numgames = table.rows.length
   let picks = []
 
-  let pickSemi1 = $('radio[name="bowl' + (table.children.length - 3) + '"]').val()
   let i
   for (i = 0; i < numgames; i++) {
-    let pick = $('radio[name="bowl' + i + '"]').val()
+    let pick = $('input[name="bowl' + i + '"]:checked').val()
 
-    if (pick == "") {
+    if (pick === undefined) {
       statustext.innerHTML = "Error: all games must be selected"
       return
     }

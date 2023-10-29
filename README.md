@@ -8,6 +8,7 @@ This repo contains the client side code and python lambda code for a College Foo
 	- Lambda error handling
 	- Validate number of each category in advanced picker
 	- Add point spread to advanced
+	- Check that right picks were submitted for game
 - Cosmetic
 	- BLR about 
 	- Show points remaining
