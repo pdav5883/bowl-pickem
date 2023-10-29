@@ -31,23 +31,31 @@
   </nav>
   <div class="top container">
     <h2 id="picktitle"></h2>
-    
-    <form id="pickform" method="post">
-      <button type="button" onClick="submitForm()" class="submit-button">Submit</button>
-      <span id="statustext"></span>
-      <BR>
-      Name: <input type="text" name="name">
-      <table id="picktable" class="score-table">
-      </table>
-      <button type="button" onClick="submitForm()" class="submit-button">Submit</button>
-    </form>
     <div class="row">
-      <div class="three columns">
-        <label for="yearsel">Historical Picks</label>
-        <select id="yearsel" onchange="changeYear()">
+      <div class="two columns">
+        <label id="yearlab" for="yearsel">Year</label>
+        <select id="yearsel">
         </select>
       </div>
+      <div class="six columns">
+        <label id="gamelab" for="gamesel">Game ID</label>
+        <select id="gamesel">
+        </select>
+        <button id="gobutton" type="button" class="submit-button">Go</button>
+      </div>
     </div>
+    <div class="row">
+      <div class="six columns">
+	<label for="nametext">Name</label>
+	<input id="nametext" type="text">
+      </div>
+      <div class="two columns">
+	<button id="subbutton1" type="button" class="submit-button">Submit</button>
+      </div>
+    </div>
+    <span id="statustext"></span>
+    <table id="picktable" class="score-table"></table>
+    <button id="subbutton2" type="button" class="submit-button">Submit</button>
   </div>
 </body>
 </html>

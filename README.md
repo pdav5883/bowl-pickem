@@ -12,6 +12,7 @@ This repo contains the client side code and python lambda code for a College Foo
 	- BLR about 
 	- Show points remaining
 	- Option to copy picks to another game
+	- Remove bowls qtype from lambda
 - New game page
 - Score edit page
 

@@ -1,153 +1,173 @@
-let api_url = "https://nstpyzzfae.execute-api.us-east-1.amazonaws.com/pickem"
-let current_year = 0
+const api_url = "https://nstpyzzfae.execute-api.us-east-1.amazonaws.com/pickem"
 
-window.onload = initPopulateForm
+// need to have keep these at global scope since year/gid
+// needed by submitPicks, even when they come in as args
+let yearArg
+let gidArg
 
-function submitForm() {
-  var statustext = document.getElementById("statustext")
-  var form = document.getElementById("pickform")
-  var table = document.getElementById("picktable")
+$(document).ready(function() {
+  $("#yearsel").on("change", populateGameList)
+  $("#subbutton1").on("click", submitPicks)
+  $("#subbutton2").on("click", submitPicks)
+  $("#gobutton").on("click", changePickOptions)
+  initSubmitPage()()
+})
 
-  var name = form.elements["name"].value
 
-  if (name == "") {
-    statustext.innerHTML = "Error: must enter a name"
-    return
+function initSubmitPage() {
+  // check for args to set year/gameid selects
+  const params = new URLSearchParams(window.location.search)
+
+  if (params.has("year") && params.has("gid")) {
+    $("#yearsel").hide()
+    $("#gamesel").hide()
+    $("#yearlab").hide()
+    $("#gamelab").hide()
+    $("#gobutton").hide()
+
+    yearArg = params.get("year")
+    gidArg = params.get("gid")
+    
+    populatePickOptions(yearArg, gidArg)
   }
-
-  var numgames = table.rows.length
-  var picks = []
-  var pick = null
-
-  for (var i = 0; i < numgames; i++) {
-    pick = form.elements["game" + i].value
-
-    if (pick == "") {
-      statustext.innerHTML = "Error: all games must be selected"
-      return
-    }
-    picks.push(pick)
+  
+  else {
+    populateYears(true) // also populates games
   }
-
-  var data = {
-    "name": name,
-    "picks": picks
-  }
-
-  $.ajax({
-    type: "POST",
-    url: api_url,
-    dataType: "json",
-    crossDomain: true,
-    contentType: "application/json; charset=utf-8",
-    data: JSON.stringify({"year": current_year, "data": data}),
-
-    success: function() {
-      statustext.innerHTML = "Success!"
-      form.reset()
-    },
-
-    error: function() {
-      statustext.innerHTML = "Error: submission issue"
-    }
-  })
-
 }
 
-function initPopulateForm() {
-  populateForm(0)
-  getHistoricalYears()
-}
 
-function changeYear() {
-  var year = document.getElementById("yearsel").value
-  populateForm(year)
-  scroll(0, 0)
-}
-
-function populateForm(year){
+function populateYears(defaultLatest) {
   $.ajax({
     method: "GET",
     url: api_url,
-    data: {"qtype": "games", "year": year},
+    data: {"qtype": "years"},
     crossDomain: true,
-    success: function( res ) {
-      // title of page
-      var titlestr = "Pick'Em " + res.year + "-" + (parseInt(res.year) + 1)
-      document.getElementById("picktitle").innerHTML = titlestr
+    success: function(years) {
+      let yearOpt
 
-      // store the year for later submission
-      current_year = res.year
+      years.forEach((year) => {
+	yearOpt = document.createElement("option")
+	yearOpt.value = year
+	yearOpt.textContent = year
+	$("#yearsel").append(yearOpt)
+      })
+
+      // set to latest year
+      // populateGameList() will be called on .change()
+      if (defaultLatest) {
+	$("#yearsel").val(yearOpt.value).change()
+      }
+    }
+  })
+}
+
+
+function populateGameList() {
+  // need to clear options, or list will always grow
+  $("#gamesel").empty()
+
+  $.ajax({
+    method: "GET",
+    url: api_url,
+    data: {"qtype": "games", "year": $("#yearsel").val()},
+    crossDomain: true,
+    success: function(res) {
+      let game
+
+      Object.keys(res).forEach(gid => {
+	game = document.createElement("option")
+	game.value = gid
+	game.textContent = gid.replace("-", " ")
+	$("#gamesel").append(game)
+      })
+    }
+  })
+}
+
+// need gid as arg to know if it's advanced
+function populatePickOptions(year, gid){
+  $.ajax({
+    method: "GET",
+    url: api_url,
+    data: {"qtype": "scoreboard", "year": year, "gid": gid},
+    crossDomain: true,
+    success: function(game) {
+      // title of page
+      let title = document.getElementById("titlestr")
+      title.textContent = gid.replace("-", " ") + " "
+      
+      let yearspan = document.createElement("span")
+      yearspan.textContent = year + "-" + (parseInt(year) + 1)
+      yearspan.setAttribute("class", "nowrap")
+      title.appendChild(yearspan)
 
       // clear the table
-      var table = document.getElementById("picktable")
+      let table = document.getElementById("picktable")
       table.innerHTML = ""
       
-      // row for each game
-      var games = res.data
-      var row = null
-      var cell = null
-      var game = null
-      
-      for (var i = 0; i < games.length; i++) {
-	game = games[i]
-	row = document.createElement("tr")
-	cell = document.createElement("th")
+      // TODO check for game locked
+      // if (game.lock_picks)
+
+      game.bowls.forEach((bowl, i) => {
+	let row = document.createElement("tr")
+	let cell = document.createElement("th")
 	cell.setAttribute("class", "bowl-cell")
 
 	// name of bowl
-	var span_bowl = document.createElement("span")
-	span_bowl.innerHTML = game.name
+	let spanBowl = document.createElement("span")
+	spanBowl.textContent = bowl.name
     	
-	if (game.bonus > 0) {
-	  span_bowl.innerHTML += " [+" + game.bonus + "]"
+	if (bowl.bonus > 0) {
+	  spanBowl.textContent += " [+" + bowl.bonus + "]"
     	}
 
-	span_bowl.setAttribute("class", "bowl-span")
-	cell.appendChild(span_bowl)
+	spanBowl.setAttribute("class", "bowl-span")
+	cell.appendChild(spanBowl)
 	cell.innerHTML += "<BR>"
-	// teams in bowl
-	var span_team0 = document.createElement("span")
-	var span_team1 = document.createElement("span")
-	span_team0.innerHTML = game.teams[0]
-	span_team1.innerHTML = game.teams[1]
 
-	if (i == games.length - 1) {
-	  span_team0.innerHTML = "?"
-	  span_team1.innerHTML = "?"
+	// teams in bowl
+	let spanTeam0 = document.createElement("span")
+	let spanTeam1 = document.createElement("span")
+	spanTeam0.textContent = bowl.teams[0]
+	spanTeam1.textContent = bowl.teams[1]
+
+	if (i == game.bowls.length - 1) {
+	  spanTeam0.textContent = "?"
+	  spanTeam1.textContent = "?"
 	}
 
-	cell.appendChild(span_team0)
+	cell.appendChild(spanTeam0)
 	cell.innerHTML += " vs "
-	cell.appendChild(span_team1)
+	cell.appendChild(spanTeam1)
 	cell.innerHTML += "<BR>"
 	
 	// date of bowl
-	var span_date = document.createElement("span")
-	span_date.innerHTML = game.date[0].toString() + "/" + game.date[1].toString() + "/" + game.date[2].toString()
-	span_date.setAttribute("class", "date-span")
-	cell.appendChild(span_date)
+	let spanDate = document.createElement("span")
+	spanDate.textContent = bowl.date[0].toString() + "/" + bowl.date[1].toString() + "/" + bowl.date[2].toString()
+	spanDate.setAttribute("class", "date-span")
+	cell.appendChild(spanDate)
 
 	row.appendChild(cell)
 
 	// pick options, with logic for CFP
 	cell = document.createElement("td")
-	var shortname = game.teams_short[0]
+	let shortName = bowl.teams_short[0]
 	
-	if (i == games.length - 1) {
+	if (i == game.bowls.length - 1) {
 	  shortname = "?"
 	}
 
-	var nameSpan = document.createElement("span")
-	nameSpan.innerHTML = shortname
+	let nameSpan = document.createElement("span")
+	nameSpan.textContent = shortName
 	cell.appendChild(nameSpan)
 	cell.innerHTML += "<BR>"
-	var radio = document.createElement("input")
+	let radio = document.createElement("input")
 	radio.setAttribute("type", "radio")
-	radio.setAttribute("name", "game" + i)
+	radio.setAttribute("name", "bowl" + i)
 	radio.setAttribute("value", 0)
 
-	if (i == games.length - 2 || i == games.length - 3) {
+	if (i == game.bowls.length - 2 || i == game.bowls.length - 3) {
 	  radio.addEventListener("change", updateBracket)
 	}
 	
@@ -155,22 +175,22 @@ function populateForm(year){
 	row.appendChild(cell)
 
 	cell = document.createElement("td")
-	shortname = game.teams_short[1]
+	shortName = bowl.teams_short[1]
 
-	if (i == games.length - 1) {
-	  shortname = "?"
+	if (i == game.bowls.length - 1) {
+	  shortName = "?"
 	}
 
 	nameSpan = document.createElement("span")
-	nameSpan.innerHTML = shortname
+	nameSpan.textContent = shortName
 	cell.appendChild(nameSpan)
 	cell.innerHTML += "<BR>"
 	radio = document.createElement("input")
 	radio.setAttribute("type", "radio")
-	radio.setAttribute("name", "game" + i)
+	radio.setAttribute("name", "bowl" + i)
 	radio.setAttribute("value", 1)
 	
-	if (i == games.length - 2 || i == games.length - 3) {
+	if (i == game.bowls.length - 2 || i == game.bowls.length - 3) {
 	  radio.addEventListener("change", updateBracket)
 	}
 	
@@ -183,63 +203,102 @@ function populateForm(year){
   })
 }
 
+
 function updateBracket() {
-  var form = document.getElementById("pickform")
-  var table = document.getElementById("picktable")
+  let table = document.getElementById("picktable")
   
-  var picksemi1 = form.elements["game" + (table.children.length - 3)].value
-  var picksemi2 = form.elements["game" + (table.children.length - 2)].value
+  let pickSemi1 = $('radio[name="bowl' + (table.children.length - 3) + '"]').val()
+  let pickSemi2 = $('radio[name="bowl' + (table.children.length - 2) + '"]').val()
 
-  var semi1 = table.children[table.children.length - 3]
-  var semi2 = table.children[table.children.length - 2]
-  var fina = table.children[table.children.length - 1]
+  let semi1 = table.children[table.children.length - 3]
+  let semi2 = table.children[table.children.length - 2]
+  let fina = table.children[table.children.length - 1]
 
-  if (picksemi1 == "") {
-    fina.children[0].children[2].innerHTML = "?"
-    fina.children[1].children[0].innerHTML = "?"
+  if (pickSemi1 == "") {
+    fina.children[0].children[2].textContent = "?"
+    fina.children[1].children[0].textContent = "?"
   }
-  else if (picksemi1 == 0) {
-    fina.children[0].children[2].innerHTML = semi1.children[0].children[2].innerHTML
-    fina.children[1].children[0].innerHTML = semi1.children[1].children[0].innerHTML
+  else if (pickSemi1 == 0) {
+    fina.children[0].children[2].textContent = semi1.children[0].children[2].textContent
+    fina.children[1].children[0].textContent = semi1.children[1].children[0].textContent
   }
-  else if (picksemi1 == 1) {
-    fina.children[0].children[2].innerHTML = semi1.children[0].children[3].innerHTML
-    fina.children[1].children[0].innerHTML = semi1.children[2].children[0].innerHTML
+  else if (pickSemi1 == 1) {
+    fina.children[0].children[2].textContent = semi1.children[0].children[3].textContent
+    fina.children[1].children[0].textContent = semi1.children[2].children[0].textContent
   }
 
   
-  if (picksemi2 == "") {
-    fina.children[0].children[3].innerHTML = "?"
-    fina.children[2].children[0].innerHTML = "?"
+  if (pickSemi2 == "") {
+    fina.children[0].children[3].textContent = "?"
+    fina.children[2].children[0].textContent = "?"
   }
-  else if (picksemi2 == 0) {
-    fina.children[0].children[3].innerHTML = semi2.children[0].children[2].innerHTML
-    fina.children[2].children[0].innerHTML = semi2.children[1].children[0].innerHTML
+  else if (pickSemi2 == 0) {
+    fina.children[0].children[3].textContent = semi2.children[0].children[2].textContent
+    fina.children[2].children[0].textContent = semi2.children[1].children[0].textContent
   }
-  else if (picksemi2 == 1) {
-    fina.children[0].children[3].innerHTML = semi2.children[0].children[3].innerHTML
-    fina.children[2].children[0].innerHTML = semi2.children[2].children[0].innerHTML
+  else if (pickSemi2 == 1) {
+    fina.children[0].children[3].textContent = semi2.children[0].children[3].textContent
+    fina.children[2].children[0].textContent = semi2.children[2].children[0].textContent
   }
 }
 
-function getHistoricalYears() {
-  var yearsel = document.getElementById("yearsel")
-  
-  // server returns the years that are available in the data file
+
+function submitPicks() {
+  // look in yearArg, gidArg global variables
+  // TODO: make sure that yearArg, gidArg match what's in the sel
+  // so that user doesn't change dropdown without hitting go
+  let statustext = document.getElementById("statustext")
+  let table = document.getElementById("picktable")
+
+  $("#statustext").text("")
+
+  if ($("#nametext").val()  === "") {
+    $("#statustext").text("Error: must enter a name")
+    return
+  }
+
+  let numgames = table.rows.length
+  let picks = []
+
+  let pickSemi1 = $('radio[name="bowl' + (table.children.length - 3) + '"]').val()
+  let i
+  for (i = 0; i < numgames; i++) {
+    let pick = $('radio[name="bowl' + i + '"]').val()
+
+    if (pick == "") {
+      statustext.innerHTML = "Error: all games must be selected"
+      return
+    }
+    picks.push(pick)
+  }
+
+  let data = {
+    "name": $("#nametext").val(),
+    "picks": picks
+  }
+
   $.ajax({
-    method: "GET",
+    type: "POST",
     url: api_url,
-    data: {"qtype": "years"},
+    dataType: "json",
     crossDomain: true,
-    success: function(res) {
-      res.sort()
-      res.reverse()
-      res.forEach(function(item, index) {
-	var opt = document.createElement("option")
-	opt.innerHTML = item
-	opt.setAttribute("value", item)
-	yearsel.appendChild(opt)
-      })
+    contentType: "application/json; charset=utf-8",
+    data: JSON.stringify({"year": yearArg, "gid": gidArg, "data": data}),
+
+    success: function() {
+      $("#statustext").text("Success!")
+    },
+
+    error: function() {
+      $("#statustext").text("Error: submission issue")
     }
   })
+
+}
+
+function changePickOptions() {
+  yearArg = $("#yearsel").val()
+  gidArg = $("#gamesel").val()
+
+  populatePickOptions(yearArg, gidArg)
 }
