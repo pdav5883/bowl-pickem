@@ -2,14 +2,17 @@ const api_url = "https://nstpyzzfae.execute-api.us-east-1.amazonaws.com/pickem"
 
 // need to have keep these at global scope since year/gid
 // needed by submitPicks, even when they come in as args
+// also keep track of game type currently loaded
 let yearArg
 let gidArg
+let gameType
 
 $(document).ready(function() {
   $("#yearsel").on("change", populateGameList)
   $("#subbutton1").on("click", submitPicks)
   $("#subbutton2").on("click", submitPicks)
   $("#gobutton").on("click", changePickOptions)
+  $("#remaininglist").hide()
   initSubmitPage()
 })
 
@@ -102,6 +105,16 @@ function populatePickOptions(year, gid){
     data: {"qtype": "scoreboard", "year": year, "gid": gid},
     crossDomain: true,
     success: function(game) {
+      // set global variables
+      gameType = game.type
+
+      if (gameType == "advanced") {
+	$("#remaininglist").show()
+      }
+      else {
+	$("#remaininglist").hide()
+      }
+
       // title of page
       let title = document.getElementById("picktitle")
       title.textContent = gid.replace("-", " ") + " "
@@ -205,9 +218,54 @@ function populatePickOptions(year, gid){
 	
 	cell.appendChild(radio)
 	row.appendChild(cell)
-        
+	
+	if (gameType === "advanced") {
+	  // category pick
+	  cell = document.createElement("td")
+	  let dropdown = document.createElement("select")
+	  dropdown.setAttribute("name", "cat" + i)
+	  dropdown.setAttribute("class", "cat-select")
+	  dropdown.addEventListener("change", updateCategories)
+	  
+	  let opt = document.createElement("option")
+
+	  // semis and final are always cat3
+	  if (i >= game.bowls.length - 3) {
+	    opt.textContent = 3
+	    opt.setAttribute("value", 3)
+	    dropdown.appendChild(opt)
+	  }
+	  else {
+	    opt.textContent = "-"
+	    opt.setAttribute("value", "")
+	    dropdown.appendChild(opt)
+
+	    for (let k = 1; k <=6; k++) {
+	      opt = document.createElement("option")
+	      opt.textContent = k
+	      opt.setAttribute("value", k)
+	      dropdown.appendChild(opt)
+	    }
+	  }
+
+	  cell.appendChild(dropdown)
+	  row.appendChild(cell)
+
+	  // scratch field
+	  cell = document.createElement("td")
+	  let scratch = document.createElement("input")
+	  scratch.setAttribute("type", "text")
+	  scratch.setAttribute("class", "scratch-text")
+	  
+	  cell.appendChild(scratch)
+	  row.appendChild(cell) 
+	}
 	table.appendChild(row)
       })
+
+      if (gameType === "advanced") {
+	updateCategories()
+      }
     }
   })
 }
@@ -268,21 +326,43 @@ function submitPicks() {
 
   let numgames = table.rows.length
   let picks = []
+  let categories = []
 
-  let i
-  for (i = 0; i < numgames; i++) {
+  if (gameType === "advanced") {
+    if (!updateCategories()) {
+      $("#statustext").text("Error: check categories remaining")
+      return
+    }
+  }
+      
+
+  for (let i = 0; i < numgames; i++) {
     let pick = $('input[name="bowl' + i + '"]:checked').val()
 
     if (pick === undefined) {
-      statustext.innerHTML = "Error: all games must be selected"
+      $("#statustext").text("Error: all games must be selected")
       return
     }
     picks.push(pick)
+
+    if (gameType === "advanced") {
+      let category = $('select[name="cat' + i + '"]').val()
+
+      if (category === "") {
+	$("#statustext").text("Error: all games must have category")
+	return
+      }
+      categories.push(category)
+    }
   }
 
   let data = {
     "name": $("#nametext").val(),
     "picks": picks
+  }
+
+  if (gameType === "advanced") {
+    data["categories"] = categories
   }
 
   $.ajax({
@@ -303,6 +383,40 @@ function submitPicks() {
   })
 
 }
+
+
+function updateCategories() {
+  // returns true if categories have correct number of picks
+  
+  let remlist = document.getElementById("remaininglist")
+  let numGames = document.getElementById("picktable").rows.length
+
+  // start remaining with the total allowed, then decrement based on picks
+  let catRemaining = Array(6).fill(Math.floor((numGames - 3) / 6))
+
+  for (let i = 0; i < (numGames - 3) % 6; i++) {
+    catRemaining[i]++
+  }
+  catRemaining[2] += 3 // the three CFP games
+
+  // search for all select names beginning with cat, count categories
+  $("select[name^=cat]").each(function () {
+    let val = $(this).val()
+
+    if (val !== "") {
+      catRemaining[parseInt(val) - 1]--
+    }
+  })
+
+  // populate categories remaining text
+  for (var i = 1; i <= 6; i++) {
+    remlist.children[i].children[0].textContent = catRemaining[i - 1]
+  }
+
+  // return true if all categories remaining are zero
+  return catRemaining.every(item => item === 0)
+}
+
 
 function changePickOptions() {
   yearArg = $("#yearsel").val()
