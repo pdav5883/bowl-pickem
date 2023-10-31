@@ -12,11 +12,16 @@ This repo contains the client side code and python lambda code for a College Foo
 - Cosmetic
 	- BLR about 
 	- Show points remaining
-	- Remove bowls qtype from lambda
 	- Option to copy picks to another game
 	- Clear form after submission
+	- Links for teams and bowl
 - New game page
 - Score edit page
+
+## Admin
+- Special lambda BowlsAdminEdit allows adjustment of bowl scores
+- /admin route in API gateway requires authorization, uses BowlsAdminAuth lambda to check password against secret stored in SSM
+- 
 
 ## Future Work
 - Move data to DB
