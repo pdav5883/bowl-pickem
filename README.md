@@ -15,6 +15,7 @@ This repo contains the client side code and python lambda code for a College Foo
 	- Option to copy picks to another game
 	- Clear form after submission
 	- Links for teams and bowl
+	- Update cache duration settings for page
 - New game page
 - Score edit page
 

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Basic Page Needs -->
+  <meta charset="utf-8">
+  <title>Admin</title>
+  <!-- Mobile Specific Metas -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- FONT -->
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+  <!-- <link href="/_tmp/fonts" rel="stylesheet" type="text/css"> -->
+  <!-- CSS -->
+  <link rel="stylesheet" href="/styles/normalize.css"> 
+  <link rel="stylesheet" href="/styles/skeleton.css">  
+  <link rel="stylesheet" href="/styles/custom.css">  
+  <!-- Favicon -->
+  <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+  <!-- JQuery -->
+  <script src="https://code.jquery.com/jquery-3.5.0.js"></script>
+  <script src="/scripts/admin.js"></script>
+  <script src="/scripts/menu.js"></script>
+</head>
+<body>
+  <div class="navbar-spacer"></div>
+  <nav class="navbar">
+    <div id="navmenucontainer" class="container navcontainer">
+    <script>
+      document.getElementById("navmenucontainer").innerHTML = navmenu
+    </script>
+    </div>
+  </nav>
+  <div class="top container">
+    <h2>Admin Dashboard</h2>
+    <div class="row">
+      <div class="two columns">
+        <label for="typesel">Edit</label>
+        <select id="typesel">
+	  <option value="results">Results</option>
+	  <option value="game">Game</option>
+        </select>
+      </div>
+      <div class="two columns">
+        <label id="yearlab" for="yearsel">Year</label>
+        <select id="yearsel">
+        </select>
+      </div>
+      <div class="six columns">
+        <label id="gamelab" for="gamesel">Game ID</label>
+        <select id="gamesel">
+        </select>
+        <button id="gobutton" type="button" class="submit-button">Go</button>
+      </div>
+    </div>
+    <div class="row">
+      <div class="six columns">
+	<label id="pwdlab" for="pwdtext">Submission Password</label>
+	<input id="pwdlab" type="password">
+	<button id="subbutton" type="button" class="submit-button">Submit</button>
+      </div>
+    </div>
+    <span id="statustext"></span>
+    <table id="admintable" class="admin-table"></table>
+  </div>
+</body>
+</html>
