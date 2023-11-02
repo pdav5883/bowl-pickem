@@ -18,6 +18,8 @@ This repo contains the client side code and python lambda code for a College Foo
 	- Update cache duration settings for page
 - New game page
 - Score edit page
+	- Calculate result from score in edit
+	- Consider only sending items that change for edit
 
 ## Admin
 - Special lambda BowlsAdminEdit allows adjustment of bowl scores

@@ -75,170 +75,72 @@ function populateResultsTable(year) {
   $.ajax({
     method: "GET",
     url: pickem_api_url,
-    data: {"qtype": "scoreboard", "year": year, "gid": gid},
+    data: {"qtype": "bowls", "year": year},
     crossDomain: true,
-    success: function(game) {
-      // set global variables
-      gameType = game.type
-
-      if (gameType == "advanced") {
-	$("#remaininglist").show()
-      }
-      else {
-	$("#remaininglist").hide()
-      }
-
-      // title of page
-      let title = document.getElementById("picktitle")
-      title.textContent = gid.replace("-", " ") + " "
-      
-      let yearspan = document.createElement("span")
-      yearspan.textContent = year + "-" + (parseInt(year) + 1)
-      yearspan.setAttribute("class", "nowrap")
-      title.appendChild(yearspan)
-
+    success: function(bowls) {
       // clear the table
-      let table = document.getElementById("picktable")
+      let table = document.getElementById("admintable")
       table.innerHTML = ""
       
-      // TODO check for game locked
-      // if (game.lock_picks)
+      let row = table.insertRow()
+      
+      let cell = row.insertCell()
+      cell.textContent = "Year"
+      
+      cell = row.insertCell()
+      cell.textContent = year
 
-      game.bowls.forEach((bowl, i) => {
-	let row = document.createElement("tr")
-	let cell = document.createElement("th")
-	cell.setAttribute("class", "bowl-cell")
+      // loop through all bowls
+      bowls.forEach((bowl, i) => {
+	row = table.insertRow()
+	row.id = "bowl_" + i
 
-	// name of bowl
-	let spanBowl = document.createElement("span")
-	spanBowl.textContent = bowl.name
-    	
-	if (bowl.bonus > 0) {
-	  spanBowl.textContent += " [+" + bowl.bonus + "]"
-    	}
-
-	spanBowl.setAttribute("class", "bowl-span")
-	cell.appendChild(spanBowl)
-	cell.innerHTML += "<BR>"
-
-	// teams in bowl
-	let spanTeam0 = document.createElement("span")
-	let spanTeam1 = document.createElement("span")
-	spanTeam0.textContent = bowl.teams[0]
-	spanTeam1.textContent = bowl.teams[1]
-
-	if (i == game.bowls.length - 1) {
-	  spanTeam0.textContent = "?"
-	  spanTeam1.textContent = "?"
-	}
-
-	cell.appendChild(spanTeam0)
-	cell.innerHTML += " vs "
-	cell.appendChild(spanTeam1)
-	cell.innerHTML += "<BR>"
+	// bowl name
+	cell = row.insertCell()
+	cell.textContent = bowl.name
 	
-	// date of bowl
-	let spanDate = document.createElement("span")
-	spanDate.textContent = bowl.date[0].toString() + "/" + bowl.date[1].toString() + "/" + bowl.date[2].toString()
-	spanDate.setAttribute("class", "date-span")
-	cell.appendChild(spanDate)
+	// bowl date
+	cell = row.insertCell()
+	cell.textContent = bowl.date[0].toString() + "/" + bowl.date[1].toString() + "/" + bowl.date[2].toString()
 
-	row.appendChild(cell)
-
-	// pick options, with logic for CFP
-	cell = document.createElement("td")
-	let shortName = bowl.teams_short[0]
+	let score0 = ""
+	let score1 = ""
 	
-	if (i == game.bowls.length - 1) {
-	  shortName = "?"
-	}
-
-	let nameSpan = document.createElement("span")
-	nameSpan.textContent = shortName
-	cell.appendChild(nameSpan)
-	cell.innerHTML += "<BR>"
-	let radio = document.createElement("input")
-	radio.setAttribute("type", "radio")
-	radio.setAttribute("name", "bowl" + i)
-	radio.setAttribute("value", 0)
-
-	if (i == game.bowls.length - 2 || i == game.bowls.length - 3) {
-	  radio.addEventListener("change", updateBracket)
+	// check many conditions for unpopulated game
+	if (bowl.score !== null &&
+	    bowl.score.length !== 0 &&
+	    bowl.score[0] !== null &&
+	    bowl.score[0] !== "" &&
+	    bowl.score[1] !== null &&
+	    bowl.score[1] !== "") {
+	  score0 = bowl.score[0]
+	  score1 = bowl.score[1]
 	}
 	
-	cell.appendChild(radio)
-	row.appendChild(cell)
+	// score 0
+	cell = row.insertCell()
+	let team = document.createElement("label")
+	team.setAttribute("for", "score0_" + i)
+	team.textContent = bowl.teams[0]
+	let score = document.createElement("input")
+	score.id = "score0_" + i
+	score.type = "number"
+	score.value = score0
+	cell.appendChild(team)
+	cell.appendChild(score)
 
-	cell = document.createElement("td")
-	shortName = bowl.teams_short[1]
-
-	if (i == game.bowls.length - 1) {
-	  shortName = "?"
-	}
-
-	nameSpan = document.createElement("span")
-	nameSpan.textContent = shortName
-	cell.appendChild(nameSpan)
-	cell.innerHTML += "<BR>"
-	radio = document.createElement("input")
-	radio.setAttribute("type", "radio")
-	radio.setAttribute("name", "bowl" + i)
-	radio.setAttribute("value", 1)
-	
-	if (i == game.bowls.length - 2 || i == game.bowls.length - 3) {
-	  radio.addEventListener("change", updateBracket)
-	}
-	
-	cell.appendChild(radio)
-	row.appendChild(cell)
-	
-	if (gameType === "advanced") {
-	  // category pick
-	  cell = document.createElement("td")
-	  let dropdown = document.createElement("select")
-	  dropdown.setAttribute("name", "cat" + i)
-	  dropdown.setAttribute("class", "cat-select")
-	  dropdown.addEventListener("change", updateCategories)
-	  
-	  let opt = document.createElement("option")
-
-	  // semis and final are always cat3
-	  if (i >= game.bowls.length - 3) {
-	    opt.textContent = 3
-	    opt.setAttribute("value", 3)
-	    dropdown.appendChild(opt)
-	  }
-	  else {
-	    opt.textContent = "-"
-	    opt.setAttribute("value", "")
-	    dropdown.appendChild(opt)
-
-	    for (let k = 1; k <=6; k++) {
-	      opt = document.createElement("option")
-	      opt.textContent = k
-	      opt.setAttribute("value", k)
-	      dropdown.appendChild(opt)
-	    }
-	  }
-
-	  cell.appendChild(dropdown)
-	  row.appendChild(cell)
-
-	  // scratch field
-	  cell = document.createElement("td")
-	  let scratch = document.createElement("input")
-	  scratch.setAttribute("type", "text")
-	  scratch.setAttribute("class", "scratch-text")
-	  
-	  cell.appendChild(scratch)
-	  row.appendChild(cell) 
-	}
-	table.appendChild(row)
+	// score 1
+	cell = row.insertCell()
+	team = document.createElement("label")
+	team.setAttribute("for", "score1_" + i)
+	team.textContent = bowl.teams[1]
+	score = document.createElement("input")
+	score.id = "score1_" + i
+	score.type = "number"
+	score.value = score1
+	cell.appendChild(team)
+	cell.appendChild(score)
       })
-
-      if (gameType === "advanced") {
-	updateCategories()
-      }
     }
   })
 }
@@ -251,10 +153,6 @@ function populateGameTable(year, gid) {
     data: {"qtype": "scoreboard", "year": year, "gid": gid},
     crossDomain: true,
     success: function(game) {
-      // set global variables
-      gameType = game.type
-
-
       // clear the table
       let table = document.getElementById("admintable")
       table.innerHTML = ""
@@ -344,50 +242,8 @@ function makeTextInput(id, numchar=12, current="") {
   return input
 }
 
-
-function updateBracket() {
-  let table = document.getElementById("picktable")
-  
-  let pickSemi1 = $('input[name="bowl' + (table.children.length - 3) + '"]:checked').val()
-  let pickSemi2 = $('input[name="bowl' + (table.children.length - 2) + '"]:checked').val()
-
-  let semi1 = table.children[table.children.length - 3]
-  let semi2 = table.children[table.children.length - 2]
-  let fina = table.children[table.children.length - 1]
-
-  if (pickSemi1 === undefined) {
-    fina.children[0].children[2].textContent = "?"
-    fina.children[1].children[0].textContent = "?"
-  }
-  else if (pickSemi1 == 0) {
-    fina.children[0].children[2].textContent = semi1.children[0].children[2].textContent
-    fina.children[1].children[0].textContent = semi1.children[1].children[0].textContent
-  }
-  else if (pickSemi1 == 1) {
-    fina.children[0].children[2].textContent = semi1.children[0].children[3].textContent
-    fina.children[1].children[0].textContent = semi1.children[2].children[0].textContent
-  }
-
-  
-  if (pickSemi2 === undefined) {
-    fina.children[0].children[3].textContent = "?"
-    fina.children[2].children[0].textContent = "?"
-  }
-  else if (pickSemi2 == 0) {
-    fina.children[0].children[3].textContent = semi2.children[0].children[2].textContent
-    fina.children[2].children[0].textContent = semi2.children[1].children[0].textContent
-  }
-  else if (pickSemi2 == 1) {
-    fina.children[0].children[3].textContent = semi2.children[0].children[3].textContent
-    fina.children[2].children[0].textContent = semi2.children[2].children[0].textContent
-  }
-}
-
-
+// TODO
 function submitEdits() {
-  // look in yearArg, gidArg global variables
-  // TODO: make sure that yearArg, gidArg match what's in the sel
-  // so that user doesn't change dropdown without hitting go
   let statustext = document.getElementById("statustext")
   let table = document.getElementById("picktable")
 
@@ -456,39 +312,6 @@ function submitEdits() {
     }
   })
 
-}
-
-
-function updateCategories() {
-  // returns true if categories have correct number of picks
-  
-  let remlist = document.getElementById("remaininglist")
-  let numGames = document.getElementById("picktable").rows.length
-
-  // start remaining with the total allowed, then decrement based on picks
-  let catRemaining = Array(6).fill(Math.floor((numGames - 3) / 6))
-
-  for (let i = 0; i < (numGames - 3) % 6; i++) {
-    catRemaining[i]++
-  }
-  catRemaining[2] += 3 // the three CFP games
-
-  // search for all select names beginning with cat, count categories
-  $("select[name^=cat]").each(function () {
-    let val = $(this).val()
-
-    if (val !== "") {
-      catRemaining[parseInt(val) - 1]--
-    }
-  })
-
-  // populate categories remaining text
-  for (var i = 1; i <= 6; i++) {
-    remlist.children[i].children[0].textContent = catRemaining[i - 1]
-  }
-
-  // return true if all categories remaining are zero
-  return catRemaining.every(item => item === 0)
 }
 
 
