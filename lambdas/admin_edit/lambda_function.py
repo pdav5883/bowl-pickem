@@ -15,7 +15,7 @@ def lambda_handler(event, context):
         data
 
         If etype = results:
-            data = bowls
+            data = [{"score": [..,..], "result": 0/1},...] in same order as bowls 
 
         If etype = game
             data = {"show_results":, "show_picks":, "lock_picks":, "player_names": {"old_name": "new_name"}}
@@ -25,8 +25,8 @@ def lambda_handler(event, context):
     year = body["year"]
     
     if etype == "results":
-        new_bowls = body["data"]
-        return update_results(year, new_bowls)
+        new_results = body["data"]
+        return update_results(year, new_results)
     
     elif etype == "game":
         gid = body["gid"]
@@ -34,7 +34,7 @@ def lambda_handler(event, context):
         return update_game(year, gid, new_game_data)
     
 
-def update_results(year, new_bowls):
+def update_results(year, new_results):
     """
     Updates the {year}/results.json file
     """
@@ -42,21 +42,11 @@ def update_results(year, new_bowls):
     data_s3 = s3.get_object(Bucket=obj_bucket, Key=obj_key)
     
     old_data = json.loads(data_s3["Body"].read().decode("utf-8"))
-    new_data = {"year": year, "bowls": new_bowls}
-
-    print(f"Changing {obj_key} FROM:")
-    print(old_data)
-
-    print(f"Changing {obj_key} TO:")
-    print(new_data)
 
     # validation checks
     try:
-        assert new_data["year"] == old_data["year"], "New year must match Old year"
-        assert len(new_data["bowls"]) == len(old_data["bowls"]), "New length must match Old length"
-        for bowl in new_data["bowls"]:
-            for val in ("name", "teams", "teams_short", "date", "result", "score", "bonus"):
-                assert val in bowl, f"Bowl {bowl} missing {val}"
+        assert year == old_data["year"], "New year must match Old year"
+        assert len(new_results) == len(old_data["bowls"]), "New length must match Old length"
 
     except AssertionError as e:
         print("Error, validation failed")
@@ -64,6 +54,20 @@ def update_results(year, new_bowls):
         
         return {"statusCode": 400,
                 "body": e}
+
+    new_data = {"year": year, "bowls": []}
+
+    for old_bowl, new_result in zip(old_data["bowls"], new_results):
+        new_bowl = dict(old_bowl)
+        new_bowl["score"] = new_result["score"]
+        new_bowl["result"] = new_result["result"]
+        new_data["bowls"].append(new_bowl)
+
+    print(f"Changing {obj_key} FROM:")
+    print(old_data)
+
+    print(f"Changing {obj_key} TO:")
+    print(new_data)
 
     # update results.json file
     response = s3.put_object(Body=bytes(json.dumps(new_data, indent=2).encode('UTF-8')), Bucket=obj_bucket, Key=obj_key)

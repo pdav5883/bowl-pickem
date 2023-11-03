@@ -41,7 +41,7 @@ This repo contains the client side code and python lambda code for a College Foo
     "teams_short": [a, b],
     "date": [m, d, y],
     "bonus": 0-n,
-    "result": 0/1,
+    "result": 0/1, null/None if not played
     "score": [x, y]
   },...]
 }

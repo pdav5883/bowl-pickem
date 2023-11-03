@@ -82,14 +82,9 @@ function populateResultsTable(year) {
       let table = document.getElementById("admintable")
       table.innerHTML = ""
       
-      let row = table.insertRow()
+      let row
+      let cell
       
-      let cell = row.insertCell()
-      cell.textContent = "Year"
-      
-      cell = row.insertCell()
-      cell.textContent = year
-
       // loop through all bowls
       bowls.forEach((bowl, i) => {
 	row = table.insertRow()
@@ -242,73 +237,59 @@ function makeTextInput(id, numchar=12, current="") {
   return input
 }
 
-// TODO
+
 function submitEdits() {
-  let statustext = document.getElementById("statustext")
-  let table = document.getElementById("picktable")
+  if (typeArg === "results") {
+    submitResultsEdits()
+  }
+  else if (typeArg === "game") {
+    submitGameEdits()
+  }
+}
+
+function submitGameEdits() {
+
+}
+
+function submitResultsEdits() {
+  let table = document.getElementById("admintable")
 
   $("#statustext").text("")
 
-  if ($("#nametext").val()  === "") {
-    $("#statustext").text("Error: must enter a name")
-    return
-  }
+  let numbowls = table.rows.length
+  let bowls = []
 
-  let numgames = table.rows.length
-  let picks = []
-  let categories = []
+  for (let i = 0; i < table.rows.length; i++) {
+    let bowl = {"result": null, "score": []}
+    let score0 = parseInt($("#score0_" + i).val())
+    let score1 = parseInt($("#score1_" + i).val())
 
-  if (gameType === "advanced") {
-    if (!updateCategories()) {
-      $("#statustext").text("Error: check categories remaining")
-      return
+    if (!isNaN(score0) && !isNaN(score1)) {
+      bowl.score = [score0, score1]
+      bowl.result = score0 > score1 ? 0 : 1
     }
-  }
-      
-
-  for (let i = 0; i < numgames; i++) {
-    let pick = $('input[name="bowl' + i + '"]:checked').val()
-
-    if (pick === undefined) {
-      $("#statustext").text("Error: all games must be selected")
-      return
-    }
-    picks.push(pick)
-
-    if (gameType === "advanced") {
-      let category = $('select[name="cat' + i + '"]').val()
-
-      if (category === "") {
-	$("#statustext").text("Error: all games must have category")
-	return
-      }
-      categories.push(category)
-    }
-  }
-
-  let data = {
-    "name": $("#nametext").val(),
-    "picks": picks
-  }
-
-  if (gameType === "advanced") {
-    data["categories"] = categories
+    bowls.push(bowl)
   }
 
   $.ajax({
     type: "POST",
     url: admin_api_url,
-    dataType: "json",
+    headers: {"authorization": $("#pwdtext").val()},
     crossDomain: true,
     contentType: "application/json; charset=utf-8",
-    data: JSON.stringify({"year": yearArg, "gid": gidArg, "data": data}),
+    data: JSON.stringify({"etype": "results", "year": yearArg, "data": bowls}),
 
     success: function() {
       $("#statustext").text("Success!")
     },
 
-    error: function() {
-      $("#statustext").text("Error: submission issue")
+    error: function(err) {
+      if (err.status == 403) {
+	$("#statustext").text("Error: incorrect password")
+      }
+      else {
+	$("#statustext").text("Error: unknown submission error")
+      }
     }
   })
 
