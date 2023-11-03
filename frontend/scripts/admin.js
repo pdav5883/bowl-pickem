@@ -18,6 +18,7 @@ $(document).ready(function() {
 
 
 function initAdminPage() {
+  $("#statustext").text("")
   populateYears(true) // also populates games
 }
 
@@ -153,21 +154,7 @@ function populateGameTable(year, gid) {
       table.innerHTML = ""
 
       let row = table.insertRow()
-      
       let cell = row.insertCell()
-      cell.textContent = "Year"
-      
-      cell = row.insertCell()
-      cell.textContent = game.year
-      
-      row = table.insertRow()
-      cell = row.insertCell()
-      cell.textContent = "Game ID" 
-      cell = row.insertCell()
-      cell.textContent = game.id
-      
-      row = table.insertRow()
-      cell = row.insertCell()
       cell.textContent = "Show Results" 
       
       cell = row.insertCell()
@@ -188,10 +175,6 @@ function populateGameTable(year, gid) {
       select = makeBooleanSelect("sellock", game.lock_picks)
       cell.appendChild(select)
       
-      row = table.insertRow()
-      cell = row.insertCell()
-      cell.textContent = "Players"
-
       game.players.forEach((player, i) => {
 	row = table.insertRow()
 	cell = row.insertCell()
@@ -209,18 +192,18 @@ function populateGameTable(year, gid) {
 
 function makeBooleanSelect(id, current) {
   let select = document.createElement("select")
-  select.setAttribute("id", id)
+  select.id = id
   let option = document.createElement("option")
-  option.setAttribute("value", true)
+  option.value = true
   option.textContent = "True"
   select.appendChild(option)
   option = document.createElement("option")
-  option.setAttribute("value", false)
+  option.value = false
   option.textContent = "False"
   select.appendChild(option)
 
   if (current !== undefined) {
-    select.setAttribute("value", current)
+    select.value = current
   }
 
   return select
@@ -248,8 +231,54 @@ function submitEdits() {
 }
 
 function submitGameEdits() {
+  let table = document.getElementById("admintable")
 
+  $("#statustext").text("")
+
+  let data = {}
+  data.show_results = ($("#selresults").val() === "true")
+  data.show_picks = ($("#selpicks").val() === "true")
+  data.lock_picks = ($("#sellock").val() === "true")
+
+  let numplayers = $("[id^=playernew]").length
+
+  // check to make sure we have the table count correct
+  if (numplayers !== (table.rows.length - 3)) {
+    $("#statustext").text("Row count error: check dropdown rows")
+    return
+  }
+
+  data.players = {}
+
+  for (let i = 0; i < numplayers; i++) {
+    let oldname = $("#playerold" + i).text()
+    let newname = $("#playernew" + i).val()
+    data.players[oldname] = newname
+  }
+
+  $.ajax({
+    type: "POST",
+    url: admin_api_url,
+    headers: {"authorization": $("#pwdtext").val()},
+    crossDomain: true,
+    contentType: "application/json; charset=utf-8",
+    data: JSON.stringify({"etype": "game", "year": yearArg, "gid": gidArg, "data": data}),
+
+    success: function() {
+      $("#statustext").text("Success!")
+    },
+
+    error: function(err) {
+      if (err.status == 403) {
+	$("#statustext").text("Error: incorrect password")
+      }
+      else {
+	$("#statustext").text("Error: unknown submission error")
+      }
+    }
+  })
 }
+
 
 function submitResultsEdits() {
   let table = document.getElementById("admintable")
@@ -300,6 +329,8 @@ function changeAdminPage() {
   typeArg = $("#typesel").val()
   yearArg = $("#yearsel").val()
   gidArg = $("#gamesel").val()
+  
+  $("#statustext").text("")
 
   if (typeArg === "results") {
     populateResultsTable(yearArg)

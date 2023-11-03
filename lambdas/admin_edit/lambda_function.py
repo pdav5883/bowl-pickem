@@ -18,7 +18,7 @@ def lambda_handler(event, context):
             data = [{"score": [..,..], "result": 0/1},...] in same order as bowls 
 
         If etype = game
-            data = {"show_results":, "show_picks":, "lock_picks":, "player_names": {"old_name": "new_name"}}
+            data = {"show_results":, "show_picks":, "lock_picks":, "players": {"oldname": "new_name",...}}
     """
     body = json.loads(event["body"])
     etype = body["etype"]
@@ -82,7 +82,7 @@ def update_game(year, gid, new_game_data):
     new_game_data = {"show_results": bool,
                      "show_picks": bool,
                      "lock_picks": bool,
-                     "player_names": {old_name: new_name}}
+                     "players": {old_name: new_name,...}}
     """
     obj_key = year + "/" + gid + ".json"
     data_s3 = s3.get_object(Bucket=obj_bucket, Key=obj_key)
@@ -97,6 +97,7 @@ def update_game(year, gid, new_game_data):
         assert type(new_game_data["show_results"]) is bool, "Flag must be bool"
         assert type(new_game_data["show_picks"]) is bool, "Flag must be bool"
         assert type(new_game_data["lock_picks"]) is bool, "Flag must be bool"
+        assert len(game_data["players"]) == len(new_game_data["players"]), "Number of players must match"
     
     except AssertionError as e:
         print("Error, validation failed")
@@ -111,14 +112,11 @@ def update_game(year, gid, new_game_data):
 
     for player in game_data["players"]:
         old_name = player["name"]
-        new_name = new_game_data["player_names"][old_name]
+        new_name = new_game_data["players"][old_name]
         player["name"] = new_name
 
     response = s3.put_object(Body=bytes(json.dumps(game_data, indent=2).encode('UTF-8')), Bucket=obj_bucket, Key=obj_key)
 
     return {"statusCode": 200,
             "body": "Successful update"}
-
-
-
 

@@ -4,11 +4,13 @@ This repo contains the client side code and python lambda code for a College Foo
 ## TODO
 - Functional
 	- Scoreboard locking on frontend and backend
+	- Bug where show_results=1, show_picks=0 and played games show up as red b/c of ?
 	- General error handling with message sent from backend
 	- Error cases
 		- Check name submitted is not reused
 		- Check picks were submitted with GID matching sel
 		- Validate number of picks in each category on backend
+	- Make sure that category is added to pick cell on advanced scoreboard
 - Cosmetic
 	- BLR about 
 	- Show points remaining
@@ -17,9 +19,6 @@ This repo contains the client side code and python lambda code for a College Foo
 	- Links for teams and bowl
 	- Update cache duration settings for page
 - New game page
-- Score edit page
-	- Calculate result from score in edit
-	- Consider only sending items that change for edit
 
 ## Admin
 - Special lambda BowlsAdminEdit allows adjustment of bowl scores
