@@ -2,12 +2,6 @@
 This repo contains the client side code and python lambda code for a College Football bowl picking web application. Currently the site is set up as a static site hosted in AWS S3, with a set of JSON data files containing picks and results. Whenever new picks are made a lambda call updates and republishes the data file. This eventually should turn into an actual database. 
 
 ## TODO
-- Functional
-	- General error handling with message sent from backend
-	- Error cases
-		- Check name submitted is not reused
-		- Check picks were submitted with GID matching sel
-		- Validate number of picks in each category on backend
 - Cosmetic
 	- BLR about
 	- After submit scroll to top

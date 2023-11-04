@@ -37,13 +37,50 @@ def lambda_handler(event, context):
         return {"statusCode": 403,
                 "body": "Picks are locked for this game"}
 
-    # TODO: error checking
-    # name is already used
-    # incorrect number of picks
-    # incorrect number of categories
-    # incorrect number of each category
-    # incorrect types
+    # error checking
+    try:
+        # name is already used
+        names = [player["name"] for player in data["players"]]
+        assert new_picks["name"] not in names, f"{new_picks['name']} already used"
     
+        # incorrect number of picks
+        results_s3 = s3.get_object(Bucket=obj_bucket, Key=f"{year}/results.json")
+        results = json.loads(results_s3["Body"].read().decode("utf-8"))
+        numgames = len(results["bowls"])
+        assert len(new_picks["picks"]) == numgames, "Incorrect number of picks submitted"
+
+        # incorrect number of categories
+        if "categories" in new_picks:
+            assert len(new_picks["categories"]) == numgames, "Incorrect number of categories submitted"
+
+        # incorrect number of each category
+        if "categories" in new_picks:
+            catRemaining = 6 * [(numgames - 3) // 6]
+            for i in range((numgames - 3) % 6):
+                catRemaining[i] += 1
+
+            # semis/final are all cat 3
+            catRemaining[2] += 3
+
+            for cat in new_picks["categories"]:
+                catRemaining[int(cat) - 1] -= 1
+
+            assert all(c == 0 for c in catRemaining), "Incorrect mix of categories submitted"
+
+        # incorrect types
+        for pick in new_picks["picks"]:
+            assert pick in (0, 1, "0", "1", False, True), "Pick has incorrect format"
+
+        if "categories" in new_picks:
+            for cat in new_picks["categories"]:
+                assert cat in (1, 2, 3, 4, 5, 6, "1", "2", "3", "4", "5", "6"), "Category has incorrect format"
+
+    
+    except AssertionError as msg:
+        print(msg)
+        return {"statusCode": 400,
+                "body": msg}
+
     # append new picks
     if "categories" in new_picks:
         data["players"].append({"name": new_picks["name"], "picks": new_picks["picks"], "categories": new_picks["categories"]})
