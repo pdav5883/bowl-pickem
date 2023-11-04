@@ -105,15 +105,11 @@ function populatePickOptions(year, gid){
     data: {"qtype": "scoreboard", "year": year, "gid": gid},
     crossDomain: true,
     success: function(game) {
+      $("#statustext").text("")
+      $("#remaininglist").hide() // doing here to cover case with lock picks
+
       // set global variables
       gameType = game.type
-
-      if (gameType == "advanced") {
-	$("#remaininglist").show()
-      }
-      else {
-	$("#remaininglist").hide()
-      }
 
       // title of page
       let title = document.getElementById("picktitle")
@@ -127,10 +123,16 @@ function populatePickOptions(year, gid){
       // clear the table
       let table = document.getElementById("picktable")
       table.innerHTML = ""
-      
-      // TODO check for game locked
-      // if (game.lock_picks)
 
+      if (game.lock_picks) {
+	$("#statustext").text("Picks are locked for this game")
+	return
+      }
+
+      if (gameType == "advanced") {
+	$("#remaininglist").show()
+      }
+      
       game.bowls.forEach((bowl, i) => {
 	let row = document.createElement("tr")
 	let cell = document.createElement("th")

@@ -3,7 +3,6 @@ This repo contains the client side code and python lambda code for a College Foo
 
 ## TODO
 - Functional
-	- Scoreboard locking on frontend and backend
 	- General error handling with message sent from backend
 	- Error cases
 		- Check name submitted is not reused

@@ -23,6 +23,10 @@ def lambda_handler(event, context):
     data_s3 = s3.get_object(Bucket=obj_bucket, Key=obj_key)
     data = json.loads(data_s3["Body"].read().decode("utf-8"))
 
+    if data["lock_picks"]:
+        return {"statusCode": 403,
+                "body": "Picks are locked for this game"}
+
     # TODO: error check
     # print(data)
     
@@ -34,6 +38,4 @@ def lambda_handler(event, context):
     
     # upload new data to s3
     response = s3.put_object(Body=bytes(json.dumps(data, indent=2).encode('UTF-8')), Bucket=obj_bucket, Key=obj_key)
-    # print(response)
 
-    # TODO: error check
