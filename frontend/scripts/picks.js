@@ -313,10 +313,12 @@ function updateBracket() {
 
 
 function submitPicks() {
-  // look in yearArg, gidArg global variables
-  // TODO: make sure that yearArg, gidArg match what's in the sel
-  // so that user doesn't change dropdown without hitting go
-  let statustext = document.getElementById("statustext")
+  // make sure that yearArg, gidArg match what is in sel
+  if ((yearArg !== $("#yearsel").val()) || (gidArg !== $("#gamesel").val())) {
+    $("#statustext").text("Error: year/game dropdowns do not match picks table")
+    return
+  }
+
   let table = document.getElementById("picktable")
 
   $("#statustext").text("")
