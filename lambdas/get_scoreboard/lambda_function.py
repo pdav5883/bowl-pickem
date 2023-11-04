@@ -1,6 +1,7 @@
 import os
 import json
 import boto3
+from botocore.exceptions import ClientError
 
 s3 = boto3.client("s3")
 obj_bucket = "bowl-pickem-private"
@@ -16,7 +17,7 @@ def lambda_handler(event, context):
 
     For GET request, parameters are in event['queryStringParameters']
         - qtype: one of the options above
-        - year: 0 is latest year
+        - year: year
         - gid: game id
 
     Returns:
@@ -52,11 +53,15 @@ def handle_scoreboard(year, gid):
     """
 
     game_key = year + "/" + gid + ".json"
-    game_s3 = s3.get_object(Bucket=obj_bucket, Key=game_key)
 
-    # if not game_s3:
-    #   return {"statusCode": 400, "body": f"Year/Game {year}/{gid} not found"}
+    try:
+        game_s3 = s3.get_object(Bucket=obj_bucket, Key=game_key)
     
+    except ClientError as e:
+        print(e)
+        return {"statusCode": 400,
+                "body": f"{gid} does not exist for {year}"}
+
     game = json.loads(game_s3["Body"].read().decode("UTF-8"))
     
     bowls_key = year + "/results.json"
@@ -77,32 +82,20 @@ def handle_scoreboard(year, gid):
     return game 
 
 
-#def handle_advanced_scoreboard(data, year):
-#    """
-#    Return the data dict for year, but only with players who have "categories" field
-#    """
-#    return_dict = handle_scoreboard(data, year)
-#
-#    adv_players = []
-#
-#    for player in return_dict["data"]["players"]:
-#        if "categories" in player:
-#            adv_players.append(player)
-#
-#    return_dict["data"]["players"] = adv_players
-#    return return_dict
-
-
 def handle_bowls(year):
     """
     Return bowls only without picks
     """
     obj_key = year + "/results.json"
 
-    bowls_s3 = s3.get_object(Bucket=obj_bucket, Key=obj_key)
+    try:
+        bowls_s3 = s3.get_object(Bucket=obj_bucket, Key=obj_key)
 
-    # if not bowls_s3:
-    #   return {"statusCode": 400, "body": f"Year {year} not found"}
+    except ClientError as e:
+        print(e)
+        return {"statusCode": 400,
+                "body": f"{year}/results.json does not exist"}
+    
     bowls = json.loads(bowls_s3["Body"].read().decode("UTF-8"))
 
     return bowls["bowls"]

@@ -1,5 +1,7 @@
 import json
 import boto3
+from botocore.exceptions import ClientError
+
 
 s3 = boto3.client('s3')
 obj_bucket = "bowl-pickem-private"
@@ -20,15 +22,27 @@ def lambda_handler(event, context):
     
     # retrieve existing data file from s3
     obj_key = year + "/" + gid + ".json"
-    data_s3 = s3.get_object(Bucket=obj_bucket, Key=obj_key)
+    
+    try:
+        data_s3 = s3.get_object(Bucket=obj_bucket, Key=obj_key)
+    
+    except ClientError as e:
+        print(e)
+        return {"statusCode": 400,
+                "body": f"{gid} does not exist for {year}"}
+    
     data = json.loads(data_s3["Body"].read().decode("utf-8"))
 
     if data["lock_picks"]:
         return {"statusCode": 403,
                 "body": "Picks are locked for this game"}
 
-    # TODO: error check
-    # print(data)
+    # TODO: error checking
+    # name is already used
+    # incorrect number of picks
+    # incorrect number of categories
+    # incorrect number of each category
+    # incorrect types
     
     # append new picks
     if "categories" in new_picks:
