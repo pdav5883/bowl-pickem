@@ -273,7 +273,7 @@ function populateScoreboard(game) {
 	if (bowl.result == player.picks[i]) {
 	  cell.setAttribute("class", "win-cell")
         } 
-        else {
+        else if (player.picks[i] != null)  {
 	  cell.setAttribute("class", "loss-cell")
         }
 
