@@ -4,8 +4,6 @@ This repo contains the client side code and python lambda code for a College Foo
 ## TODO
 - Cosmetic
 	- BLR about
-	- Option to copy picks to another game
-	- Update cache duration settings for page
 
 ## Lambdas
 - BowlsGetScoreboard: called from `{API}/pickem` `GET` requests. Reads the data files and returns information about game or results. See `lambdas/get_scoreboard`.
@@ -19,6 +17,7 @@ This repo contains the client side code and python lambda code for a College Foo
 - Add point spread to advanced
 - Show points remaining
 - ESPN links for bowls and teams on pick page
+- Option to copy picks to another game
 
 ## Data Files
 ### {year}/results.json format
@@ -67,3 +66,5 @@ To update site code run `sh deploy.sh` from frontend directory
 To update lambda run `sh deploy.sh` from lambda directory
 
 API is at nstpyzzfae.execute-api.us-east-1.amazonaws.com
+
+Cache time is controlled at object metadata in S3. Set system `Cache-Control` header `max-age=XX` field to desired cache time in seconds. Currently set for 6 hours for .html, .js and.css, no limit for images. This only matters if the files themselves change, since game/results data is grabbed every time with API calls.
