@@ -11,10 +11,11 @@ This repo contains the client side code and python lambda code for a College Foo
 	- Update cache duration settings for page
 	- Blue go button
 
-## Admin
-- Special lambda BowlsAdminEdit allows adjustment of bowl scores
-- /admin route in API gateway requires authorization, uses BowlsAdminAuth lambda to check password against secret stored in SSM
-- 
+## Lambdas
+- BowlsGetScoreboard: called from `{API}/pickem` `GET` requests. Reads the data files and returns information about game or results. See `lambdas/get_scoreboard`.
+- BowlsUpdatePicks: called from `{API}/pickem` `POST` requests. Writes new picks to existing game file. See `lambdas/update_picks`.
+- BowlsAdminEdit: called from `{API}/admin `POST` requests. Allows adjustment of bowl scores and game status. Requires authorization to execute via API gateway authorizer lambda. See `lambdas/admin_edit`
+- BowlsAdminAuth: called indirectly as lambda authorizer for BowlsAdminEdit. Compares secret sent in header to secret stored in SSM. See `lambdas/admin_auth`.
 
 ## Future Work
 - Move data to DB
@@ -22,7 +23,8 @@ This repo contains the client side code and python lambda code for a College Foo
 - Add point spread to advanced
 - Show points remaining
 
-## year/results.json format
+## Data Files
+### {year}/results.json format
 ```
 {
   "year": year,
@@ -37,7 +39,7 @@ This repo contains the client side code and python lambda code for a College Foo
   },...]
 }
 ```
-### year/game-id.json format
+### {year}/{gid}.json format
 ```
 {
   "year": year,
@@ -56,15 +58,15 @@ This repo contains the client side code and python lambda code for a College Foo
 
 ```
 
-
 ## Notes
-Test with `python -m http.server`
+Test with `python -m http.server` from frontend
 
-S3 bucket: `bowl-pickem-public`
+S3 bucket for frontend files: `bowl-pickem-public`
 
-To update website code run `bash sync_code.sh` within directory
+S3 bucket for data files: `bowl-pickem-private`
 
-To update lambda code run `zip pickem_lambda.zip lambda_function.py`, then sync code as above, then within lambda function select "upload from s3" 
+To update site code run `sh deploy.sh` from frontend directory
 
-To update data.json (TODO: need to sync in other direction first) run `bash sync_data.sh` within directory
+To update lambda run `sh deploy.sh` from lambda directory
 
+API is at nstpyzzfae.execute-api.us-east-1.amazonaws.com
