@@ -67,4 +67,4 @@ To update lambda run `sh deploy.sh` from lambda directory
 
 API is at nstpyzzfae.execute-api.us-east-1.amazonaws.com
 
-Cache time is controlled at object metadata in S3. Set system `Cache-Control` header `max-age=XX` field to desired cache time in seconds. Currently set for 6 hours for .html, .js and.css, no limit for images. This only matters if the files themselves change, since game/results data is grabbed every time with API calls.
+Cache time is controlled with object metadata in S3. Set system `Cache-Control` header `max-age=XX` field to desired cache time in seconds. Currently set for 6 hours for .html, .js and.css, no limit for images. This only matters if the files themselves change, since game/results data is grabbed every time with API calls.

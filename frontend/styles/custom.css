@@ -11,6 +11,7 @@
   margin: auto; }
 
 .navcontainer {
+  padding: 0 20px;
   margin: 0 0;
   z-index: 99; }
 
@@ -23,6 +24,19 @@
 .invisi-link {
   color: inherit;
   text-decoration: inherit; }
+
+.smalltop {
+  margin-top: 3rem; }
+
+.smallbottom {
+  margin-bottom: 1rem; }
+
+.nextpar {
+  margin-top: -1em; }
+
+.center-text {
+  text-align: center; }
+
 
 
 /* Tables
@@ -146,7 +160,7 @@ super {
     font-size: 11px;
     font-weight: 600;
     letter-spacing: .2rem;
-    margin-right: 30px;
+    margin-right: 5px;
     text-decoration: none;
     line-height: 6.5rem;
     color: #222; }
@@ -229,4 +243,11 @@ super {
   .popover-link:hover,
   .popover-item:first-child .popover-link:hover:after {
     border-bottom-color: #33C3F0; }
+}
+
+@media (min-width: 465px) {
+  .navbar-item {
+    margin-left: 2rem; }
+  .navbar-link {
+    margin-right: 30px; }
 }
