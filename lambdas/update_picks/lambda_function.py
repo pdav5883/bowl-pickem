@@ -79,7 +79,7 @@ def lambda_handler(event, context):
     except AssertionError as msg:
         print(msg)
         return {"statusCode": 400,
-                "body": msg}
+                "body": str(msg)}
 
     # append new picks
     if "categories" in new_picks:

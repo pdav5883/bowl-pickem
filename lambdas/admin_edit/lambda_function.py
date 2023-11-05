@@ -53,7 +53,7 @@ def update_results(year, new_results):
         print(e)
         
         return {"statusCode": 400,
-                "body": e}
+                "body": str(e)}
 
     new_data = {"year": year, "bowls": []}
 
@@ -104,7 +104,7 @@ def update_game(year, gid, new_game_data):
         print(e)
         
         return {"statusCode": 400,
-                "body": e}
+                "body": str(e)}
     
     game_data["show_results"] = new_game_data["show_results"]
     game_data["show_picks"] = new_game_data["show_picks"]
