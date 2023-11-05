@@ -313,6 +313,9 @@ function updateBracket() {
 
 
 function submitPicks() {
+  // move to top of page
+  window.scroll({top: 0, left: 0, behavior: "smooth"})
+
   // make sure that yearArg, gidArg match what is in sel
   if ((yearArg !== $("#yearsel").val()) || (gidArg !== $("#gamesel").val())) {
     $("#statustext").text("Error: year/game dropdowns do not match picks table")

@@ -4,12 +4,8 @@ This repo contains the client side code and python lambda code for a College Foo
 ## TODO
 - Cosmetic
 	- BLR about
-	- After submit scroll to top
 	- Option to copy picks to another game
-	- Clear form after submission
-	- Links for teams and bowl
 	- Update cache duration settings for page
-	- Blue go button
 
 ## Lambdas
 - BowlsGetScoreboard: called from `{API}/pickem` `GET` requests. Reads the data files and returns information about game or results. See `lambdas/get_scoreboard`.
@@ -22,6 +18,7 @@ This repo contains the client side code and python lambda code for a College Foo
 - Edit/view picks after made
 - Add point spread to advanced
 - Show points remaining
+- ESPN links for bowls and teams on pick page
 
 ## Data Files
 ### {year}/results.json format

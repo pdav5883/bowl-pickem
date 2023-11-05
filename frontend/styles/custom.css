@@ -72,6 +72,10 @@
 .submit-button {
   background-color: #96fa6e;
 }
+.go-button {
+  background-color: #6e96fa;
+  padding: 0 15px;
+}
 .edit-button {
   background-color: #ffffff;
   padding: 0 15px;
