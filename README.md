@@ -2,8 +2,6 @@
 This repo contains the client side code and python lambda code for a College Football bowl picking web application. Currently the site is set up as a static site hosted in AWS S3, with a set of JSON data files containing picks and results. Whenever new picks are made a lambda call updates and republishes the data file. This eventually should turn into an actual database. 
 
 ## TODO
-- Cosmetic
-	- BLR about
 
 ## Lambdas
 - BowlsGetScoreboard: called from `{API}/pickem` `GET` requests. Reads the data files and returns information about game or results. See `lambdas/get_scoreboard`.

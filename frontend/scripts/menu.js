@@ -40,7 +40,13 @@ var navmenu =
           '<a class="popover-link" href="/about.html#">Overview</a>' +
         '</li>' +
         '<li class="popover-item">' +
-          '<a class="popover-link" href="/about.html#next">Next</a>' +
+          '<a class="popover-link" href="/about.html#rules">Rules</a>' +
+        '</li>' +
+        '<li class="popover-item">' +
+          '<a class="popover-link" href="/about.html#advanced">Advanced</a>' +
+        '</li>' +
+        '<li class="popover-item">' +
+          '<a class="popover-link" href="/about.html#details">Details</a>' +
         '</li>' +
         '<li class="popover-item">' +
           '<a class="popover-link" target="_blank" rel="noopener noreferrer" href="https://github.com/pdav5883/bowl-pickem">Github</a>' +
