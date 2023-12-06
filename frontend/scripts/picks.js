@@ -12,7 +12,9 @@ $(document).ready(function() {
   $("#subbutton1").on("click", submitPicks)
   $("#subbutton2").on("click", submitPicks)
   $("#gobutton").on("click", changePickOptions)
+  $("#scorebutton").on("click", goToScoreboard)
   $("#remaininglist").hide()
+  $("#scorebutton").hide()
   initSubmitPage()
 })
 
@@ -150,20 +152,36 @@ function populatePickOptions(year, gid){
 	cell.appendChild(spanBowl)
 	cell.innerHTML += "<BR>"
 
-	// teams in bowl
-	let spanTeam0 = document.createElement("span")
-	let spanTeam1 = document.createElement("span")
-	spanTeam0.textContent = bowl.teams[0]
-	spanTeam1.textContent = bowl.teams[1]
+	let aTeam0
+	let aTeam1
 
-	if (i == game.bowls.length - 1) {
-	  spanTeam0.textContent = "?"
-	  spanTeam1.textContent = "?"
+	// teams in bowl
+	if (bowl.hasOwnProperty("links")) {
+	  aTeam0 = document.createElement("a")
+	  aTeam1 = document.createElement("a")
+	  aTeam0.href = bowl.links[0]
+	  aTeam1.href = bowl.links[1]
+	  aTeam0.target = "_blank"
+	  aTeam1.target = "_blank"
+	  aTeam0.rel = "noopener noreferrer"
+	  aTeam1.rel = "noopener noreferrer"
+	}
+	else {
+	  aTeam0 = document.createElement("span")
+	  aTeam1 = document.createElement("span")
 	}
 
-	cell.appendChild(spanTeam0)
+	aTeam0.textContent = bowl.teams[0]
+	aTeam1.textContent = bowl.teams[1]
+
+	if (i == game.bowls.length - 1) {
+	  aTeam0.textContent = "?"
+	  aTeam1.textContent = "?"
+	}
+
+	cell.appendChild(aTeam0)
 	cell.innerHTML += " vs "
-	cell.appendChild(spanTeam1)
+	cell.appendChild(aTeam1)
 	cell.innerHTML += "<BR>"
 	
 	// date of bowl
@@ -382,10 +400,12 @@ function submitPicks() {
 
     success: function() {
       $("#statustext").text("Success!")
+      $("#scorebutton").show()
     },
 
     error: function() {
       $("#statustext").text("Error: submission issue")
+      $("#scorebutton").hide()
     }
   })
 
@@ -426,8 +446,18 @@ function updateCategories() {
 
 
 function changePickOptions() {
+  $("#scorebutton").hide()
+  
   yearArg = $("#yearsel").val()
   gidArg = $("#gamesel").val()
 
   populatePickOptions(yearArg, gidArg)
+}
+
+
+function goToScoreboard() {
+  yearArg = $("#yearsel").val()
+  gidArg = $("#gamesel").val()
+
+  window.location.href = "/?year=" + yearArg + "&gid=" + gidArg
 }

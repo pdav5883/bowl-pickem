@@ -14,7 +14,6 @@ This repo contains the client side code and python lambda code for a College Foo
 - Edit/view picks after made
 - Add point spread to advanced
 - Show points remaining
-- ESPN links for bowls and teams on pick page
 - Option to copy picks to another game
 
 ## Data Files
