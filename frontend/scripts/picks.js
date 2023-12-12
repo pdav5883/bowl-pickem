@@ -5,6 +5,7 @@ const api_url = "https://nstpyzzfae.execute-api.us-east-1.amazonaws.com/pickem"
 // also keep track of game type currently loaded
 let yearArg
 let gidArg
+let hasArgs
 let gameType
 
 $(document).ready(function() {
@@ -32,7 +33,8 @@ function initSubmitPage() {
 
     yearArg = params.get("year")
     gidArg = params.get("gid")
-    
+    hasArgs = true
+
     populatePickOptions(yearArg, gidArg)
   }
   
@@ -41,6 +43,9 @@ function initSubmitPage() {
     $("#namelab").hide()
     $("#subbutton1").hide()
     $("#subbutton2").hide()
+
+    hasArgs = false 
+
     populateYears(true) // also populates games
   }
 }
@@ -335,7 +340,7 @@ function submitPicks() {
   window.scroll({top: 0, left: 0, behavior: "smooth"})
 
   // make sure that yearArg, gidArg match what is in sel
-  if ((yearArg !== $("#yearsel").val()) || (gidArg !== $("#gamesel").val())) {
+  if (!hasArgs && ((yearArg !== $("#yearsel").val()) || (gidArg !== $("#gamesel").val()))) {
     $("#statustext").text("Error: year/game dropdowns do not match picks table")
     return
   }
@@ -456,8 +461,5 @@ function changePickOptions() {
 
 
 function goToScoreboard() {
-  yearArg = $("#yearsel").val()
-  gidArg = $("#gamesel").val()
-
   window.location.href = "/?year=" + yearArg + "&gid=" + gidArg
 }
