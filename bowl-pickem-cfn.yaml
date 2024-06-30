@@ -1,0 +1,236 @@
+Resources:
+  LambdaBowlsUpdatePicks:
+    Type: "AWS::Lambda::Function"
+    UpdateReplacePolicy: "Delete"
+    DeletionPolicy: "Delete"
+    Properties:
+      FunctionName: "t_BowlsUpdatePicks"
+      MemorySize: 128
+      Description: ""
+      TracingConfig:
+        Mode: "PassThrough"
+      Timeout: 3
+      RuntimeManagementConfig:
+        UpdateRuntimeOn: "Auto"
+      Handler: "lambda_function.lambda_handler"
+      Code:
+        S3Bucket: !Ref S3BowlsPrivate
+        S3Key: "lambdas/t_BowlsUpdatePicks.zip"
+      Role: !GetAtt RoleBowlsReadWrite.Arn 
+      FileSystemConfigs: []
+      Runtime: "python3.8"
+      PackageType: "Zip"
+      LoggingConfig:
+        LogFormat: "Text"
+        LogGroup: "/aws/lambda/t_BowlsUpdatePicks"
+      EphemeralStorage:
+        Size: 512
+      Architectures:
+      - "x86_64"
+  LambdaBowlsGetScoreboard:
+    Type: "AWS::Lambda::Function"
+    UpdateReplacePolicy: "Delete"
+    DeletionPolicy: "Delete"
+    Properties:
+      FunctionName: "t_BowlsGetScoreboard"
+      MemorySize: 128
+      Description: ""
+      TracingConfig:
+        Mode: "PassThrough"
+      Timeout: 3
+      RuntimeManagementConfig:
+        UpdateRuntimeOn: "Auto"
+      Handler: "lambda_function.lambda_handler"
+      Code:
+        S3Bucket: !Ref S3BowlsPrivate
+        S3Key: "lambdas/t_BowlsGetScoreboard.zip"
+      Role: !GetAtt RoleBowlsRead.Arn 
+      FileSystemConfigs: []
+      Runtime: "python3.8"
+      PackageType: "Zip"
+      LoggingConfig:
+        LogFormat: "Text"
+        LogGroup: "/aws/lambda/t_BowlsGetScoreboard"
+      EphemeralStorage:
+        Size: 512
+      Architectures:
+      - "x86_64"
+  RoleBowlsReadWrite:
+    Type: "AWS::IAM::Role"
+    UpdateReplacePolicy: "Delete"
+    DeletionPolicy: "Delete"
+    Properties:
+      Path: "/"
+      ManagedPolicyArns:
+      - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+      - !GetAtt PolicyBowlsReadWrite.PolicyArn
+      MaxSessionDuration: 3600
+      RoleName: "t_role-lambda-bowls-read-write"
+      Description: "Allows Lambda functions to call read/write bowl pickem s3"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+        - Action: "sts:AssumeRole"
+          Effect: "Allow"
+          Principal:
+            Service: "lambda.amazonaws.com"
+  RoleBowlsRead:
+    Type: "AWS::IAM::Role"
+    UpdateReplacePolicy: "Delete"
+    DeletionPolicy: "Delete"
+    Properties:
+      Path: "/"
+      ManagedPolicyArns:
+      - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+      - !GetAtt PolicyBowlsRead.PolicyArn
+      MaxSessionDuration: 3600
+      RoleName: "t_role-lambda-bowls-read"
+      Description: "Allows Lambda functions to call read bowl pickem s3"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+        - Action: "sts:AssumeRole"
+          Effect: "Allow"
+          Principal:
+            Service: "lambda.amazonaws.com"
+  PolicyBowlsReadWrite:
+    Type: "AWS::IAM::ManagedPolicy"
+    UpdateReplacePolicy: "Delete"
+    DeletionPolicy: "Delete"
+    Properties:
+      ManagedPolicyName: "t_policy-lambda-bowls-read-write"
+      Path: "/"
+      Description: ""
+      Groups: []
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+        - Resource:
+          - !Join ["", [!GetAtt S3BowlsPublic.Arn, "/*"]]
+          - !Join ["", [!GetAtt S3BowlsPrivate.Arn, "/*"]]
+          Action:
+          - "s3:PutObject"
+          - "s3:GetObject"
+          Effect: "Allow"
+          Sid: "VisualEditor0"
+      Users: []
+  PolicyBowlsRead:
+    Type: "AWS::IAM::ManagedPolicy"
+    UpdateReplacePolicy: "Delete"
+    DeletionPolicy: "Delete"
+    Properties:
+      ManagedPolicyName: "t_policy-lambda-bowls-read"
+      Path: "/"
+      Description: ""
+      Groups: []
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+        - Resource:
+          - !GetAtt S3BowlsPublic.Arn
+          - !GetAtt S3BowlsPrivate.Arn
+          - !Join ["", [!GetAtt S3BowlsPublic.Arn, "/*"]]
+          - !Join ["", [!GetAtt S3BowlsPrivate.Arn, "/*"]]
+          Action:
+          - "s3:GetObject"
+          - "s3:ListBucket"
+          Effect: "Allow"
+          Sid: "VisualEditor0"
+      Users: []
+  S3BowlsPublic:
+    Type: "AWS::S3::Bucket"
+    UpdateReplacePolicy: "Retain"
+    DeletionPolicy: "Delete"
+    Properties:
+      PublicAccessBlockConfiguration:
+        RestrictPublicBuckets: true
+        IgnorePublicAcls: true
+        BlockPublicPolicy: true
+        BlockPublicAcls: true
+      BucketName: "t-bowl-pickem-public"
+      OwnershipControls:
+        Rules:
+        - ObjectOwnership: "BucketOwnerEnforced"
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+        - BucketKeyEnabled: false
+          ServerSideEncryptionByDefault:
+            SSEAlgorithm: "AES256"
+  S3BowlsPrivate:
+    Type: "AWS::S3::Bucket"
+    UpdateReplacePolicy: "Retain"
+    DeletionPolicy: "Delete"
+    Properties:
+      PublicAccessBlockConfiguration:
+        RestrictPublicBuckets: true
+        IgnorePublicAcls: true
+        BlockPublicPolicy: true
+        BlockPublicAcls: true
+      BucketName: "t-bowl-pickem-private"
+      OwnershipControls:
+        Rules:
+        - ObjectOwnership: "BucketOwnerEnforced"
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+        - BucketKeyEnabled: false
+          ServerSideEncryptionByDefault:
+            SSEAlgorithm: "AES256"
+  ApiGatewayBowls:
+    Type: "AWS::ApiGatewayV2::Api"
+    UpdateReplacePolicy: "Delete"
+    DeletionPolicy: "Delete"
+    Properties:
+      Name: "t-bowl-pickem"
+      RouteSelectionExpression: "$request.method $request.path"
+      DisableExecuteApiEndpoint: false
+      CorsConfiguration:
+        MaxAge: 1
+        AllowOrigins:
+        - "*"
+        AllowCredentials: false
+        ExposeHeaders: []
+        AllowMethods:
+        - "*"
+        AllowHeaders:
+        - "*"
+      ProtocolType: "HTTP"
+      Tags: {}
+  ApiStageBowls:
+    Type: "AWS::ApiGatewayV2::Stage"
+    UpdateReplacePolicy: "Delete"
+    DeletionPolicy: "Delete"
+    Properties:
+      ApiId: !Ref ApiGatewayBowls
+      StageName: "$default"
+      AutoDeploy: true
+  ApiRouteBowlsGetScoreboard:
+    Type: "AWS::ApiGatewayV2::Route"
+    UpdateReplacePolicy: "Delete"
+    DeletionPolicy: "Delete"
+    Properties:
+      ApiId: !Ref ApiGatewayBowls
+      RouteKey: "GET /pickem"
+      Target: !Join ["/", ["integrations", !Ref ApiIntegrationBowlsGetScoreboard]]
+  ApiIntegrationBowlsGetScoreboard:
+    Type: "AWS::ApiGatewayV2::Integration"
+    UpdateReplacePolicy: "Delete"
+    DeletionPolicy: "Delete"
+    Properties:
+      ApiId: !Ref ApiGatewayBowls
+      IntegrationType: AWS_PROXY
+      IntegrationMethod: POST
+      IntegrationUri: !Sub  "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaBowlsGetScoreboard.Arn}/invocations"
+      PayloadFormatVersion: "2.0"
+  ApiTriggerPermissionBowlsGetScoreboard:
+    Type: "AWS::Lambda::Permission"
+    UpdateReplacePolicy: "Delete"
+    DeletionPolicy: "Delete"
+    Properties:
+      FunctionName: !GetAtt LambdaBowlsGetScoreboard.Arn
+      Action: "lambda:InvokeFunction"
+      SourceArn: !Join ["", ["arn:aws:execute-api:",
+                             !Ref AWS::Region, ":",
+                             !Ref AWS::AccountId, ":",
+                             !Ref ApiGatewayBowls, "/*/*/pickem"]]
+      Principal: "apigateway.amazonaws.com"
+
