@@ -1,3 +1,7 @@
+Parameters:
+  AcmSSLCertificateArn:
+    Type: String
+    
 Resources:
   LambdaBowlsUpdatePicks:
     Type: "AWS::Lambda::Function"
@@ -111,6 +115,7 @@ Resources:
           Action:
           - "s3:PutObject"
           - "s3:GetObject"
+          - "s3:ListBucket"
           Effect: "Allow"
           Sid: "VisualEditor0"
       Users: []
@@ -233,4 +238,71 @@ Resources:
                              !Ref AWS::AccountId, ":",
                              !Ref ApiGatewayBowls, "/*/*/pickem"]]
       Principal: "apigateway.amazonaws.com"
-
+  CloudFrontDistroBowls:
+    Type: "AWS::CloudFront::Distribution"
+    UpdateReplacePolicy: "Delete"
+    DeletionPolicy: "Delete"
+    Properties:
+      DistributionConfig:
+        DefaultRootObject: "index.html"
+        Origins:
+        - OriginAccessControlId: !Ref CloudFrontOACBowls
+          DomainName: !GetAtt S3BowlsPublic.RegionalDomainName
+          S3OriginConfig:
+            OriginAccessIdentity: ""
+          Id: !GetAtt S3BowlsPublic.RegionalDomainName
+        ViewerCertificate:
+          MinimumProtocolVersion: "TLSv1.2_2021"
+          SslSupportMethod: "sni-only"
+          AcmCertificateArn: !Ref AcmSSLCertificateArn 
+        DefaultCacheBehavior:
+          Compress: true
+          AllowedMethods:
+          - "HEAD"
+          - "GET"
+          CachedMethods:
+          - "HEAD"
+          - "GET"
+          TargetOriginId: !GetAtt S3BowlsPublic.RegionalDomainName 
+          ViewerProtocolPolicy: "redirect-to-https"
+          CachePolicyId: "658327ea-f89d-4fab-a63d-7e88639e58f6"
+        Staging: false
+        Enabled: true
+        Aliases:
+        - "tbowls.bearloves.rocks"
+        IPV6Enabled: true
+        HttpVersion: "http2"
+  CloudFrontOACBowls:
+    Type: "AWS::CloudFront::OriginAccessControl"
+    UpdateReplacePolicy: "Delete"
+    DeletionPolicy: "Delete"
+    Properties:
+      OriginAccessControlConfig:
+        SigningBehavior: "always"
+        Description: ""
+        SigningProtocol: "sigv4"
+        OriginAccessControlOriginType: "s3"
+        Name: !GetAtt S3BowlsPublic.RegionalDomainName
+  S3BucketPolicyBowls:
+    Type: "AWS::S3::BucketPolicy"
+    UpdateReplacePolicy: "Retain"
+    DeletionPolicy: "Retain"
+    Properties:
+      Bucket: !Ref S3BowlsPublic
+      PolicyDocument:
+        Version: "2008-10-17"
+        Statement:
+        - Condition:
+            StringEquals:
+              AWS:SourceArn: !Join ["", [
+                              "arn:aws:cloudfront::",
+                              !Ref AWS::AccountId,
+                              ":distribution/",
+                              !GetAtt CloudFrontDistroBowls.Id]] 
+          Resource: !Join ["", [!GetAtt S3BowlsPublic.Arn, "/*"]]
+          Action: "s3:GetObject"
+          Effect: "Allow"
+          Principal:
+            Service: "cloudfront.amazonaws.com"
+          Sid: "AllowCloudFrontServicePrincipal"
+        Id: "PolicyForCloudFrontPrivateContent"
