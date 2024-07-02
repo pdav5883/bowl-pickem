@@ -3,6 +3,11 @@ This repo contains the client side code and python lambda code for a College Foo
 
 ## TODO
 - Make submission button disappear or change color on click while waiting for response, since getting a lot of repeated submission errors
+- Cloudformation
+	- Deploy script
+	- Logs
+	- Route53
+	- Remove t-
 
 
 ## Lambdas

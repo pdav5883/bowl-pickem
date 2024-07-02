@@ -1,6 +1,8 @@
 Parameters:
   AcmSSLCertificateArn:
     Type: String
+  SsmAdminSecretArn:
+    Type: String
     
 Resources:
   LambdaBowlsUpdatePicks:
@@ -59,6 +61,62 @@ Resources:
         Size: 512
       Architectures:
       - "x86_64"
+  LambdaBowlsAdminEdit:
+    Type: "AWS::Lambda::Function"
+    UpdateReplacePolicy: "Delete"
+    DeletionPolicy: "Delete"
+    Properties:
+      FunctionName: "t_BowlsAdminEdit"
+      MemorySize: 128
+      Description: ""
+      TracingConfig:
+        Mode: "PassThrough"
+      Timeout: 3
+      RuntimeManagementConfig:
+        UpdateRuntimeOn: "Auto"
+      Handler: "lambda_function.lambda_handler"
+      Code:
+        S3Bucket: !Ref S3BowlsPrivate
+        S3Key: "lambdas/t_BowlsAdminEdit.zip"
+      Role: !GetAtt RoleBowlsReadWrite.Arn 
+      FileSystemConfigs: []
+      Runtime: "python3.8"
+      PackageType: "Zip"
+      LoggingConfig:
+        LogFormat: "Text"
+        LogGroup: "/aws/lambda/t_BowlsAdminEdit"
+      EphemeralStorage:
+        Size: 512
+      Architectures:
+      - "x86_64"
+  LambdaBowlsAdminAuth:
+    Type: "AWS::Lambda::Function"
+    UpdateReplacePolicy: "Delete"
+    DeletionPolicy: "Delete"
+    Properties:
+      FunctionName: "t_BowlsAdminAuth"
+      MemorySize: 128
+      Description: ""
+      TracingConfig:
+        Mode: "PassThrough"
+      Timeout: 3
+      RuntimeManagementConfig:
+        UpdateRuntimeOn: "Auto"
+      Handler: "lambda_function.lambda_handler"
+      Code:
+        S3Bucket: !Ref S3BowlsPrivate
+        S3Key: "lambdas/t_BowlsAdminAuth.zip"
+      Role: !GetAtt RoleBowlsAdminRead.Arn 
+      FileSystemConfigs: []
+      Runtime: "python3.8"
+      PackageType: "Zip"
+      LoggingConfig:
+        LogFormat: "Text"
+        LogGroup: "/aws/lambda/t_BowlsAdminAuth"
+      EphemeralStorage:
+        Size: 512
+      Architectures:
+      - "x86_64"
   RoleBowlsReadWrite:
     Type: "AWS::IAM::Role"
     UpdateReplacePolicy: "Delete"
@@ -97,6 +155,25 @@ Resources:
           Effect: "Allow"
           Principal:
             Service: "lambda.amazonaws.com"
+  RoleBowlsAdminRead:
+    Type: "AWS::IAM::Role"
+    UpdateReplacePolicy: "Delete"
+    DeletionPolicy: "Delete"
+    Properties:
+      Path: "/"
+      ManagedPolicyArns:
+      - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+      - !GetAtt PolicyBowlsAdminRead.PolicyArn
+      MaxSessionDuration: 3600
+      RoleName: "t_role-lambda-bowls-admin-read"
+      Description: "Allows admin auth function to read ssm secret"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+        - Action: "sts:AssumeRole"
+          Effect: "Allow"
+          Principal:
+            Service: "lambda.amazonaws.com"
   PolicyBowlsReadWrite:
     Type: "AWS::IAM::ManagedPolicy"
     UpdateReplacePolicy: "Delete"
@@ -118,7 +195,6 @@ Resources:
           - "s3:ListBucket"
           Effect: "Allow"
           Sid: "VisualEditor0"
-      Users: []
   PolicyBowlsRead:
     Type: "AWS::IAM::ManagedPolicy"
     UpdateReplacePolicy: "Delete"
@@ -141,7 +217,22 @@ Resources:
           - "s3:ListBucket"
           Effect: "Allow"
           Sid: "VisualEditor0"
-      Users: []
+  PolicyBowlsAdminRead:
+    Type: "AWS::IAM::ManagedPolicy"
+    UpdateReplacePolicy: "Delete"
+    DeletionPolicy: "Delete"
+    Properties:
+      ManagedPolicyName: "t_policy-lambda-bowls-admin-read"
+      Path: "/"
+      Description: ""
+      Groups: []
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+        - Resource: !Ref SsmAdminSecretArn
+          Action: "ssm:GetParameter"
+          Effect: "Allow"
+          Sid: "VisualEditor0"
   S3BowlsPublic:
     Type: "AWS::S3::Bucket"
     UpdateReplacePolicy: "Retain"
@@ -216,6 +307,38 @@ Resources:
       ApiId: !Ref ApiGatewayBowls
       RouteKey: "GET /pickem"
       Target: !Join ["/", ["integrations", !Ref ApiIntegrationBowlsGetScoreboard]]
+  ApiRouteBowlsUpdatePicks:
+    Type: "AWS::ApiGatewayV2::Route"
+    UpdateReplacePolicy: "Delete"
+    DeletionPolicy: "Delete"
+    Properties:
+      ApiId: !Ref ApiGatewayBowls
+      RouteKey: "POST /pickem"
+      Target: !Join ["/", ["integrations", !Ref ApiIntegrationBowlsUpdatePicks]]
+  ApiRouteBowlsPickemOptions:
+    Type: "AWS::ApiGatewayV2::Route"
+    UpdateReplacePolicy: "Delete"
+    DeletionPolicy: "Delete"
+    Properties:
+      ApiId: !Ref ApiGatewayBowls
+      RouteKey: "OPTIONS /pickem"
+  ApiRouteBowlsAdminEdit:
+    Type: "AWS::ApiGatewayV2::Route"
+    UpdateReplacePolicy: "Delete"
+    DeletionPolicy: "Delete"
+    Properties:
+      ApiId: !Ref ApiGatewayBowls
+      RouteKey: "POST /admin"
+      Target: !Join ["/", ["integrations", !Ref ApiIntegrationBowlsAdminEdit]]
+      AuthorizationType: "CUSTOM"
+      AuthorizerId: !Ref ApiAuthorizerBowlsAdminAuth
+  ApiRouteBowlsAdminOptions:
+    Type: "AWS::ApiGatewayV2::Route"
+    UpdateReplacePolicy: "Delete"
+    DeletionPolicy: "Delete"
+    Properties:
+      ApiId: !Ref ApiGatewayBowls
+      RouteKey: "OPTIONS /admin"
   ApiIntegrationBowlsGetScoreboard:
     Type: "AWS::ApiGatewayV2::Integration"
     UpdateReplacePolicy: "Delete"
@@ -226,6 +349,39 @@ Resources:
       IntegrationMethod: POST
       IntegrationUri: !Sub  "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaBowlsGetScoreboard.Arn}/invocations"
       PayloadFormatVersion: "2.0"
+  ApiIntegrationBowlsUpdatePicks:
+    Type: "AWS::ApiGatewayV2::Integration"
+    UpdateReplacePolicy: "Delete"
+    DeletionPolicy: "Delete"
+    Properties:
+      ApiId: !Ref ApiGatewayBowls
+      IntegrationType: AWS_PROXY
+      IntegrationMethod: POST
+      IntegrationUri: !Sub  "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaBowlsUpdatePicks.Arn}/invocations"
+      PayloadFormatVersion: "2.0"
+  ApiIntegrationBowlsAdminEdit:
+    Type: "AWS::ApiGatewayV2::Integration"
+    UpdateReplacePolicy: "Delete"
+    DeletionPolicy: "Delete"
+    Properties:
+      ApiId: !Ref ApiGatewayBowls
+      IntegrationType: AWS_PROXY
+      IntegrationMethod: POST
+      IntegrationUri: !Sub  "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaBowlsAdminEdit.Arn}/invocations"
+      PayloadFormatVersion: "2.0"
+  ApiAuthorizerBowlsAdminAuth:
+    Type: "AWS::ApiGatewayV2::Authorizer"
+    UpdateReplacePolicy: "Delete"
+    DeletionPolicy: "Delete"
+    Properties:
+      ApiId: !Ref ApiGatewayBowls
+      Name: !Ref LambdaBowlsAdminAuth
+      AuthorizerType: "REQUEST"
+      AuthorizerUri: !Sub  "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaBowlsAdminAuth.Arn}/invocations"
+      AuthorizerPayloadFormatVersion: "2.0"
+      EnableSimpleResponses: true
+      IdentitySource: 
+      - "$request.header.Authorization"
   ApiTriggerPermissionBowlsGetScoreboard:
     Type: "AWS::Lambda::Permission"
     UpdateReplacePolicy: "Delete"
@@ -237,6 +393,43 @@ Resources:
                              !Ref AWS::Region, ":",
                              !Ref AWS::AccountId, ":",
                              !Ref ApiGatewayBowls, "/*/*/pickem"]]
+      Principal: "apigateway.amazonaws.com"
+  ApiTriggerPermissionBowlsUpdatePicks:
+    Type: "AWS::Lambda::Permission"
+    UpdateReplacePolicy: "Delete"
+    DeletionPolicy: "Delete"
+    Properties:
+      FunctionName: !GetAtt LambdaBowlsUpdatePicks.Arn
+      Action: "lambda:InvokeFunction"
+      SourceArn: !Join ["", ["arn:aws:execute-api:",
+                             !Ref AWS::Region, ":",
+                             !Ref AWS::AccountId, ":",
+                             !Ref ApiGatewayBowls, "/*/*/pickem"]]
+      Principal: "apigateway.amazonaws.com"
+  ApiTriggerPermissionBowlsAdminEdit:
+    Type: "AWS::Lambda::Permission"
+    UpdateReplacePolicy: "Delete"
+    DeletionPolicy: "Delete"
+    Properties:
+      FunctionName: !GetAtt LambdaBowlsAdminEdit.Arn
+      Action: "lambda:InvokeFunction"
+      SourceArn: !Join ["", ["arn:aws:execute-api:",
+                             !Ref AWS::Region, ":",
+                             !Ref AWS::AccountId, ":",
+                             !Ref ApiGatewayBowls, "/*/*/admin"]]
+      Principal: "apigateway.amazonaws.com"
+  ApiTriggerPermissionBowlsAdminAuth:
+    Type: "AWS::Lambda::Permission"
+    UpdateReplacePolicy: "Delete"
+    DeletionPolicy: "Delete"
+    Properties:
+      FunctionName: !GetAtt LambdaBowlsAdminAuth.Arn
+      Action: "lambda:InvokeFunction"
+      SourceArn: !Join ["", ["arn:aws:execute-api:",
+                             !Ref AWS::Region, ":",
+                             !Ref AWS::AccountId, ":",
+                             !Ref ApiGatewayBowls, "/authorizers/",
+                             !Ref ApiAuthorizerBowlsAdminAuth]]
       Principal: "apigateway.amazonaws.com"
   CloudFrontDistroBowls:
     Type: "AWS::CloudFront::Distribution"
