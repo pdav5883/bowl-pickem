@@ -6,7 +6,6 @@ This repo contains the client side code and python lambda code for a College Foo
 - Cloudformation
 	- Deploy script
 	- Logs
-	- Route53
 	- Remove t-
 
 
