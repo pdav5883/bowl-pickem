@@ -29,7 +29,7 @@ Resources:
       PackageType: "Zip"
       LoggingConfig:
         LogFormat: "Text"
-        LogGroup: "/aws/lambda/t_BowlsUpdatePicks"
+        LogGroup: !Ref LogBowlsLambdaUpdatePicks 
       EphemeralStorage:
         Size: 512
       Architectures:
@@ -57,7 +57,7 @@ Resources:
       PackageType: "Zip"
       LoggingConfig:
         LogFormat: "Text"
-        LogGroup: "/aws/lambda/t_BowlsGetScoreboard"
+        LogGroup: !Ref LogBowlsLambdaGetScoreboard
       EphemeralStorage:
         Size: 512
       Architectures:
@@ -85,7 +85,7 @@ Resources:
       PackageType: "Zip"
       LoggingConfig:
         LogFormat: "Text"
-        LogGroup: "/aws/lambda/t_BowlsAdminEdit"
+        LogGroup: !Ref LogBowlsLambdaAdminEdit
       EphemeralStorage:
         Size: 512
       Architectures:
@@ -113,7 +113,7 @@ Resources:
       PackageType: "Zip"
       LoggingConfig:
         LogFormat: "Text"
-        LogGroup: "/aws/lambda/t_BowlsAdminAuth"
+        LogGroup: !Ref LogBowlsLambdaAdminAuth
       EphemeralStorage:
         Size: 512
       Architectures:
@@ -522,3 +522,31 @@ Resources:
       AliasTarget:
         DNSName: !GetAtt CloudFrontDistroBowls.DomainName
         HostedZoneId: "Z2FDTNDATAQYW2"
+  LogBowlsLambdaGetScoreboard:
+    Type: "AWS::Logs::LogGroup"
+    UpdateReplacePolicy: "Delete"
+    DeletionPolicy: "Delete"
+    Properties:
+      LogGroupName: "/aws/lambda/t_BowlsGetScoreboard"
+      RetentionInDays: 7
+  LogBowlsLambdaUpdatePicks:
+    Type: "AWS::Logs::LogGroup"
+    UpdateReplacePolicy: "Delete"
+    DeletionPolicy: "Delete"
+    Properties:
+      LogGroupName: "/aws/lambda/t_BowlsUpdatePicks"
+      RetentionInDays: 7
+  LogBowlsLambdaAdminEdit:
+    Type: "AWS::Logs::LogGroup"
+    UpdateReplacePolicy: "Delete"
+    DeletionPolicy: "Delete"
+    Properties:
+      LogGroupName: "/aws/lambda/t_BowlsAdminEdit"
+      RetentionInDays: 7
+  LogBowlsLambdaAdminAuth:
+    Type: "AWS::Logs::LogGroup"
+    UpdateReplacePolicy: "Delete"
+    DeletionPolicy: "Delete"
+    Properties:
+      LogGroupName: "/aws/lambda/t_BowlsAdminAuth"
+      RetentionInDays: 7
