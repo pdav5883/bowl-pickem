@@ -1,3 +1,4 @@
 _tmp/
 data/
 *.zip
+cfn-params-private.json
