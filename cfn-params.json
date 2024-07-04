@@ -1,0 +1,18 @@
+[
+  "AcmSSLCertificateId=x",
+  "HostedZoneId=x",
+  "SsmAdminSecretId=x",
+  "DeployedRootURL=x",
+  "LambdaReadWritePermissionName=x",
+  "LambdaReadPermissionName=x",
+  "LambdaAdminReadPermissionName=x",
+  "PublicBucketName=x",
+  "PrivateBucketName=x",
+  "LambdaBowlsUpdatePicksName=x",
+  "LambdaBowlsGetScoreboardName=x",
+  "LambdaBowlsAdminEditName=x",
+  "LambdaBowlsAdminAuthName=x",
+  "ApiName=x",
+  "PrimaryRouteName=x",
+  "AdminRouteName=x"
+]
