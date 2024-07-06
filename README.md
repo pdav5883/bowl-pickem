@@ -3,9 +3,8 @@ This repo contains the client side code and python lambda code for a College Foo
 
 ## TODO
 - Make submission button disappear or change color on click while waiting for response, since getting a lot of repeated submission errors
-- Cloudformation
-	- Remove t-
-
+- Make sure frontend files have references to CFN not to hardcoded values
+- Add lambda deploy script calls to infrastructure deploy script
 
 ## Lambdas
 - BowlsGetScoreboard: called from `{API}/pickem` `GET` requests. Reads the data files and returns information about game or results. See `lambdas/get_scoreboard`.

@@ -47,8 +47,10 @@ Resources:
         UpdateRuntimeOn: "Auto"
       Handler: "lambda_function.lambda_handler"
       Code:
-        S3Bucket: !Ref S3BowlsPrivate
-        S3Key: !Sub "lambdas/${LambdaBowlsUpdatePicksName}.zip"
+        ZipFile: |
+          def lambda_handler(event, context):
+                # upload code via lambda deploy script
+                return False
       Role: !GetAtt RoleBowlsReadWrite.Arn 
       FileSystemConfigs: []
       Runtime: "python3.8"
@@ -75,8 +77,10 @@ Resources:
         UpdateRuntimeOn: "Auto"
       Handler: "lambda_function.lambda_handler"
       Code:
-        S3Bucket: !Ref S3BowlsPrivate
-        S3Key: !Sub "lambdas/${LambdaBowlsGetScoreboardName}.zip"
+        ZipFile: |
+          def lambda_handler(event, context):
+                # upload code via lambda deploy script
+                return False
       Role: !GetAtt RoleBowlsRead.Arn 
       FileSystemConfigs: []
       Runtime: "python3.8"
@@ -103,8 +107,10 @@ Resources:
         UpdateRuntimeOn: "Auto"
       Handler: "lambda_function.lambda_handler"
       Code:
-        S3Bucket: !Ref S3BowlsPrivate
-        S3Key: !Sub "lambdas/${LambdaBowlsAdminEditName}.zip"
+        ZipFile: |
+          def lambda_handler(event, context):
+                # upload code via lambda deploy script
+                return False
       Role: !GetAtt RoleBowlsReadWrite.Arn 
       FileSystemConfigs: []
       Runtime: "python3.8"
@@ -131,8 +137,10 @@ Resources:
         UpdateRuntimeOn: "Auto"
       Handler: "lambda_function.lambda_handler"
       Code:
-        S3Bucket: !Ref S3BowlsPrivate
-        S3Key: !Sub "lambdas/${LambdaBowlsAdminAuthName}.zip"
+        ZipFile: |
+          def lambda_handler(event, context):
+                # upload code via lambda deploy script
+                return False
       Role: !GetAtt RoleBowlsAdminRead.Arn 
       FileSystemConfigs: []
       Runtime: "python3.8"

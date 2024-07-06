@@ -4,7 +4,7 @@ import boto3
 from botocore.exceptions import ClientError
 
 s3 = boto3.client("s3")
-obj_bucket = "bowl-pickem-private"
+obj_bucket = SUB_PrivateBucketName
 
 
 def lambda_handler(event, context):
