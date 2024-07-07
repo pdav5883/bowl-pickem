@@ -35,16 +35,16 @@ function populateYears(defaultLatest) {
       let yearOpt
 
       years.forEach((year) => {
-	yearOpt = document.createElement("option")
-	yearOpt.value = year
-	yearOpt.textContent = year
-	$("#yearsel").append(yearOpt)
+        yearOpt = document.createElement("option")
+        yearOpt.value = year
+        yearOpt.textContent = year
+        $("#yearsel").append(yearOpt)
       })
 
       // set to latest year
       // populateGameList() will be called on .change()
       if (defaultLatest) {
-	$("#yearsel").val(yearOpt.value).change()
+        $("#yearsel").val(yearOpt.value).change()
       }
     }
   })
@@ -64,10 +64,10 @@ function populateGameList() {
       let game
 
       Object.keys(res).forEach(gid => {
-	game = document.createElement("option")
-	game.value = gid
-	game.textContent = gid.replace("-", " ")
-	$("#gamesel").append(game)
+        game = document.createElement("option")
+        game.value = gid
+        game.textContent = gid.replace("-", " ")
+        $("#gamesel").append(game)
       })
     }
   })
@@ -90,54 +90,54 @@ function populateResultsTable(year) {
       
       // loop through all bowls
       bowls.forEach((bowl, i) => {
-	row = table.insertRow()
-	row.id = "bowl_" + i
+        row = table.insertRow()
+        row.id = "bowl_" + i
 
-	// bowl name
-	cell = row.insertCell()
-	cell.textContent = bowl.name
+        // bowl name
+        cell = row.insertCell()
+        cell.textContent = bowl.name
 	
-	// bowl date
-	cell = row.insertCell()
-	cell.textContent = bowl.date[0].toString() + "/" + bowl.date[1].toString() + "/" + bowl.date[2].toString()
+        // bowl date
+        cell = row.insertCell()
+        cell.textContent = bowl.date[0].toString() + "/" + bowl.date[1].toString() + "/" + bowl.date[2].toString()
 
-	let score0 = ""
-	let score1 = ""
+        let score0 = ""
+        let score1 = ""
 	
-	// check many conditions for unpopulated game
-	if (bowl.score !== null &&
-	    bowl.score.length !== 0 &&
-	    bowl.score[0] !== null &&
-	    bowl.score[0] !== "" &&
-	    bowl.score[1] !== null &&
-	    bowl.score[1] !== "") {
-	  score0 = bowl.score[0]
-	  score1 = bowl.score[1]
-	}
+        // check many conditions for unpopulated game
+        if (bowl.score !== null &&
+          bowl.score.length !== 0 &&
+          bowl.score[0] !== null &&
+          bowl.score[0] !== "" &&
+          bowl.score[1] !== null &&
+          bowl.score[1] !== "") {
+          score0 = bowl.score[0]
+          score1 = bowl.score[1]
+        }
 	
-	// score 0
-	cell = row.insertCell()
-	let team = document.createElement("label")
-	team.setAttribute("for", "score0_" + i)
-	team.textContent = bowl.teams[0]
-	let score = document.createElement("input")
-	score.id = "score0_" + i
-	score.type = "number"
-	score.value = score0
-	cell.appendChild(team)
-	cell.appendChild(score)
+        // score 0
+        cell = row.insertCell()
+        let team = document.createElement("label")
+        team.setAttribute("for", "score0_" + i)
+        team.textContent = bowl.teams[0]
+        let score = document.createElement("input")
+        score.id = "score0_" + i
+        score.type = "number"
+        score.value = score0
+        cell.appendChild(team)
+        cell.appendChild(score)
 
-	// score 1
-	cell = row.insertCell()
-	team = document.createElement("label")
-	team.setAttribute("for", "score1_" + i)
-	team.textContent = bowl.teams[1]
-	score = document.createElement("input")
-	score.id = "score1_" + i
-	score.type = "number"
-	score.value = score1
-	cell.appendChild(team)
-	cell.appendChild(score)
+        // score 1
+        cell = row.insertCell()
+        team = document.createElement("label")
+        team.setAttribute("for", "score1_" + i)
+        team.textContent = bowl.teams[1]
+        score = document.createElement("input")
+        score.id = "score1_" + i
+        score.type = "number"
+        score.value = score1
+        cell.appendChild(team)
+        cell.appendChild(score)
       })
     }
   })
@@ -178,14 +178,14 @@ function populateGameTable(year, gid) {
       cell.appendChild(select)
       
       game.players.forEach((player, i) => {
-	row = table.insertRow()
-	cell = row.insertCell()
-	cell.setAttribute("id", "playerold" + i)
-	cell.textContent = player.name
+        row = table.insertRow()
+        cell = row.insertCell()
+        cell.setAttribute("id", "playerold" + i)
+        cell.textContent = player.name
 	
-	cell = row.insertCell()
-	let input = makeTextInput("playernew" + i, 12, player.name)
-	cell.appendChild(input)
+        cell = row.insertCell()
+        let input = makeTextInput("playernew" + i, 12, player.name)
+        cell.appendChild(input)
       })
     }  
   })
@@ -272,10 +272,10 @@ function submitGameEdits() {
 
     error: function(err) {
       if (err.status == 403) {
-	$("#statustext").text("Error: incorrect password")
+        $("#statustext").text("Error: incorrect password")
       }
       else {
-	$("#statustext").text("Error: unknown submission error")
+        $("#statustext").text("Error: unknown submission error")
       }
     }
   })
@@ -287,10 +287,10 @@ function submitResultsEdits() {
 
   $("#statustext").text("")
 
-  let numbowls = table.rows.length
+  const numbowls = table.rows.length
   let bowls = []
 
-  for (let i = 0; i < table.rows.length; i++) {
+  for (let i = 0; i < numbowls; i++) {
     let bowl = {"result": null, "score": []}
     let score0 = parseInt($("#score0_" + i).val())
     let score1 = parseInt($("#score1_" + i).val())
@@ -316,10 +316,10 @@ function submitResultsEdits() {
 
     error: function(err) {
       if (err.status == 403) {
-	$("#statustext").text("Error: incorrect password")
+        $("#statustext").text("Error: incorrect password")
       }
       else {
-	$("#statustext").text("Error: unknown submission error")
+        $("#statustext").text("Error: unknown submission error")
       }
     }
   })

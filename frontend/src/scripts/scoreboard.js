@@ -36,22 +36,22 @@ function initScoreboardPage() {
 
 
 function editMode() {
-    $("#editbutton").hide()
-    $("#yearsel").show()
-    $("#gamesel").show()
-    $("#yearlab").show()
-    $("#gamelab").show()
-    $("#gobutton").show()
+  $("#editbutton").hide()
+  $("#yearsel").show()
+  $("#gamesel").show()
+  $("#yearlab").show()
+  $("#gamelab").show()
+  $("#gobutton").show()
 }
 
 
 function displayMode() {
-    $("#editbutton").show()
-    $("#yearsel").hide()
-    $("#gamesel").hide()
-    $("#yearlab").hide()
-    $("#gamelab").hide()
-    $("#gobutton").hide()
+  $("#editbutton").show()
+  $("#yearsel").hide()
+  $("#gamesel").hide()
+  $("#yearlab").hide()
+  $("#gamelab").hide()
+  $("#gobutton").hide()
 }
 
 
@@ -65,16 +65,16 @@ function populateYears(defaultLatest) {
       let yearOpt
 
       years.forEach((year) => {
-	yearOpt = document.createElement("option")
-	yearOpt.value = year
-	yearOpt.textContent = year
-	$("#yearsel").append(yearOpt)
+        yearOpt = document.createElement("option")
+        yearOpt.value = year
+        yearOpt.textContent = year
+        $("#yearsel").append(yearOpt)
       })
 
       // set to latest year
       // populateGameList() will be called on .change()
       if (defaultLatest) {
-	$("#yearsel").val(yearOpt.value).change()
+        $("#yearsel").val(yearOpt.value).change()
       }
     }
   })
@@ -94,10 +94,10 @@ function populateGameList() {
       let game
 
       Object.keys(res).forEach(gid => {
-	game = document.createElement("option")
-	game.value = gid
-	game.textContent = gid.replace("-", " ")
-	$("#gamesel").append(game)
+        game = document.createElement("option")
+        game.value = gid
+        game.textContent = gid.replace("-", " ")
+        $("#gamesel").append(game)
       })
     }
   })
@@ -128,8 +128,8 @@ function populateGame(args){
     method: "GET",
     url: API_URL.primary,
     data: {"qtype": "scoreboard",
-           "year":year,
-           "gid": gid},
+      "year":year,
+      "gid": gid},
     crossDomain: true,
     success: function(game) {
       let title = document.getElementById("scoretitle")
@@ -247,46 +247,46 @@ function populateScoreboard(game) {
 
       // text in cell
       if (player.picks[i] == null) {
-	cell.textContent = "?"
+        cell.textContent = "?"
       }
       
       // special case for final
       else if (i == game.bowls.length - 1) {
-	semiInd = i - 2 + player.picks[i]
-	cell.textContent = game.bowls[semiInd].teams_short[player.picks[semiInd]]
+        semiInd = i - 2 + player.picks[i]
+        cell.textContent = game.bowls[semiInd].teams_short[player.picks[semiInd]]
 	
-	if (game.type == "advanced") {
-	  cell.textContent += " - " + player.categories[i]
-	}
+        if (game.type == "advanced") {
+          cell.textContent += " - " + player.categories[i]
+        }
       }
 
       else {
-	cell.textContent = bowl.teams_short[player.picks[i]]
+        cell.textContent = bowl.teams_short[player.picks[i]]
 	
-	if (game.type == "advanced") {
-	  cell.textContent += " - " + player.categories[i]
-	}
+        if (game.type == "advanced") {
+          cell.textContent += " - " + player.categories[i]
+        }
       }
 
       // has bowl been played?
       if (bowl.result !== null) {
 
-	// style of cell
-	if (bowl.result == player.picks[i]) {
-	  cell.setAttribute("class", "win-cell")
+        // style of cell
+        if (bowl.result == player.picks[i]) {
+          cell.setAttribute("class", "win-cell")
         } 
         else if (player.picks[i] != null)  {
-	  cell.setAttribute("class", "loss-cell")
+          cell.setAttribute("class", "loss-cell")
         }
 
         // special case for final (use semiInd from above special case)
         if (i == game.bowls.length - 1) {
-	  if (bowl.result == player.picks[i] && game.bowls[semiInd].result == player.picks[semiInd]) {
-	    cell.setAttribute("class", "win-cell")
-	  }
-	  else {
-	    cell.setAttribute("class", "loss-cell")
-	  }
+          if (bowl.result == player.picks[i] && game.bowls[semiInd].result == player.picks[semiInd]) {
+            cell.setAttribute("class", "win-cell")
+          }
+          else {
+            cell.setAttribute("class", "loss-cell")
+          }
         }
       }
       row.appendChild(cell)
@@ -324,7 +324,7 @@ function populateLeaderboard(game, scores) {
 
   // sort names by descending score
   leaders.sort((a, b) => ((a.score >= b.score) ? -1 : 1))
-    //return ((a.score >= b.score) ? -1 : 1)})
+  //return ((a.score >= b.score) ? -1 : 1)})
 
   const table = document.getElementById("leadertable")
 
@@ -413,7 +413,7 @@ function calcScores(game) {
 
     game.players.forEach((player, j) => {
       if (player.picks[i] == res) {
-	scores[j] += points(i, j)
+        scores[j] += points(i, j)
       }
     })
   }
@@ -430,10 +430,10 @@ function calcScores(game) {
   if (resFinal !== null) {
     game.players.forEach((player, j) => {
       if (player.picks[indFinal] == resFinal) {
-	// also must pick the semi correctly
+        // also must pick the semi correctly
         if ((resFinal == 0 && player.picks[indSemi1] == resSemi1) || (resFinal == 1 && player.picks[indSemi2] == resSemi2)) {
-	  scores[j] += points(indFinal, j)
-	}
+          scores[j] += points(indFinal, j)
+        }
       }
     })
   }

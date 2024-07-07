@@ -64,16 +64,16 @@ function populateYears(defaultLatest) {
       let yearOpt
 
       years.forEach((year) => {
-	yearOpt = document.createElement("option")
-	yearOpt.value = year
-	yearOpt.textContent = year
-	$("#yearsel").append(yearOpt)
+        yearOpt = document.createElement("option")
+        yearOpt.value = year
+        yearOpt.textContent = year
+        $("#yearsel").append(yearOpt)
       })
 
       // set to latest year
       // populateGameList() will be called on .change()
       if (defaultLatest) {
-	$("#yearsel").val(yearOpt.value).change()
+        $("#yearsel").val(yearOpt.value).change()
       }
     }
   })
@@ -93,10 +93,10 @@ function populateGameList() {
       let game
 
       Object.keys(res).forEach(gid => {
-	game = document.createElement("option")
-	game.value = gid
-	game.textContent = gid.replace("-", " ")
-	$("#gamesel").append(game)
+        game = document.createElement("option")
+        game.value = gid
+        game.textContent = gid.replace("-", " ")
+        $("#gamesel").append(game)
       })
     }
   })
@@ -135,164 +135,165 @@ function populatePickOptions(year, gid){
       table.innerHTML = ""
 
       if (game.lock_picks) {
-	$("#statustext").text("Picks are locked for this game")
-	return
+        $("#statustext").text("Picks are locked for this game")
+        return
       }
 
       if (gameType == "advanced") {
-	$("#remaininglist").show()
+        $("#remaininglist").show()
       }
       
       game.bowls.forEach((bowl, i) => {
-	let row = document.createElement("tr")
-	let cell = document.createElement("th")
-	cell.setAttribute("class", "bowl-cell")
+        let row = document.createElement("tr")
+        let cell = document.createElement("th")
+        cell.setAttribute("class", "bowl-cell")
 
-	// name of bowl
-	let spanBowl = document.createElement("span")
-	spanBowl.textContent = bowl.name
-    	
-	if (bowl.bonus > 0) {
-	  spanBowl.textContent += " [+" + bowl.bonus + "]"
-    	}
+        // name of bowl
+        let spanBowl = document.createElement("span")
+        spanBowl.textContent = bowl.name
 
-	spanBowl.setAttribute("class", "bowl-span")
-	cell.appendChild(spanBowl)
-	cell.innerHTML += "<BR>"
+        if (bowl.bonus > 0) {
+          spanBowl.textContent += " [+" + bowl.bonus + "]"
+        }
 
-	let aTeam0
-	let aTeam1
+        spanBowl.setAttribute("class", "bowl-span")
+        cell.appendChild(spanBowl)
+        cell.innerHTML += "<BR>"
 
-	// teams in bowl
-	if (bowl.hasOwnProperty("links")) {
-	  aTeam0 = document.createElement("a")
-	  aTeam1 = document.createElement("a")
-	  aTeam0.href = bowl.links[0]
-	  aTeam1.href = bowl.links[1]
-	  aTeam0.target = "_blank"
-	  aTeam1.target = "_blank"
-	  aTeam0.rel = "noopener noreferrer"
-	  aTeam1.rel = "noopener noreferrer"
-	}
-	else {
-	  aTeam0 = document.createElement("span")
-	  aTeam1 = document.createElement("span")
-	}
+        let aTeam0
+        let aTeam1
 
-	aTeam0.textContent = bowl.teams[0]
-	aTeam1.textContent = bowl.teams[1]
+        // teams in bowl
+        if (bowl.hasOwnProperty("links")) {
+          aTeam0 = document.createElement("a")
+          aTeam1 = document.createElement("a")
+          aTeam0.href = bowl.links[0]
+          aTeam1.href = bowl.links[1]
+          aTeam0.target = "_blank"
+          aTeam1.target = "_blank"
+          aTeam0.rel = "noopener noreferrer"
+          aTeam1.rel = "noopener noreferrer"
+        }
+        
+        else {
+          aTeam0 = document.createElement("span")
+          aTeam1 = document.createElement("span")
+        }
 
-	if (i == game.bowls.length - 1) {
-	  aTeam0.textContent = "?"
-	  aTeam1.textContent = "?"
-	}
+        aTeam0.textContent = bowl.teams[0]
+        aTeam1.textContent = bowl.teams[1]
 
-	cell.appendChild(aTeam0)
-	cell.innerHTML += " vs "
-	cell.appendChild(aTeam1)
-	cell.innerHTML += "<BR>"
+        if (i == game.bowls.length - 1) {
+          aTeam0.textContent = "?"
+          aTeam1.textContent = "?"
+        }
+
+        cell.appendChild(aTeam0)
+        cell.innerHTML += " vs "
+        cell.appendChild(aTeam1)
+        cell.innerHTML += "<BR>"
 	
-	// date of bowl
-	let spanDate = document.createElement("span")
-	spanDate.textContent = bowl.date[0].toString() + "/" + bowl.date[1].toString() + "/" + bowl.date[2].toString()
-	spanDate.setAttribute("class", "date-span")
-	cell.appendChild(spanDate)
+        // date of bowl
+        let spanDate = document.createElement("span")
+        spanDate.textContent = bowl.date[0].toString() + "/" + bowl.date[1].toString() + "/" + bowl.date[2].toString()
+        spanDate.setAttribute("class", "date-span")
+        cell.appendChild(spanDate)
 
-	row.appendChild(cell)
+        row.appendChild(cell)
 
-	// pick options, with logic for CFP
-	cell = document.createElement("td")
-	let shortName = bowl.teams_short[0]
+        // pick options, with logic for CFP
+        cell = document.createElement("td")
+        let shortName = bowl.teams_short[0]
 	
-	if (i == game.bowls.length - 1) {
-	  shortName = "?"
-	}
+        if (i == game.bowls.length - 1) {
+          shortName = "?"
+        }
 
-	let nameSpan = document.createElement("span")
-	nameSpan.textContent = shortName
-	cell.appendChild(nameSpan)
-	cell.innerHTML += "<BR>"
-	let radio = document.createElement("input")
-	radio.setAttribute("type", "radio")
-	radio.setAttribute("name", "bowl" + i)
-	radio.setAttribute("value", 0)
+        let nameSpan = document.createElement("span")
+        nameSpan.textContent = shortName
+        cell.appendChild(nameSpan)
+        cell.innerHTML += "<BR>"
+        let radio = document.createElement("input")
+        radio.setAttribute("type", "radio")
+        radio.setAttribute("name", "bowl" + i)
+        radio.setAttribute("value", 0)
 
-	if (i == game.bowls.length - 2 || i == game.bowls.length - 3) {
-	  radio.addEventListener("change", updateBracket)
-	}
+        if (i == game.bowls.length - 2 || i == game.bowls.length - 3) {
+          radio.addEventListener("change", updateBracket)
+        }
 	
-	cell.appendChild(radio)
-	row.appendChild(cell)
+        cell.appendChild(radio)
+        row.appendChild(cell)
 
-	cell = document.createElement("td")
-	shortName = bowl.teams_short[1]
+        cell = document.createElement("td")
+        shortName = bowl.teams_short[1]
 
-	if (i == game.bowls.length - 1) {
-	  shortName = "?"
-	}
+        if (i == game.bowls.length - 1) {
+          shortName = "?"
+        }
 
-	nameSpan = document.createElement("span")
-	nameSpan.textContent = shortName
-	cell.appendChild(nameSpan)
-	cell.innerHTML += "<BR>"
-	radio = document.createElement("input")
-	radio.setAttribute("type", "radio")
-	radio.setAttribute("name", "bowl" + i)
-	radio.setAttribute("value", 1)
+        nameSpan = document.createElement("span")
+        nameSpan.textContent = shortName
+        cell.appendChild(nameSpan)
+        cell.innerHTML += "<BR>"
+        radio = document.createElement("input")
+        radio.setAttribute("type", "radio")
+        radio.setAttribute("name", "bowl" + i)
+        radio.setAttribute("value", 1)
 	
-	if (i == game.bowls.length - 2 || i == game.bowls.length - 3) {
-	  radio.addEventListener("change", updateBracket)
-	}
+        if (i == game.bowls.length - 2 || i == game.bowls.length - 3) {
+          radio.addEventListener("change", updateBracket)
+        }
 	
-	cell.appendChild(radio)
-	row.appendChild(cell)
+        cell.appendChild(radio)
+        row.appendChild(cell)
 	
-	if (gameType === "advanced") {
-	  // category pick
-	  cell = document.createElement("td")
-	  let dropdown = document.createElement("select")
-	  dropdown.setAttribute("name", "cat" + i)
-	  dropdown.setAttribute("class", "cat-select")
-	  dropdown.addEventListener("change", updateCategories)
-	  
-	  let opt = document.createElement("option")
+        if (gameType === "advanced") {
+          // category pick
+          // cell = document.createElement("td")
+          let dropdown = document.createElement("select")
+          dropdown.setAttribute("name", "cat" + i)
+          dropdown.setAttribute("class", "cat-select")
+          dropdown.addEventListener("change", updateCategories)
+          let opt = document.createElement("option")
 
-	  // semis and final are always cat3
-	  if (i >= game.bowls.length - 3) {
-	    opt.textContent = 3
-	    opt.setAttribute("value", 3)
-	    dropdown.appendChild(opt)
-	  }
-	  else {
-	    opt.textContent = "-"
-	    opt.setAttribute("value", "")
-	    dropdown.appendChild(opt)
+          // semis and final are always cat3
+          if (i >= game.bowls.length - 3) {
+            opt.textContent = 3
+            opt.setAttribute("value", 3)
+            dropdown.appendChild(opt)
+          }
+          
+          else {
+            opt.textContent = "-"
+            opt.setAttribute("value", "")
+            dropdown.appendChild(opt)
 
-	    for (let k = 1; k <=6; k++) {
-	      opt = document.createElement("option")
-	      opt.textContent = k
-	      opt.setAttribute("value", k)
-	      dropdown.appendChild(opt)
-	    }
-	  }
+            for (let k = 1; k <=6; k++) {
+              opt = document.createElement("option")
+              opt.textContent = k
+              opt.setAttribute("value", k)
+              dropdown.appendChild(opt)
+            }
+          }
 
-	  cell.appendChild(dropdown)
-	  row.appendChild(cell)
+          cell.appendChild(dropdown)
+          row.appendChild(cell)
 
-	  // scratch field
-	  cell = document.createElement("td")
-	  let scratch = document.createElement("input")
-	  scratch.setAttribute("type", "text")
-	  scratch.setAttribute("class", "scratch-text")
-	  
-	  cell.appendChild(scratch)
-	  row.appendChild(cell) 
-	}
-	table.appendChild(row)
+          // scratch field
+          cell = document.createElement("td")
+          let scratch = document.createElement("input")
+          scratch.setAttribute("type", "text")
+          scratch.setAttribute("class", "scratch-text")
+
+          cell.appendChild(scratch)
+          row.appendChild(cell) 
+        }
+        table.appendChild(row)
       })
 
       if (gameType === "advanced") {
-	updateCategories()
+        updateCategories()
       }
     }
   })
@@ -302,8 +303,8 @@ function populatePickOptions(year, gid){
 function updateBracket() {
   let table = document.getElementById("picktable")
   
-  let pickSemi1 = $('input[name="bowl' + (table.children.length - 3) + '"]:checked').val()
-  let pickSemi2 = $('input[name="bowl' + (table.children.length - 2) + '"]:checked').val()
+  let pickSemi1 = $("input[name=\"bowl" + (table.children.length - 3) + "\"]:checked").val()
+  let pickSemi2 = $("input[name=\"bowl" + (table.children.length - 2) + "\"]:checked").val()
 
   let semi1 = table.children[table.children.length - 3]
   let semi2 = table.children[table.children.length - 2]
@@ -370,7 +371,7 @@ function submitPicks() {
       
 
   for (let i = 0; i < numgames; i++) {
-    let pick = $('input[name="bowl' + i + '"]:checked').val()
+    let pick = $("input[name=\"bowl" + i + "\"]:checked").val()
 
     if (pick === undefined) {
       $("#statustext").text("Error: all games must be selected")
@@ -379,11 +380,11 @@ function submitPicks() {
     picks.push(pick)
 
     if (gameType === "advanced") {
-      let category = $('select[name="cat' + i + '"]').val()
+      let category = $("select[name=\"cat" + i + "\"]").val()
 
       if (category === "") {
-	$("#statustext").text("Error: all games must have category")
-	return
+        $("#statustext").text("Error: all games must have category")
+        return
       }
       categories.push(category)
     }
