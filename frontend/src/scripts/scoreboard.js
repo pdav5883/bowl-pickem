@@ -1,8 +1,10 @@
-const api_url = "https://nstpyzzfae.execute-api.us-east-1.amazonaws.com/pickem"
-
+import { API_URL } from "./constants.js"
+import { populateMenu } from "./shared.js"
+import $ from "jquery"
 
 // window.onload = initScoreboardPage
 $(document).ready(function() {
+  populateMenu()
   $("#yearsel").on("change", populateGameList)
   $("#gobutton").on("click", changeGame)
   $("#editbutton").on("click", function() {
@@ -56,7 +58,7 @@ function displayMode() {
 function populateYears(defaultLatest) {
   $.ajax({
     method: "GET",
-    url: api_url,
+    url: API_URL.primary,
     data: {"qtype": "years"},
     crossDomain: true,
     success: function(years) {
@@ -85,7 +87,7 @@ function populateGameList() {
 
   $.ajax({
     method: "GET",
-    url: api_url,
+    url: API_URL.primary,
     data: {"qtype": "games", "year": $("#yearsel").val()},
     crossDomain: true,
     success: function(res) {
@@ -124,7 +126,7 @@ function populateGame(args){
 
   $.ajax({
     method: "GET",
-    url: api_url,
+    url: API_URL.primary,
     data: {"qtype": "scoreboard",
            "year":year,
            "gid": gid},
@@ -421,9 +423,9 @@ function calcScores(game) {
   const indSemi2 = game.bowls.length - 2
   const indFinal = game.bowls.length - 1
 
-  resSemi1 = game.bowls[indSemi1].result
-  resSemi2 = game.bowls[indSemi2].result
-  resFinal = game.bowls[indFinal].result
+  const resSemi1 = game.bowls[indSemi1].result
+  const resSemi2 = game.bowls[indSemi2].result
+  const resFinal = game.bowls[indFinal].result
 
   if (resFinal !== null) {
     game.players.forEach((player, j) => {
@@ -470,7 +472,7 @@ function ordinalSuper(num) {
 //  // server returns the years that are available in the data file
 //  $.ajax({
 //    method: "GET",
-//    url: api_url,
+//    url: API_URL.primary,
 //    data: {"qtype": "years"},
 //    crossDomain: true,
 //    success: function(res) {

@@ -1,6 +1,12 @@
+import "./constants.js"
+import "../styles/fonts.css"
+import "skeleton-css/css/normalize.css"
+import "skeleton-css/css/skeleton.css"
+import "../styles/custom.css"
 import $ from "jquery"
 
-function populateMenu() {
+export function populateMenu() {
+  document.getElementById("navmenucontainer").innerHTML = navmenu
 
   // Variables
   var $nav = $('.navbar'),
@@ -27,7 +33,7 @@ function populateMenu() {
   }
 
   init();
-});
+}
 
 var navmenu =
 '<ul class="navbar-list">' +

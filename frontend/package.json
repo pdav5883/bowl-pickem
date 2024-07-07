@@ -1,0 +1,21 @@
+{
+  "devDependencies": {
+    "copy-webpack-plugin": "^12.0.2",
+    "css-loader": "^7.1.2",
+    "eslint": "^9.6.0",
+    "google-fonts-webpack-plugin": "^0.4.4",
+    "html-webpack-plugin": "^5.6.0",
+    "style-loader": "^4.0.0",
+    "webpack": "^5.92.1",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^5.0.4"
+  },
+  "dependencies": {
+    "jquery": "^3.5.0",
+    "skeleton-css": "^2.0.4"
+  },
+  "scripts": {
+    "build": "webpack",
+    "serve": "webpack serve --port 8000"
+  }
+}

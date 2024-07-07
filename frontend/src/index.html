@@ -1,32 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- Basic Page Needs -->
   <meta charset="utf-8">
-  <title>Scoreboard</title>
-  <!-- Mobile Specific Metas -->
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- FONT -->
-  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
-  <!-- <link href="/_tmp/fonts" rel="stylesheet" type="text/css"> -->
-  <!-- CSS -->
-  <link rel="stylesheet" href="/styles/normalize.css"> 
-  <link rel="stylesheet" href="/styles/skeleton.css">  
-  <link rel="stylesheet" href="/styles/custom.css">  
-  <!-- Favicon -->
-  <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
-  <!-- JQuery -->
-  <script src="https://code.jquery.com/jquery-3.5.0.js"></script>
-  <script src="/scripts/scoreboard.js"></script>
-  <script src="/scripts/menu.js"></script>
+  <title><%= htmlWebpackPlugin.options.title %></title>
+  <link rel="icon" type="image/x-icon" href="./assets/favicon.ico">
 </head>
 <body>
   <div class="navbar-spacer"></div>
   <nav class="navbar">
     <div id="navmenucontainer" class="container navcontainer">
-    <script>
-      document.getElementById("navmenucontainer").innerHTML = navmenu
-    </script>
     </div>
   </nav>
   <div class="top container">

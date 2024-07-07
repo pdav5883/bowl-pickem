@@ -1,4 +1,6 @@
-const api_url = "https://nstpyzzfae.execute-api.us-east-1.amazonaws.com/pickem"
+import { API_URL } from "./constants.js"
+import { populateMenu } from "./shared.js"
+import $ from "jquery"
 
 // need to have keep these at global scope since year/gid
 // needed by submitPicks, even when they come in as args
@@ -9,6 +11,7 @@ let hasArgs
 let gameType
 
 $(document).ready(function() {
+  populateMenu()
   $("#yearsel").on("change", populateGameList)
   $("#subbutton1").on("click", submitPicks)
   $("#subbutton2").on("click", submitPicks)
@@ -54,7 +57,7 @@ function initSubmitPage() {
 function populateYears(defaultLatest) {
   $.ajax({
     method: "GET",
-    url: api_url,
+    url: API_URL.primary,
     data: {"qtype": "years"},
     crossDomain: true,
     success: function(years) {
@@ -83,7 +86,7 @@ function populateGameList() {
 
   $.ajax({
     method: "GET",
-    url: api_url,
+    url: API_URL.primary,
     data: {"qtype": "games", "year": $("#yearsel").val()},
     crossDomain: true,
     success: function(res) {
@@ -108,7 +111,7 @@ function populatePickOptions(year, gid){
   
   $.ajax({
     method: "GET",
-    url: api_url,
+    url: API_URL.primary,
     data: {"qtype": "scoreboard", "year": year, "gid": gid},
     crossDomain: true,
     success: function(game) {
@@ -397,7 +400,7 @@ function submitPicks() {
 
   $.ajax({
     type: "POST",
-    url: api_url,
+    url: API_URL.primary,
     dataType: "json",
     crossDomain: true,
     contentType: "application/json; charset=utf-8",

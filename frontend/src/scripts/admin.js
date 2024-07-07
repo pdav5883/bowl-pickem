@@ -1,5 +1,6 @@
-const admin_api_url = "https://nstpyzzfae.execute-api.us-east-1.amazonaws.com/admin"
-const pickem_api_url = "https://nstpyzzfae.execute-api.us-east-1.amazonaws.com/pickem"
+import { API_URL } from "./constants.js"
+import { populateMenu } from "./shared.js"
+import $ from "jquery"
 
 // need to have keep these at global scope since year/gid
 // needed by submitPicks, even when they come in as args
@@ -10,6 +11,7 @@ let yearArg
 let gidArg
 
 $(document).ready(function() {
+  populateMenu()
   $("#yearsel").on("change", populateGameList)
   $("#subbutton").on("click", submitEdits)
   $("#gobutton").on("click", changeAdminPage)
@@ -26,7 +28,7 @@ function initAdminPage() {
 function populateYears(defaultLatest) {
   $.ajax({
     method: "GET",
-    url: pickem_api_url,
+    url: API_URL.primary,
     data: {"qtype": "years"},
     crossDomain: true,
     success: function(years) {
@@ -55,7 +57,7 @@ function populateGameList() {
 
   $.ajax({
     method: "GET",
-    url: pickem_api_url,
+    url: API_URL.primary,
     data: {"qtype": "games", "year": $("#yearsel").val()},
     crossDomain: true,
     success: function(res) {
@@ -75,7 +77,7 @@ function populateGameList() {
 function populateResultsTable(year) {
   $.ajax({
     method: "GET",
-    url: pickem_api_url,
+    url: API_URL.primary,
     data: {"qtype": "bowls", "year": year},
     crossDomain: true,
     success: function(bowls) {
@@ -145,7 +147,7 @@ function populateResultsTable(year) {
 function populateGameTable(year, gid) {
   $.ajax({
     method: "GET",
-    url: pickem_api_url,
+    url: API_URL.primary,
     data: {"qtype": "scoreboard", "year": year, "gid": gid},
     crossDomain: true,
     success: function(game) {
@@ -258,7 +260,7 @@ function submitGameEdits() {
 
   $.ajax({
     type: "POST",
-    url: admin_api_url,
+    url: API_URL.admin,
     headers: {"authorization": $("#pwdtext").val()},
     crossDomain: true,
     contentType: "application/json; charset=utf-8",
@@ -302,7 +304,7 @@ function submitResultsEdits() {
 
   $.ajax({
     type: "POST",
-    url: admin_api_url,
+    url: API_URL.admin,
     headers: {"authorization": $("#pwdtext").val()},
     crossDomain: true,
     contentType: "application/json; charset=utf-8",

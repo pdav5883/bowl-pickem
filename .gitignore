@@ -1,4 +1,6 @@
 _tmp/
 data/
+dist/
+node_modules/
 *.zip
 cfn-params-private.json
