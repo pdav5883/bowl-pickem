@@ -1,4 +1,5 @@
 const path = require("path")
+const webpack = require("webpack")
 const HtmlWebpack = require("html-webpack-plugin")
 const CopyWebpack = require("copy-webpack-plugin")
 
@@ -59,6 +60,11 @@ module.exports = {
           to: "assets",
         },
       ]
+    }),
+    new webpack.DefinePlugin({
+      OUT_ApiId: JSON.stringify(process.env.ApiId),
+      SUB_PrimaryRouteName: JSON.stringify(process.env.PrimaryRouteName),
+      SUB_AdminRouteName: JSON.stringify(process.env.AdminRouteName),
     }),
   ],
   module: {

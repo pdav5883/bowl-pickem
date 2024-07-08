@@ -12,6 +12,12 @@ This repo contains the client side code and python lambda code for a College Foo
 - BowlsAdminEdit: called from `{API}/admin `POST` requests. Allows adjustment of bowl scores and game status. Requires authorization to execute via API gateway authorizer lambda. See `lambdas/admin_edit`
 - BowlsAdminAuth: called indirectly as lambda authorizer for BowlsAdminEdit. Compares secret sent in header to secret stored in SSM. See `lambdas/admin_auth`.
 
+## Deployment
+### Frontend Parameter Substitution
+This was a huge pain to get working, and definitely not worth it, especially since it's not very elegant. For any frontend file that relies on variables either defined as parameters for the CFN Stack (e.g. route names) or outputs (e.g. API ID), the file needs a `SUB_ParameterId` (for parameters) or `OUT_OutputId` (for outputs) placeholder wherever a substitution is required. Then in the `webpack.config` file there is a plugin that performs variable substitution, so each of these `SUB` or `OUT` placeholders must be included there.
+
+The plugin maps the placeholder to env variables of the process running the webpack command (i.e. `npm run`). These env variables are created in `package.json` as part of the `build` or `serve` script that ends up calling webpack. There is a `grab()` function defined in the script that queries the running CloudFormation stack for the parameter/output and then exports the variable to be used above. Each of the parameter/output substitutions must also be included in the script here.
+
 ## Future Work
 - Move data to DB
 - Edit/view picks after made
