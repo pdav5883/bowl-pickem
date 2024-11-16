@@ -37,6 +37,9 @@ Outputs:
   ApiId:
     Value: !Ref ApiGatewayBowls
 Resources:
+############################
+#### Lambda 
+############################
   LambdaBowlsUpdatePicks:
     Type: "AWS::Lambda::Function"
     UpdateReplacePolicy: "Delete"
@@ -157,6 +160,9 @@ Resources:
         Size: 512
       Architectures:
       - "x86_64"
+############################
+#### IAM 
+############################
   RoleBowlsReadWrite:
     Type: "AWS::IAM::Role"
     UpdateReplacePolicy: "Delete"
@@ -275,6 +281,9 @@ Resources:
           Action: "ssm:GetParameter"
           Effect: "Allow"
           Sid: "VisualEditor0"
+############################
+#### S3 
+############################
   S3BowlsPublic:
     Type: "AWS::S3::Bucket"
     UpdateReplacePolicy: "Retain"
@@ -313,6 +322,9 @@ Resources:
         - BucketKeyEnabled: false
           ServerSideEncryptionByDefault:
             SSEAlgorithm: "AES256"
+############################
+#### API 
+############################
   ApiGatewayBowls:
     Type: "AWS::ApiGatewayV2::Api"
     UpdateReplacePolicy: "Delete"
@@ -460,6 +472,9 @@ Resources:
       Action: "lambda:InvokeFunction"
       SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiGatewayBowls}/authorizers/${ApiAuthorizerBowlsAdminAuth}"
       Principal: "apigateway.amazonaws.com"
+############################
+#### CloudFront 
+############################
   CloudFrontDistroBowls:
     Type: "AWS::CloudFront::Distribution"
     UpdateReplacePolicy: "Delete"
@@ -524,6 +539,9 @@ Resources:
             Service: "cloudfront.amazonaws.com"
           Sid: "AllowCloudFrontServicePrincipal"
         Id: "PolicyForCloudFrontPrivateContent"
+############################
+#### Route53 
+############################
   Route53ARecordBowls:
     Type: "AWS::Route53::RecordSet"
     UpdateReplacePolicy: "Delete"
@@ -546,6 +564,9 @@ Resources:
       AliasTarget:
         DNSName: !GetAtt CloudFrontDistroBowls.DomainName
         HostedZoneId: "Z2FDTNDATAQYW2"
+############################
+#### Logs 
+############################
   LogBowlsLambdaGetScoreboard:
     Type: "AWS::Logs::LogGroup"
     UpdateReplacePolicy: "Delete"
