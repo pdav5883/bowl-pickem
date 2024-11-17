@@ -37,7 +37,7 @@ for dir in */; do
     cd "$lambda_short_name"
 
     # whether to zip lambda_function.py
-    if [[ "$FORCE" = true || ! -f "$zip_file" || "lambda_function.py" -nt "$zip_file" ]]; then
+    if [[ "$FORCE_UPDATE" = true || ! -f "$zip_file" || "lambda_function.py" -nt "$zip_file" ]]; then
         echo "Performing substitutions and updating $zip_file..."
 
         # Create the temp directory
@@ -47,11 +47,11 @@ for dir in */; do
         cp lambda_function.py "$temp_file"
 
         # Perform the substitution for "SUB_" placeholders
-        for placeholder in $(grep -oP '(?<=SUB_).*' "$temp_file"); do
+        for placeholder in $(grep -oP 'SUB_[A-Za-z0-9_]*' "$temp_file"); do
             key="${placeholder#SUB_}"
             value="${CF_PARAMS[$key]}"
             if [[ -n "$value" ]]; then
-                sed -i "s/$placeholder/$value/g" "$temp_file"
+                sed -i "s/$placeholder/\"$value\"/g" "$temp_file"
             else
                 echo "Error: No value found for $placeholder in CloudFormation parameters from $lambda_short_name."
 		rm -rf "temp"
@@ -79,7 +79,7 @@ for dir in */; do
     zip_file_epoch=$(date -r "$zip_file" +%s)
 
     # Compare the modification times
-    if [[ "$FORCE" = true || "$zip_file_epoch" -gt "$lambda_modified_epoch" ]]; then
+    if [[ "$FORCE_UPDATE" = true || "$zip_file_epoch" -gt "$lambda_modified_epoch" ]]; then
         echo "Uploading $zip_file to AWS Lambda function $lambda_name..."
         aws lambda update-function-code --function-name "$lambda_name" --zip-file fileb://"$zip_file" --no-cli-pager > /dev/null 2>&1
 
