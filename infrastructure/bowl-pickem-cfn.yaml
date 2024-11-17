@@ -61,7 +61,7 @@ Resources:
                 return False
       Role: !GetAtt RoleBowlsReadWrite.Arn 
       FileSystemConfigs: []
-      Runtime: "python3.8"
+      Runtime: "python3.12"
       PackageType: "Zip"
       LoggingConfig:
         LogFormat: "Text"
@@ -91,7 +91,7 @@ Resources:
                 return False
       Role: !GetAtt RoleBowlsRead.Arn 
       FileSystemConfigs: []
-      Runtime: "python3.8"
+      Runtime: "python3.12"
       PackageType: "Zip"
       LoggingConfig:
         LogFormat: "Text"
@@ -121,7 +121,7 @@ Resources:
                 return False
       Role: !GetAtt RoleBowlsReadWrite.Arn 
       FileSystemConfigs: []
-      Runtime: "python3.8"
+      Runtime: "python3.12"
       PackageType: "Zip"
       LoggingConfig:
         LogFormat: "Text"
@@ -151,7 +151,7 @@ Resources:
                 return False
       Role: !GetAtt RoleBowlsAdminRead.Arn 
       FileSystemConfigs: []
-      Runtime: "python3.8"
+      Runtime: "python3.12"
       PackageType: "Zip"
       LoggingConfig:
         LogFormat: "Text"
