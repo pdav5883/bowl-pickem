@@ -1,4 +1,4 @@
-const AWS_API_ID = OUT_ApiId
+const AWS_API_ID = SUB_ApiId
 const PRIMARY_ROUTE = SUB_PrimaryRouteName
 const ADMIN_ROUTE = SUB_AdminRouteName
 
