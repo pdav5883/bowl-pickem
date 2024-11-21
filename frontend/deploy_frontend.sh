@@ -4,25 +4,21 @@
 # the CloudFront distro.
 ############
 
-# Set initial value
-value=0
+STACK_NAME="bowl-pickem"
 
-grab() {
-    type=$1
-    key=$2
+# Grab params and outputs from Cloudformation stack
+declare -A CF_PARAMS
+while IFS= read -r line; do
+    key=$(echo "$line" | awk '{print $1}')
+    value=$(echo "$line" | awk '{print $2}')
+    CF_PARAMS["$key"]="$value"
+done < <(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --query 'Stacks[0].Parameters[]' --output text | awk '{print $1, $2}')
 
-    value=$(aws cloudformation describe-stacks --stack-name bowl-pickem \
-        --query "Stacks[0].${type}s[?${type}Key=='${key}'].${type}Value | [0]" \
-        | tr -d '"')
-
-    echo "Grabbed CloudFormation ${type} ${key}=${value}"
-}
-
-grab Parameter PublicBucketName
-bucket_name=$value
-
-grab Output CloudFrontDistroId
-distro_id=$value
+while IFS= read -r line; do
+    key=$(echo "$line" | awk '{print $1}')
+    value=$(echo "$line" | awk '{print $2}')
+    CF_PARAMS["$key"]="$value"
+done < <(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --query 'Stacks[0].Outputs[]' --output text | awk '{print $1, $2}')
 
 # Build webpack
 echo "Building frontend files with webpack..."
@@ -31,7 +27,7 @@ npm run build
 
 # Sync to AWS
 echo "Uploading frontend files to AWS..."
-aws s3 sync ./dist "s3://${bucket_name}" --cache-control="max-age=21600" \
+aws s3 sync ./dist "s3://${CF_PARAMS[PublicBucketName]}" --cache-control="max-age=21600" \
     --exclude="*" \
     --include="*.html" \
     --include="*.css" \
@@ -39,4 +35,4 @@ aws s3 sync ./dist "s3://${bucket_name}" --cache-control="max-age=21600" \
     --include="*.ico" \
     --include="*.woff2"
 
-aws cloudfront create-invalidation --distribution-id "${distro_id}" --paths "/*"
+aws cloudfront create-invalidation --distribution-id "${CF_PARAMS[CloudFrontDistroId]}" --paths "/*" > /dev/null 2>&1
