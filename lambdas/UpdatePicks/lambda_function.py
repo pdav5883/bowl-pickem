@@ -20,11 +20,8 @@ def lambda_handler(event, context):
     if "categories" in new_picks:
         new_picks["categories"] = [int(c) for c in new_picks["categories"]]
     
-    # retrieve existing data file from s3
-    obj_key = year + "/" + gid + ".json"
-    
     try:
-        data_s3 = s3.get_object(Bucket=obj_bucket, Key=obj_key)
+        data_s3 = s3.get_object(Bucket=obj_bucket, Key=f"{year}/{gid}.json"
     
     except ClientError as e:
         print(e)
@@ -55,12 +52,12 @@ def lambda_handler(event, context):
 
         # incorrect number of each category
         if "categories" in new_picks:
-            catRemaining = 6 * [(numgames - 3) // 6]
-            for i in range((numgames - 3) % 6):
+            catRemaining = 6 * [(numgames - 11) // 6]
+            for i in range((numgames - 11) % 6):
                 catRemaining[i] += 1
 
             # semis/final are all cat 3
-            catRemaining[2] += 3
+            catRemaining[2] += 11
 
             for cat in new_picks["categories"]:
                 catRemaining[int(cat) - 1] -= 1
@@ -88,5 +85,5 @@ def lambda_handler(event, context):
         data["players"].append({"name": new_picks["name"], "picks": new_picks["picks"]})
     
     # upload new data to s3
-    response = s3.put_object(Body=bytes(json.dumps(data, indent=2).encode('UTF-8')), Bucket=obj_bucket, Key=obj_key)
+    response = s3.put_object(Body=bytes(json.dumps(data, indent=2).encode('UTF-8')), Bucket=obj_bucket, Key=f"{year}/{gid}.json")
 

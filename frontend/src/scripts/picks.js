@@ -1,4 +1,4 @@
-import { API_URL } from "./constants.js"
+import { API_URL, NEXT_GAME } from "./constants.js"
 import { populateMenu } from "./shared.js"
 import $ from "jquery"
 
@@ -218,7 +218,7 @@ function populatePickOptions(year, gid){
         radio.setAttribute("name", "bowl" + i)
         radio.setAttribute("value", 0)
 
-        if (i == game.bowls.length - 2 || i == game.bowls.length - 3) {
+        if (i >= game.bowls.length - NEXT_GAME[yearArg].length) {
           radio.addEventListener("change", updateBracket)
         }
 	
@@ -241,7 +241,7 @@ function populatePickOptions(year, gid){
         radio.setAttribute("name", "bowl" + i)
         radio.setAttribute("value", 1)
 	
-        if (i == game.bowls.length - 2 || i == game.bowls.length - 3) {
+        if (i >= game.bowls.length - NEXT_GAME[yearArg].length) {
           radio.addEventListener("change", updateBracket)
         }
 	
@@ -257,8 +257,8 @@ function populatePickOptions(year, gid){
           dropdown.addEventListener("change", updateCategories)
           let opt = document.createElement("option")
 
-          // semis and final are always cat3
-          if (i >= game.bowls.length - 3) {
+          // tournament games  always cat3
+          if (i >= game.bowls.length - NEXT_GAME[yearArg].length) {
             opt.textContent = 3
             opt.setAttribute("value", 3)
             dropdown.appendChild(opt)
@@ -299,42 +299,47 @@ function populatePickOptions(year, gid){
   })
 }
 
+function updateBracketGame(gameIndex) {
+  
+  const [nextGameIndex, nextGameSlot] = NEXT_GAME[yearArg][gameIndex]
+  const bracketGames = NEXT_GAME[yearArg].length
+
+  // final always has null next game
+  if (!nextGameIndex) {
+    return
+  }
+
+  let table = document.getElementById("picktable")
+  const gamePick = $("input[name=\"bowl" + (table.children.length - bracketGames + gameIndex) + "\"]:checked").val()
+
+  const game = table.children[table.children.length - bracketGames + gameIndex]
+  let nextGame = table.children[table.children.length - bracketGames + nextGameIndex]
+
+  let teamLong
+  let teamShort
+  
+  if (gamePick == 0) {
+    teamLong = game.children[0].children[2].textContent
+    teamShort = game.children[1].children[0].textContent
+  }
+  else if (gamePick == 1) {
+    teamLong = game.children[0].children[3].textContent
+    teamShort = game.children[2].children[0].textContent
+  }
+  else {
+    teamLong = "?"
+    teamShort = "?"
+  }
+
+  nextGame.children[0].children[2 + nextGameSlot].textContent = teamLong
+  nextGame.children[1 + nextGameSlot].children[0].textContent = teamShort
+}
+
 
 function updateBracket() {
-  let table = document.getElementById("picktable")
-  
-  let pickSemi1 = $("input[name=\"bowl" + (table.children.length - 3) + "\"]:checked").val()
-  let pickSemi2 = $("input[name=\"bowl" + (table.children.length - 2) + "\"]:checked").val()
-
-  let semi1 = table.children[table.children.length - 3]
-  let semi2 = table.children[table.children.length - 2]
-  let fina = table.children[table.children.length - 1]
-
-  if (pickSemi1 === undefined) {
-    fina.children[0].children[2].textContent = "?"
-    fina.children[1].children[0].textContent = "?"
-  }
-  else if (pickSemi1 == 0) {
-    fina.children[0].children[2].textContent = semi1.children[0].children[2].textContent
-    fina.children[1].children[0].textContent = semi1.children[1].children[0].textContent
-  }
-  else if (pickSemi1 == 1) {
-    fina.children[0].children[2].textContent = semi1.children[0].children[3].textContent
-    fina.children[1].children[0].textContent = semi1.children[2].children[0].textContent
-  }
-
-  
-  if (pickSemi2 === undefined) {
-    fina.children[0].children[3].textContent = "?"
-    fina.children[2].children[0].textContent = "?"
-  }
-  else if (pickSemi2 == 0) {
-    fina.children[0].children[3].textContent = semi2.children[0].children[2].textContent
-    fina.children[2].children[0].textContent = semi2.children[1].children[0].textContent
-  }
-  else if (pickSemi2 == 1) {
-    fina.children[0].children[3].textContent = semi2.children[0].children[3].textContent
-    fina.children[2].children[0].textContent = semi2.children[2].children[0].textContent
+  const bracketGames = NEXT_GAME[yearArg].length
+  for (let i = 0; i < bracketGames; i++) {
+    updateBracketGame(i)
   }
 }
 
