@@ -1,6 +1,7 @@
-import { API_URL } from "./constants.js"
+import { API_URL, PREV_GAME } from "./constants.js"
 import { populateMenu } from "./shared.js"
 import $ from "jquery"
+
 
 // window.onload = initScoreboardPage
 $(document).ready(function() {
@@ -159,8 +160,6 @@ function populateScoreboard(game) {
   //   for each player
   //     write pick (mark with winner loser)
   
-  const scores = calcScores(game)
-  
   const table = document.getElementById("scoretable")
   
   // clear the table
@@ -176,26 +175,19 @@ function populateScoreboard(game) {
     cell = document.createElement("th")
     cell.textContent = player.name
     row.appendChild(cell)
+
+    // these two arrays are used to keep track of playoff winners
+    player.short_winner = []
+    player.game_correct = []
   })
 
   table.appendChild(row)
 
-  // score row
-  row = document.createElement("tr")
-  cell = document.createElement("td")
-  cell.setAttribute("class", "score-cell")
-  row.appendChild(cell)
+  // score row inserted later
 
-  scores.forEach(score => {
-    cell = document.createElement("td")
-    cell.textContent = score
-    cell.setAttribute("class", "score-cell")
-    row.appendChild(cell)
-  })
+  const firstPlayoff = game.bowls.length - PREV_GAME[game.year].length
 
-  table.appendChild(row)
-
-  // row for each bowl, with picks for each player
+  // do all bowls except playoffs
   game.bowls.forEach((bowl, i) => {
     row = document.createElement("tr")
     cell = document.createElement("th")
@@ -216,8 +208,49 @@ function populateScoreboard(game) {
     // head to head teams in bowl
     let spanTeam0 = document.createElement("span")
     let spanTeam1 = document.createElement("span")
-    spanTeam0.textContent = bowl.teams[0]
-    spanTeam1.textContent = bowl.teams[1]
+    
+    // the index of the parent game for upper and lower in this game
+    // need to define here for so it can also be used by player
+    let prev0
+    let prev1
+    
+    // not playoff
+    if (i < firstPlayoff) {
+      spanTeam0.textContent = bowl.teams[0]
+      spanTeam1.textContent = bowl.teams[1]
+    }
+    // playoff
+    else {
+      const [relPrev0, relPrev1] = PREV_GAME[game.year][i - firstPlayoff]
+      prev0 = relPrev0 !== null ? relPrev0 + firstPlayoff : null
+      prev1 = relPrev1 !== null ? relPrev1 + firstPlayoff : null
+
+      // first slot has no previous game
+      if (prev0 == null) {
+        spanTeam0.textContent = bowl.teams[0]
+      }
+      // previous game has been played
+      else if (game.bowls[prev0].result != null) {
+        spanTeam0.textContent = game.bowls[prev0].teams[game.bowls[prev0].result]
+        bowl.teams[0] = spanTeam0.textContent
+      }
+      // previous game has not been played
+      else {
+        spanTeam0.textContent = "?"
+      }
+
+      // same for second slot
+      if (prev1 == null) {
+        spanTeam1.textContent = bowl.teams[1]
+      }
+      else if (game.bowls[prev1].result != null) {
+        spanTeam1.textContent = game.bowls[prev1].teams[game.bowls[prev1].result]
+        bowl.teams[1] = spanTeam1.textContent
+      }
+      else {
+        spanTeam1.textContent = "?"
+      }
+    }
 
     if (bowl.result == 0) {
       spanTeam0.setAttribute("class", "winner-span")
@@ -243,50 +276,75 @@ function populateScoreboard(game) {
     // each players pick for game
     game.players.forEach(player => {
       cell = document.createElement("td")
-      let semiInd
 
-      // text in cell
+      // text in pick cell
       if (player.picks[i] == null) {
         cell.textContent = "?"
+        player.short_winner.push(null) // doesn't matter what it is
       }
-      
-      // special case for final
-      else if (i == game.bowls.length - 1) {
-        semiInd = i - 2 + player.picks[i]
-        cell.textContent = game.bowls[semiInd].teams_short[player.picks[semiInd]]
-	
-        if (game.type == "advanced") {
-          cell.textContent += " - " + player.categories[i]
-        }
-      }
-
-      else {
+      else if (i < firstPlayoff) {
         cell.textContent = bowl.teams_short[player.picks[i]]
-	
+
         if (game.type == "advanced") {
           cell.textContent += " - " + player.categories[i]
         }
+
+        player.short_winner.push(null) // doesn't matter what it is
+      }
+      // playoff
+      else {
+        const prev = [prev0, prev1]
+        if (prev[player.picks[i]] == null) {
+          cell.textContent = bowl.teams_short[player.picks[i]]
+          player.short_winner.push(bowl.teams_short[player.picks[i]])
+        }
+        else {
+          cell.textContent = player.short_winner[prev[player.picks[i]]]
+          player.short_winner.push(player.short_winner[prev[player.picks[i]]])
+        }
       }
 
-      // has bowl been played?
-      if (bowl.result !== null) {
-
-        // style of cell
-        if (bowl.result == player.picks[i]) {
+      // style of pick cell
+      if (i < firstPlayoff) {
+        // bowl is not played or picks not show
+        if (bowl.result === null || player.picks[i] === null) {
+          // no format
+        }
+        // pick is correct
+        else if (bowl.result == player.picks[i]) {
           cell.setAttribute("class", "win-cell")
         } 
-        else if (player.picks[i] != null)  {
+        // pick is wrong
+        else {
           cell.setAttribute("class", "loss-cell")
         }
-
-        // special case for final (use semiInd from above special case)
-        if (i == game.bowls.length - 1) {
-          if (bowl.result == player.picks[i] && game.bowls[semiInd].result == player.picks[semiInd]) {
-            cell.setAttribute("class", "win-cell")
-          }
-          else {
-            cell.setAttribute("class", "loss-cell")
-          }
+        player.game_correct.push(null) // doesn't matter what it is
+      }
+      // playoff
+      else {
+        const prev = [prev0, prev1]
+        // pick not displayed
+        if (player.picks[i] === null) {
+          player.game_correct.push(null)
+        }
+        // parent game is wrong
+        else if (player.game_correct[prev[player.picks[i]]] == false) {
+          cell.setAttribute("class", "loss-cell")
+          player.game_correct.push(false)
+        }
+        // parent game is correct and this game not yet played
+        else if (bowl.result === null) {
+          player.game_correct.push(null)
+        }
+        // parent game is correct and this game is correct
+        else if (bowl.result == player.picks[i]) {
+          cell.setAttribute("class", "win-cell")
+          player.game_correct.push(true)
+        // parent game is correct and this game is wrong
+        } 
+        else {
+          cell.setAttribute("class", "loss-cell")
+          player.game_correct.push(false)
         }
       }
       row.appendChild(cell)
@@ -306,6 +364,23 @@ function populateScoreboard(game) {
   breakRows.forEach((br) => {
     table.insertBefore(nameRow.cloneNode(true), br)
   })
+
+  const scores = calcScores(game)
+
+  // score row after header row
+  row = document.createElement("tr")
+  cell = document.createElement("td")
+  cell.setAttribute("class", "score-cell")
+  row.appendChild(cell)
+
+  scores.forEach(score => {
+    cell = document.createElement("td")
+    cell.textContent = score
+    cell.setAttribute("class", "score-cell")
+    row.appendChild(cell)
+  })
+
+  table.insertBefore(row, table.children[1])
 
   return scores
 }
@@ -390,7 +465,6 @@ function populateLeaderboard(game, scores) {
 
 function calcScores(game) {
   let scores = new Array(game.players.length).fill(0)
-  let res = null
 
   // calculate number of points for game based on game type
   const points = function(bowlInd, playerInd) {
@@ -401,42 +475,37 @@ function calcScores(game) {
       return game.players[playerInd].categories[bowlInd] + game.bowls[bowlInd].bonus
     }
   }
+
+  const firstPlayoff = game.bowls.length - PREV_GAME[game.year].length
   
   // all but finals
-  let i
-  for (i = 0; i < game.bowls.length - 1; i++) {
-    res = game.bowls[i].result
+  game.bowls.forEach((bowl, i) => {
+    const res = bowl.result
 
     if (res === null) {
-      continue
+      return
+    }
+
+    let prev
+
+    if (i >= firstPlayoff) {
+      const [relPrev0, relPrev1] = PREV_GAME[game.year][i - firstPlayoff]
+      const prev0 = relPrev0 !== null ? relPrev0 + firstPlayoff : null
+      const prev1 = relPrev1 !== null ? relPrev1 + firstPlayoff : null
+      prev = [prev0, prev1]
     }
 
     game.players.forEach((player, j) => {
-      if (player.picks[i] == res) {
+      if (player.picks[i] != res) {
+        return
+      }
+
+      if (i < firstPlayoff || player.game_correct[prev[res]] != false) {
         scores[j] += points(i, j)
       }
     })
-  }
+  })
 
-  // handle final
-  const indSemi1 = game.bowls.length - 3
-  const indSemi2 = game.bowls.length - 2
-  const indFinal = game.bowls.length - 1
-
-  const resSemi1 = game.bowls[indSemi1].result
-  const resSemi2 = game.bowls[indSemi2].result
-  const resFinal = game.bowls[indFinal].result
-
-  if (resFinal !== null) {
-    game.players.forEach((player, j) => {
-      if (player.picks[indFinal] == resFinal) {
-        // also must pick the semi correctly
-        if ((resFinal == 0 && player.picks[indSemi1] == resSemi1) || (resFinal == 1 && player.picks[indSemi2] == resSemi2)) {
-          scores[j] += points(indFinal, j)
-        }
-      }
-    })
-  }
   return scores
 }
 
