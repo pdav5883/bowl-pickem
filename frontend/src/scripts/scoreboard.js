@@ -522,39 +522,3 @@ function ordinalSuper(num) {
   }
 }
 
-
-//function initPopulateScoreboard() {
-//  populateScoreboard(0)
-//  getHistoricalYears()
-//}
-
-//function changeYear() {
-//  var year = document.getElementById("yearsel").value
-//  populateScoreboard(year)
-//  scroll(0, 0)
-//}
-
-
-//function getHistoricalYears() {
-//  var yearsel = document.getElementById("yearsel")
-//  
-//  // server returns the years that are available in the data file
-//  $.ajax({
-//    method: "GET",
-//    url: API_URL.primary,
-//    data: {"qtype": "years"},
-//    crossDomain: true,
-//    success: function(res) {
-//      res.sort()
-//      res.reverse()
-//      res.forEach(function(item, index) {
-//	var opt = document.createElement("option")
-//	opt.innerHTML = item
-//	opt.setAttribute("value", item)
-//	yearsel.appendChild(opt)
-//      })
-//    }
-//  })
-//}
-
-

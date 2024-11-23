@@ -1,4 +1,4 @@
-import { API_URL } from "./constants.js"
+import { API_URL, PREV_GAME } from "./constants.js"
 import { populateMenu } from "./shared.js"
 import $ from "jquery"
 
@@ -87,6 +87,9 @@ function populateResultsTable(year) {
       
       let row
       let cell
+
+      const prevGame = PREV_GAME[year]
+      const firstPlayoff = bowls.length - prevGame.length
       
       // loop through all bowls
       bowls.forEach((bowl, i) => {
@@ -114,12 +117,43 @@ function populateResultsTable(year) {
           score0 = bowl.score[0]
           score1 = bowl.score[1]
         }
+
+        // grab team names
+        let team0
+        let team1
+
+        if (i < firstPlayoff) {
+          team0 = bowl.teams[0]
+          team1 = bowl.teams[1]
+        }
+        else {
+          const [relPrev0, relPrev1] = prevGame[i - firstPlayoff]
+          const prev0 = relPrev0 !== null ? relPrev0 + firstPlayoff : null
+          const prev1 = relPrev1 !== null ? relPrev1 + firstPlayoff : null
+          
+          if (prev0 === null || bowls[prev0].result === null) {
+            team0 = bowl.teams[0]
+          }
+          else {
+            team0 = bowls[prev0].teams[bowls[prev0].result]
+            bowl.teams[0] = team0
+          }
+
+          if (prev1 === null || bowls[prev1].result === null) {
+            team1 = bowl.teams[1]
+          }
+          else {
+            team1 = bowls[prev1].teams[bowls[prev1].result]
+            bowl.teams[1] = team1
+          }
+
+        }
 	
         // score 0
         cell = row.insertCell()
         let team = document.createElement("label")
         team.setAttribute("for", "score0_" + i)
-        team.textContent = bowl.teams[0]
+        team.textContent = team0
         let score = document.createElement("input")
         score.id = "score0_" + i
         score.type = "number"
@@ -131,7 +165,7 @@ function populateResultsTable(year) {
         cell = row.insertCell()
         team = document.createElement("label")
         team.setAttribute("for", "score1_" + i)
-        team.textContent = bowl.teams[1]
+        team.textContent = team1
         score = document.createElement("input")
         score.id = "score1_" + i
         score.type = "number"
