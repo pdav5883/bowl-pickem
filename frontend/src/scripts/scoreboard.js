@@ -97,7 +97,7 @@ function populateGameList() {
       Object.keys(res).forEach(gid => {
         game = document.createElement("option")
         game.value = gid
-        game.textContent = gid.replace("-", " ")
+        game.textContent = gid.replace(/-/g, " ")
         $("#gamesel").append(game)
       })
     }
@@ -134,7 +134,7 @@ function populateGame(args){
     crossDomain: true,
     success: function(game) {
       let title = document.getElementById("scoretitle")
-      title.textContent = gid.replace("-", " ") + " "
+      title.textContent = gid.replace(/-/g, " ") + " "
       
       let yearspan = document.createElement("span")
       yearspan.textContent = year + "-" + (parseInt(year) + 1)

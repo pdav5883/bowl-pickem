@@ -95,7 +95,7 @@ function populateGameList() {
       Object.keys(res).forEach(gid => {
         game = document.createElement("option")
         game.value = gid
-        game.textContent = gid.replace("-", " ")
+        game.textContent = gid.replace(/-/g, " ")
         $("#gamesel").append(game)
       })
     }
@@ -123,7 +123,7 @@ function populatePickOptions(year, gid){
 
       // title of page
       let title = document.getElementById("picktitle")
-      title.textContent = gid.replace("-", " ") + " "
+      title.textContent = gid.replace(/-/g, " ") + " "
       
       let yearspan = document.createElement("span")
       yearspan.textContent = year + "-" + (parseInt(year) + 1)
@@ -356,7 +356,7 @@ function submitPicks() {
 
   let table = document.getElementById("picktable")
 
-  $("#statustext").text("")
+  $("#statustext").text("Submitting picks...")
 
   if ($("#nametext").val()  === "") {
     $("#statustext").text("Error: must enter a name")

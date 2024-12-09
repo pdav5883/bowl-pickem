@@ -66,7 +66,7 @@ function populateGameList() {
       Object.keys(res).forEach(gid => {
         game = document.createElement("option")
         game.value = gid
-        game.textContent = gid.replace("-", " ")
+        game.textContent = gid.replace(/-/g, " ")
         $("#gamesel").append(game)
       })
     }
