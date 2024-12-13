@@ -417,9 +417,18 @@ function submitPicks() {
       $("#scorebutton").show()
     },
 
-    error: function() {
-      $("#statustext").text("Error: submission issue")
-      $("#scorebutton").hide()
+    error: function(xhr) {
+      let errorMessage = "Error: submission issue";
+      if (xhr.responseText) {
+        try {
+          const errorResponse = JSON.parse(xhr.responseText);
+          errorMessage = errorResponse.message || errorMessage;
+        } catch (e) {
+          errorMessage = xhr.responseText;
+        }
+      }
+      $("#statustext").text(errorMessage);
+      $("#scorebutton").hide();
     }
   })
 

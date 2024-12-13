@@ -4,7 +4,7 @@ from botocore.exceptions import ClientError
 
 
 s3 = boto3.client('s3')
-obj_bucket = SUB_PrivateBucketName
+obj_bucket = SUB_PrivateBucketName # type: ignore
 
 def lambda_handler(event, context):
     # get new picks from event
@@ -38,7 +38,7 @@ def lambda_handler(event, context):
     try:
         # name is already used
         names = [player["name"] for player in data["players"]]
-        assert new_picks["name"] not in names, f"{new_picks['name']} already used"
+        assert new_picks["name"] not in names, f"{new_picks['name']} has already submitted picks"
     
         # incorrect number of picks
         results_s3 = s3.get_object(Bucket=obj_bucket, Key=f"{year}/results.json")
