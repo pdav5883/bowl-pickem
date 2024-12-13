@@ -4,7 +4,7 @@ from botocore.exceptions import ClientError
 
 
 s3 = boto3.client('s3')
-obj_bucket = SUB_PrivateBucketName 
+obj_bucket = SUB_PrivateBucketName
 
 def lambda_handler(event, context):
     # get new picks from event
@@ -21,7 +21,7 @@ def lambda_handler(event, context):
         new_picks["categories"] = [int(c) for c in new_picks["categories"]]
     
     try:
-        data_s3 = s3.get_object(Bucket=obj_bucket, Key=f"{year}/{gid}.json"
+        data_s3 = s3.get_object(Bucket=obj_bucket, Key=f"{year}/{gid}.json")
     
     except ClientError as e:
         print(e)

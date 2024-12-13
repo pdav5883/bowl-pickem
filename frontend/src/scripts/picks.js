@@ -250,7 +250,7 @@ function populatePickOptions(year, gid){
 	
         if (gameType === "advanced") {
           // category pick
-          // cell = document.createElement("td")
+          cell = document.createElement("td")
           let dropdown = document.createElement("select")
           dropdown.setAttribute("name", "cat" + i)
           dropdown.setAttribute("class", "cat-select")
@@ -433,12 +433,12 @@ function updateCategories() {
   let numGames = document.getElementById("picktable").rows.length
 
   // start remaining with the total allowed, then decrement based on picks
-  let catRemaining = Array(6).fill(Math.floor((numGames - 3) / 6))
+  let catRemaining = Array(6).fill(Math.floor((numGames - 11) / 6))
 
-  for (let i = 0; i < (numGames - 3) % 6; i++) {
+  for (let i = 0; i < (numGames - 11) % 6; i++) {
     catRemaining[i]++
   }
-  catRemaining[2] += 3 // the three CFP games
+  catRemaining[2] += 11 // the eleven CFP games
 
   // search for all select names beginning with cat, count categories
   $("select[name^=cat]").each(function () {
