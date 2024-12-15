@@ -45,7 +45,7 @@ def update_results(year, new_results):
 
     # validation checks
     try:
-        assert year == old_data["year"], "New year must match Old year"
+        assert str(year) == str(old_data["year"]), "New year must match Old year"
         assert len(new_results) == len(old_data["bowls"]), "New length must match Old length"
 
     except AssertionError as e:
@@ -55,7 +55,7 @@ def update_results(year, new_results):
         return {"statusCode": 400,
                 "body": str(e)}
 
-    new_data = {"year": year, "bowls": []}
+    new_data = {"year": str(year), "bowls": []}
 
     for old_bowl, new_result in zip(old_data["bowls"], new_results):
         new_bowl = dict(old_bowl)
