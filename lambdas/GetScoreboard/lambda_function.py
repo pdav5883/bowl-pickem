@@ -84,7 +84,7 @@ def handle_scoreboard(year, gid):
 
 def handle_bowls(year):
     """
-    Return bowls only without picks
+    Return contents of results.json for year, which has format {"year": yr, "calc_margin": t/f"bowls": [bowls]}
     """
     obj_key = year + "/results.json"
 
@@ -96,9 +96,9 @@ def handle_bowls(year):
         return {"statusCode": 400,
                 "body": f"{year}/results.json does not exist"}
     
-    bowls = json.loads(bowls_s3["Body"].read().decode("UTF-8"))
+    results = json.loads(bowls_s3["Body"].read().decode("UTF-8"))
 
-    return bowls["bowls"]
+    return results
 
 
 def handle_games(year):

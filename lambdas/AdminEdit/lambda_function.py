@@ -17,7 +17,10 @@ def lambda_handler(event, context):
         data
 
         If etype = results:
-            data = [{"score": [..,..], "result": 0/1},...] in same order as bowls 
+            data = {
+                "calc_margin": bool,
+                "bowls": [{"score": [..,..], "result": 0/1},...] in same order as bowls 
+            }
 
         If etype = game
             data = {"show_results":, "show_picks":, "lock_picks":, "players": {"oldname": "new_name",...}}
@@ -45,10 +48,13 @@ def update_results(year, new_results):
     
     old_data = json.loads(data_s3["Body"].read().decode("utf-8"))
 
+    print(f"Updating {obj_key} with data:")
+    print(new_results)
+
     # validation checks
     try:
         assert str(year) == str(old_data["year"]), "New year must match Old year"
-        assert len(new_results) == len(old_data["bowls"]), "New length must match Old length"
+        assert len(new_results["bowls"]) == len(old_data["bowls"]),f"New length {len(new_results['bowls'])} must match Old length {len(old_data['bowls'])}"
 
     except AssertionError as e:
         print("Error, validation failed")
@@ -57,9 +63,9 @@ def update_results(year, new_results):
         return {"statusCode": 400,
                 "body": str(e)}
 
-    new_data = {"year": str(year), "bowls": []}
+    new_data = {"year": str(year), "bowls": [], "calc_margin": new_results["calc_margin"]}
 
-    for old_bowl, new_result in zip(old_data["bowls"], new_results):
+    for old_bowl, new_result in zip(old_data["bowls"], new_results["bowls"]):
         new_bowl = dict(old_bowl)
         new_bowl["score"] = new_result["score"]
         new_bowl["result"] = new_result["result"]
@@ -74,7 +80,7 @@ def update_results(year, new_results):
     # update results.json file
     response = s3.put_object(Body=bytes(json.dumps(new_data, indent=2).encode('UTF-8')), Bucket=obj_bucket, Key=obj_key)
 
-    if new_data["show_margin"]:
+    if new_data["calc_margin"]:
         lambda_client.invoke(
                         FunctionName=update_margins_function,
                         InvocationType='Event',

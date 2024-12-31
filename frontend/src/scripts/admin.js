@@ -80,13 +80,25 @@ function populateResultsTable(year) {
     url: API_URL.primary,
     data: {"qtype": "bowls", "year": year},
     crossDomain: true,
-    success: function(bowls) {
+    success: function(results) {
       // clear the table
+      const bowls = results.bowls
+
       let table = document.getElementById("admintable")
       table.innerHTML = ""
       
       let row
       let cell
+
+      // Add header row for calc_margin setting
+      row = table.insertRow()
+      cell = row.insertCell()
+      cell.textContent = "Calculate Margins"
+      
+      cell = row.insertCell()
+      const select = makeBooleanSelect("selmargins", results.calc_margin)
+      cell.appendChild(select)
+
 
       const prevGame = PREV_GAME[year]
       const firstPlayoff = bowls.length - prevGame.length
@@ -321,7 +333,7 @@ function submitResultsEdits() {
 
   $("#statustext").text("")
 
-  const numbowls = table.rows.length
+  const numbowls = table.rows.length - 1 // must account for calc_margin row
   let bowls = []
 
   for (let i = 0; i < numbowls; i++) {
@@ -336,13 +348,15 @@ function submitResultsEdits() {
     bowls.push(bowl)
   }
 
+  let data = {"calc_margin": ($("#selmargins").val() === "true"), "bowls": bowls}
+
   $.ajax({
     type: "POST",
     url: API_URL.admin,
     headers: {"authorization": $("#pwdtext").val()},
     crossDomain: true,
     contentType: "application/json; charset=utf-8",
-    data: JSON.stringify({"etype": "results", "year": yearArg, "data": bowls}),
+    data: JSON.stringify({"etype": "results", "year": yearArg, "data": data}),
 
     success: function() {
       $("#statustext").text("Success!")
