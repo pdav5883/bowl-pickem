@@ -1,8 +1,10 @@
 import json
 import boto3
 
-s3 = boto3.client('s3')
-obj_bucket = SUB_PrivateBucketName 
+s3 = boto3.client("s3")
+lambda_client = boto3.client('lambda')
+obj_bucket = SUB_PrivateBucketName # type: ignore
+update_margins_function = SUB_LambdaBowlsUpdateMarginsName # type: ignore
 
 def lambda_handler(event, context):
     """
@@ -71,6 +73,15 @@ def update_results(year, new_results):
 
     # update results.json file
     response = s3.put_object(Body=bytes(json.dumps(new_data, indent=2).encode('UTF-8')), Bucket=obj_bucket, Key=obj_key)
+
+    if new_data["show_margin"]:
+        lambda_client.invoke(
+                        FunctionName=update_margins_function,
+                        InvocationType='Event',
+                        Payload=json.dumps({"year": year})
+                    )
+    
+        print(f"Triggered margin update")
 
     return {"statusCode": 200,
             "body": "Successful update"}

@@ -12,6 +12,7 @@
   "LambdaBowlsGetScoreboardName=x",
   "LambdaBowlsAdminEditName=x",
   "LambdaBowlsAdminAuthName=x",
+  "LambdaBowlsUpdateMarginsName=x",
   "ApiName=x",
   "PrimaryRouteName=x",
   "AdminRouteName=x"

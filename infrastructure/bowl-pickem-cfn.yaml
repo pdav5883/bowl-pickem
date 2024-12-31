@@ -11,7 +11,7 @@ Parameters:
     Type: String
   LambdaReadPermissionName:
     Type: String
-  LambdaAdminReadPermissionName:
+  LambdaAdminPermissionName:
     Type: String
   PublicBucketName:
     Type: String
@@ -24,6 +24,8 @@ Parameters:
   LambdaBowlsAdminEditName:
     Type: String
   LambdaBowlsAdminAuthName:
+    Type: String
+  LambdaBowlsUpdateMarginsName:
     Type: String
   ApiName:
     Type: String
@@ -119,7 +121,7 @@ Resources:
           def lambda_handler(event, context):
                 # upload code via lambda deploy script
                 return False
-      Role: !GetAtt RoleBowlsReadWrite.Arn 
+      Role: !GetAtt RoleBowlsAdmin.Arn 
       FileSystemConfigs: []
       Runtime: "python3.12"
       PackageType: "Zip"
@@ -149,13 +151,43 @@ Resources:
           def lambda_handler(event, context):
                 # upload code via lambda deploy script
                 return False
-      Role: !GetAtt RoleBowlsAdminRead.Arn 
+      Role: !GetAtt RoleBowlsAdmin.Arn 
       FileSystemConfigs: []
       Runtime: "python3.12"
       PackageType: "Zip"
       LoggingConfig:
         LogFormat: "Text"
         LogGroup: !Ref LogBowlsLambdaAdminAuth
+      EphemeralStorage:
+        Size: 512
+      Architectures:
+      - "x86_64"
+  LambdaBowlsUpdateMargins:
+    Type: "AWS::Lambda::Function"
+    UpdateReplacePolicy: "Delete"
+    DeletionPolicy: "Delete"
+    Properties:
+      FunctionName: !Ref LambdaBowlsUpdateMarginsName
+      MemorySize: 128
+      Description: ""
+      TracingConfig:
+        Mode: "PassThrough"
+      Timeout: 3
+      RuntimeManagementConfig:
+        UpdateRuntimeOn: "Auto"
+      Handler: "lambda_function.lambda_handler"
+      Code:
+        ZipFile: |
+          def lambda_handler(event, context):
+                # upload code via lambda deploy script
+                return False
+      Role: !GetAtt RoleBowlsReadWrite.Arn 
+      FileSystemConfigs: []
+      Runtime: "python3.12"
+      PackageType: "Zip"
+      LoggingConfig:
+        LogFormat: "Text"
+        LogGroup: !Ref LogBowlsLambdaUpdateMargins
       EphemeralStorage:
         Size: 512
       Architectures:
@@ -201,7 +233,7 @@ Resources:
           Effect: "Allow"
           Principal:
             Service: "lambda.amazonaws.com"
-  RoleBowlsAdminRead:
+  RoleBowlsAdmin:
     Type: "AWS::IAM::Role"
     UpdateReplacePolicy: "Delete"
     DeletionPolicy: "Delete"
@@ -209,10 +241,11 @@ Resources:
       Path: "/"
       ManagedPolicyArns:
       - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
-      - !GetAtt PolicyBowlsAdminRead.PolicyArn
+      - !GetAtt PolicyBowlsAdmin.PolicyArn
+      - !GetAtt PolicyBowlsReadWrite.PolicyArn
       MaxSessionDuration: 3600
-      RoleName: !Sub "role-lambda-${LambdaAdminReadPermissionName}"
-      Description: "Allows admin auth function to read ssm secret"
+      RoleName: !Sub "role-lambda-${LambdaAdminPermissionName}"
+      Description: "Allows admin function to read ssm secret, read/write s3, and invoke lambdas"
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -265,22 +298,26 @@ Resources:
           - "s3:ListBucket"
           Effect: "Allow"
           Sid: "VisualEditor0"
-  PolicyBowlsAdminRead:
+  PolicyBowlsAdmin:
     Type: "AWS::IAM::ManagedPolicy"
     UpdateReplacePolicy: "Delete"
     DeletionPolicy: "Delete"
     Properties:
-      ManagedPolicyName: !Sub "policy-lambda-${LambdaAdminReadPermissionName}"
+      ManagedPolicyName: !Sub "policy-lambda-${LambdaAdminPermissionName}"
       Path: "/"
       Description: ""
       Groups: []
       PolicyDocument:
         Version: "2012-10-17"
         Statement:
-          Resource: !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${SsmAdminSecretId}"
-          Action: "ssm:GetParameter"
-          Effect: "Allow"
-          Sid: "VisualEditor0"
+          - Resource: !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${SsmAdminSecretId}"
+            Action: "ssm:GetParameter"
+            Effect: "Allow"
+            Sid: "VisualEditor0"
+          - Resource: !GetAtt LambdaBowlsUpdateMargins.Arn
+            Action: "lambda:InvokeFunction"
+            Effect: "Allow"
+            Sid: "VisualEditor1"
 ############################
 #### S3 
 ############################
@@ -594,4 +631,11 @@ Resources:
     DeletionPolicy: "Delete"
     Properties:
       LogGroupName: !Sub "/aws/lambda/${LambdaBowlsAdminAuthName}"
+      RetentionInDays: 7
+  LogBowlsLambdaUpdateMargins:
+    Type: "AWS::Logs::LogGroup"
+    UpdateReplacePolicy: "Delete"
+    DeletionPolicy: "Delete"
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${LambdaBowlsUpdateMarginsName}"
       RetentionInDays: 7
