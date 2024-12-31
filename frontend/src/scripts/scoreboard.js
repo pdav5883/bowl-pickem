@@ -38,6 +38,8 @@ function initScoreboardPage() {
     editMode()
     populateYears(true) // also populates games
   }
+
+  addBestFinishPopup()
 }
 
 
@@ -403,7 +405,8 @@ function populateLeaderboard(game, scores, showBestFinish) {
     leaders.push({
       "name": player.name, 
       "score": scores[i],
-      "best_finish": player.best_finish
+      "best_finish": player.best_finish,
+      "max_margin": player.max_margin
     })
   })
 
@@ -433,7 +436,7 @@ function populateLeaderboard(game, scores, showBestFinish) {
   if (showBestFinish) {
     cell = document.createElement("th")
     cell.setAttribute("class", "leader-header")
-    cell.textContent = "Best Outcome"
+    cell.textContent = "Best "
     row.appendChild(cell)
   }
 
@@ -473,11 +476,14 @@ function populateLeaderboard(game, scores, showBestFinish) {
 
     if (showBestFinish) {
       cell = document.createElement("td")
-      cell.setAttribute("class", "num-cell small")
+      cell.setAttribute("class", "small-text")
       cell.textContent = leader.best_finish
       sup = document.createElement("super")
       sup.textContent = ordinalSuper(leader.best_finish)
       cell.appendChild(sup)
+      const margin = document.createElement("span")
+      margin.textContent = " (" + (leader.max_margin >= 0 ? "+" : "") + leader.max_margin + ")"
+      cell.appendChild(margin)
       row.appendChild(cell)
     }
 
@@ -546,4 +552,43 @@ function ordinalSuper(num) {
     return "th"
   }
 }
+
+function addBestFinishPopup() {
+  const popup = document.createElement("div")
+    popup.setAttribute("class", "popup")
+    popup.setAttribute("id", "bestpopup")
+
+    popup.onclick = () => {
+      const msg = document.getElementById("bestmsg")
+      msg.classList.toggle("show")
+    }
+
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg")
+    svg.setAttribute("class", "pop")
+    svg.setAttribute("width", "16")
+    svg.setAttribute("height", "16")
+    svg.setAttribute("viewBox", "10 10 80 80")
+    
+    let path = document.createElementNS("http://www.w3.org/2000/svg", "path")
+    path.setAttribute("d", "m68.699 60.301c3.5-5.1992 5.6016-11.398 5.6016-18.102 0-17.801-14.402-32.199-32.199-32.199-17.703 0-32.102 14.398-32.102 32.102 0 17.699 14.398 32.102 32.102 32.102 6.6992 0 12.898-2.1016 18.102-5.6016l19.602 19.602c1.1016 1.1016 2.6016 1.6992 4.1992 1.6992 1.6016 0 3.1016-0.60156 4.1992-1.6992 2.3008-2.3008 2.3008-6.1016 0-8.3984zm-26.598 10.898c-16 0-29.102-13-29.102-29.102 0-16 13-29.102 29.102-29.102 16 0 29.102 13 29.102 29.102-0.003906 16.102-13.004 29.102-29.102 29.102zm44 14.902c-1.1016 1.1016-3 1.1016-4.1016 0l-19.301-19.301c1.5-1.1992 2.8008-2.6016 4.1016-4.1016l19.301 19.301c1.0977 1.1016 1.0977 3 0 4.1016z")
+    svg.appendChild(path)
+
+    path = document.createElementNS("http://www.w3.org/2000/svg", "path")
+    path.setAttribute("d", "m42.102 25.102c-5 0-9.1016 4.1016-9.1016 9.1016 0 0.89844 0.69922 1.5 1.5 1.5 0.89844 0 1.5-0.69922 1.5-1.5 0-3.3008 2.6992-6.1016 6.1016-6.1016 1.6016 0 3.1016 0.60156 4.3008 1.8008 1.1992 1.1992 1.8008 2.6992 1.8008 4.3008 0 1.8984-0.89844 3.6016-2.3984 4.8008-3.3008 2.6016-5.1992 6.3008-5.1992 10.199v0.30078c0 0.89844 0.69922 1.5 1.5 1.5 0.89844 0 1.5-0.69922 1.5-1.5v-0.30078c0-3 1.5-5.8008 4-7.8008 2.3008-1.6992 3.6016-4.3984 3.6016-7.1992 0-2.3984-1-4.6992-2.6992-6.3984-1.707-1.7031-4.0078-2.7031-6.4062-2.7031z")
+    svg.appendChild(path)
+    
+    path = document.createElementNS("http://www.w3.org/2000/svg", "path")
+    path.setAttribute("d", "m42.102 54.398c-1.3008 0-2.3984 1.1016-2.3984 2.3984 0 1.3984 1.1016 2.3984 2.3984 2.3984 1.3008 0 2.3984-1.1016 2.3984-2.3984 0-1.3984-1-2.3984-2.3984-2.3984z")
+    svg.appendChild(path)
+    popup.appendChild(svg)
+
+    const span = document.createElement("span")
+    span.setAttribute("class", "first popuptext")
+    span.setAttribute("id", "bestmsg")
+    span.textContent = "Shows each player's best possible final rank and how much they would win by (+) or lose by (-)"
+    popup.appendChild(span)
+
+    document.getElementById("bestFinishPopup").appendChild(popup)
+}
+
 
