@@ -181,7 +181,9 @@ Resources:
           def lambda_handler(event, context):
                 # upload code via lambda deploy script
                 return False
-      Role: !GetAtt RoleBowlsReadWrite.Arn 
+      Layers:
+      - arn:aws:lambda:us-east-1:336392948345:layer:AWSSDKPandas-Python312:15
+      Role: !GetAtt RoleBowlsReadWrite.Arn
       FileSystemConfigs: []
       Runtime: "python3.12"
       PackageType: "Zip"
