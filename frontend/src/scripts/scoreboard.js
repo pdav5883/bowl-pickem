@@ -2,6 +2,8 @@ import { API_URL, PREV_GAME } from "./constants.js"
 import { populateMenu } from "./shared.js"
 import $ from "jquery"
 
+let currentGame
+let currentScores
 
 // window.onload = initScoreboardPage
 $(document).ready(function() {
@@ -11,6 +13,9 @@ $(document).ready(function() {
   $("#editbutton").on("click", function() {
     editMode()
     populateYears(true)
+  })
+  $("#showBestFinish").on("change", function() {
+    populateLeaderboard(currentGame, currentScores, $(this).is(":checked"))
   })
   initScoreboardPage()
 })
@@ -142,7 +147,9 @@ function populateGame(args){
       title.appendChild(yearspan)
 
       let scores = populateScoreboard(game)
-      populateLeaderboard(game, scores)
+      currentGame = game
+      currentScores = scores
+      populateLeaderboard(game, scores, $("#showBestFinish").is(":checked"))
 
       // set localStorage for next time
       localStorage.setItem("year", year)
@@ -386,20 +393,22 @@ function populateScoreboard(game) {
 }
 
 
-function populateLeaderboard(game, scores) {
-  
+function populateLeaderboard(game, scores, showBestFinish) {
   if (scores === undefined) {
     scores = calcScores(game)
   }
 
   let leaders = []
   game.players.forEach((player, i) => {
-    leaders.push({"name": player.name, "score": scores[i]})
+    leaders.push({
+      "name": player.name, 
+      "score": scores[i],
+      "best_finish": player.best_finish
+    })
   })
 
   // sort names by descending score
   leaders.sort((a, b) => ((a.score >= b.score) ? -1 : 1))
-  //return ((a.score >= b.score) ? -1 : 1)})
 
   const table = document.getElementById("leadertable")
 
@@ -421,6 +430,12 @@ function populateLeaderboard(game, scores) {
   cell.setAttribute("class", "leader-header")
   cell.textContent = "Score"
   row.appendChild(cell)
+  if (showBestFinish) {
+    cell = document.createElement("th")
+    cell.setAttribute("class", "leader-header")
+    cell.textContent = "Best Outcome"
+    row.appendChild(cell)
+  }
 
   table.appendChild(row)
 
@@ -455,6 +470,16 @@ function populateLeaderboard(game, scores) {
     cell.setAttribute("class", "num-cell")
     cell.textContent = leader.score
     row.appendChild(cell)
+
+    if (showBestFinish) {
+      cell = document.createElement("td")
+      cell.setAttribute("class", "num-cell small")
+      cell.textContent = leader.best_finish
+      sup = document.createElement("super")
+      sup.textContent = ordinalSuper(leader.best_finish)
+      cell.appendChild(sup)
+      row.appendChild(cell)
+    }
 
     table.appendChild(row)
 
