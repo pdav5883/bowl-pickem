@@ -17,7 +17,7 @@ PREV_GAMES = [[None, None], [None, None], [None, None], [None, None],
               [None, 0], [None, 1], [None, 2], [None, 3],
               [4, 5], [6, 7],
               [8, 9]]
-PLAYOFF_POINTS = [2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 5]
+PLAYOFF_BONUS = [1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 4]
 
 # next/prev games for 8 team playoff
 # NEXT_GAMES = [[3, 0], [3, 1], [4, 0], [4, 1],
@@ -27,7 +27,7 @@ PLAYOFF_POINTS = [2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 5]
 # PREV_GAMES = [[None, None], [None, None], [None, None], [None, None],
 #               [0, 1], [2, 3],
 #               [4, 5]]
-# PLAYOFF_POINTS = [2, 2, 2, 2, 3, 3, 4]
+# PLAYOFF_BONUS = [1, 1, 1, 1, 2, 2, 3]
 
 
 # next/prev games for 4 team playoff
@@ -35,7 +35,7 @@ PLAYOFF_POINTS = [2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 5]
 #               [None, None]]
 # PREV_GAMES = [[None, None], [None, None],
 #               [0, 1]]
-# PLAYOFF_POINTS = [2, 2, 3]
+# PLAYOFF_BONUS = [1, 1, 2]
 
 
 def lambda_handler(event, context):
@@ -67,16 +67,23 @@ def lambda_handler(event, context):
         game_s3 = s3.get_object(Bucket=obj_bucket, Key=year + "/" + gid + ".json")
         game = json.loads(game_s3["Body"].read().decode("UTF-8"))
 
-        # TODO: not implemented yet
-        if game["type"] == "advanced":
-            print(f"Skipping advanced game {gid}")
-            continue
+        gtype = game["type"]
         
-        print(f"Updating margins for game {gid}")
+        print(f"Updating margins for {gtype} game {gid}")
 
         picks_matrix = np.array([player["picks"] for player in game["players"]], dtype=float)
 
-        best_finish, max_margin = calc_best_finish(picks_matrix, results_array, completed_games)
+        if gtype == "advanced":
+
+            if len(game["players"]) > 2:
+                print(f"Advanced game {gid} has more than 2 players")
+                return {"statusCode": 400,
+                        "body": "Advanced game must have 2 players"}
+            
+            categories_matrix = np.array([player["categories"] for player in game["players"]], dtype=float)
+            best_finish, max_margin = calc_best_finish(picks_matrix, results_array, completed_games, categories_matrix)
+        else:
+            best_finish, max_margin = calc_best_finish(picks_matrix, results_array, completed_games, None)
 
         for i in range(len(game["players"])):
             game["players"][i]["best_finish"] = best_finish[i]
@@ -88,29 +95,36 @@ def lambda_handler(event, context):
             "body": "Successful margin update"}
 
 
-def calc_best_finish(picks_matrix, results_array, completed_games):
+def calc_best_finish(picks_matrix, results_array, completed_games, categories_matrix):
     NUM_PLAYOFF = len(NEXT_GAMES)
 
-
-    playoff_picks_matrix = picks_matrix[:, -NUM_PLAYOFF:]
-    regular_picks_matrix = picks_matrix[:, :-NUM_PLAYOFF]
-    
     # N = number of players, K = number of playoff scenarios
+    
+    # basic game
+    if categories_matrix is None:
+        categories_matrix_regular = None
+        categories_matrix_playoff = None
+    
+    # advanced game
+    else:
+        categories_matrix_regular = categories_matrix[:, :-NUM_PLAYOFF]
+        categories_matrix_playoff = categories_matrix[:, -NUM_PLAYOFF:]
+
     # N x N
     regular_max_scores = calc_non_playoff_max_scores(picks_matrix[:, :-NUM_PLAYOFF],
                                                      results_array[:-NUM_PLAYOFF],
-                                                     completed_games[:-NUM_PLAYOFF])
+                                                     completed_games[:-NUM_PLAYOFF],
+                                                     categories_matrix_regular)
     # K x N 
     playoff_scenarios = calc_all_playoff_scenarios(picks_matrix[:, -NUM_PLAYOFF:],
                                                     results_array[-NUM_PLAYOFF:],
-                                                    completed_games[-NUM_PLAYOFF:])
+                                                    completed_games[-NUM_PLAYOFF:],
+                                                    categories_matrix_playoff)
 
     # N x N x K
     # (i, j, k) is the score for player j if all player i remaining picks are correct, and playoff scenario k occurs
     all_scores = regular_max_scores[:, :, np.newaxis] + playoff_scenarios.T[np.newaxis, :, :]
 
-    x = np.diagonal(all_scores, axis1=0, axis2=1)
-    y = x.T[:, np.newaxis, :]
     # if margin value is > 0, that means player i is ahead of player j
     all_margins = np.diagonal(all_scores, axis1=0, axis2=1).T[:, np.newaxis, :] - all_scores
     
@@ -140,13 +154,17 @@ def calc_best_finish(picks_matrix, results_array, completed_games):
 
     
     
-def calc_non_playoff_max_scores(picks_matrix, results_array, completed_games):
+def calc_non_playoff_max_scores(picks_matrix, results_array, completed_games, categories_matrix):
     """
     Input arrays are non playoff games
     Return a N, N matrix where N is number of players.
 
     Row i is the scores for all players if player i gets all remaining picks correct.
     """
+    
+    if categories_matrix is not None:
+        return calc_non_playoff_max_scores_advanced(picks_matrix, results_array, completed_games, categories_matrix)
+    
     # score is computed for each each with XNOR between pick and result
     # equiv to pick * result + (1 - pick) * (1 - result)
     current_scores = np.dot(picks_matrix[:, completed_games], results_array[completed_games])
@@ -161,7 +179,42 @@ def calc_non_playoff_max_scores(picks_matrix, results_array, completed_games):
     return current_scores[np.newaxis, :] + max_remaining
 
 
-def calc_all_playoff_scenarios(picks_matrix, results_array, completed_games, playoff_points=None):
+def calc_non_playoff_max_scores_advanced(picks_matrix, results_array, completed_games, categories_matrix):
+    """
+    Input arrays are non playoff games
+    Return a N, N matrix where N is number of players.
+
+    Row i is the scores for all players if player i gets all remaining picks correct.
+    """
+    current_correct = picks_matrix[:, completed_games] * results_array[completed_games]
+    current_correct += (1 - picks_matrix[:, completed_games]) * (1 - results_array[completed_games])
+    current_scores = np.sum(current_correct * categories_matrix[:, completed_games], axis=1)
+
+    remaining_picks_matrix = picks_matrix[:, ~completed_games]
+    remaining_categories_matrix = categories_matrix[:, ~completed_games]
+
+    # TODO: this method only works if there are two players in the competition
+    # go through each remaining game and see which result gets player 1 more points
+    max_remaining = np.zeros(shape=(remaining_picks_matrix.shape[0], remaining_picks_matrix.shape[0]))
+
+    for i in range(remaining_picks_matrix.shape[1]):
+        # if picks are different, each player wants a different result
+        if remaining_picks_matrix[0, i] != remaining_picks_matrix[1, i]:
+            max_remaining[0, 0] += remaining_categories_matrix[0, i]
+            max_remaining[1, 1] += remaining_categories_matrix[1, i]
+
+        # if picks are the same, each player wants to be correct if they have higher category
+        elif remaining_categories_matrix[0, i] > remaining_categories_matrix[1, i]:
+            max_remaining[0, 0] += remaining_categories_matrix[0, i]
+            max_remaining[0, 1] += remaining_categories_matrix[1, i]
+        else:
+            max_remaining[1, 0] += remaining_categories_matrix[0, i]
+            max_remaining[1, 1] += remaining_categories_matrix[1, i]
+
+    return current_scores[np.newaxis, :] + max_remaining
+
+
+def calc_all_playoff_scenarios(picks_matrix, results_array, completed_games, categories_matrix):
     """
     Input arrays are playoff games only
     Return a K, N matrix where K is number of remaining playoff scenarios and N is number of players.
@@ -179,17 +232,18 @@ def calc_all_playoff_scenarios(picks_matrix, results_array, completed_games, pla
     max_scores = np.zeros(shape=(remaining_scenarios.shape[0], picks_matrix.shape[0]))
 
     for i in range(picks_matrix.shape[0]):
-        max_scores[:, i] = np.apply_along_axis(calc_playoff_score, 1, scenarios, picks_matrix[i, :], playoff_points)
+        if categories_matrix is not None:
+            max_scores[:, i] = np.apply_along_axis(calc_playoff_score, 1, scenarios, picks_matrix[i, :], categories_matrix[i, :])
+        else:
+            max_scores[:, i] = np.apply_along_axis(calc_playoff_score, 1, scenarios, picks_matrix[i, :], None)
 
     return max_scores
 
 
-def calc_playoff_score(playoff_picks, playoff_results, playoff_points=None):
+def calc_playoff_score(playoff_picks, playoff_results, categories):
     """
-    For a single player. If playoff_points is None, assume no bonus.
+    For a single player.
     """
-    if playoff_points is None:
-        playoff_points = np.ones(playoff_picks.shape)
 
     actual_points = np.zeros(playoff_picks.shape)
 
@@ -200,7 +254,12 @@ def calc_playoff_score(playoff_picks, playoff_results, playoff_points=None):
 
         # must pick this game correctly, and have picked parent game correctly
         if pick == res and (prev is None or actual_points[prev] > 0):
-            actual_points[i] = playoff_points[i]
+            actual_points[i] = PLAYOFF_BONUS[i]
+
+            if categories is None:
+                actual_points[i] += 1
+            else:
+                actual_points[i] += categories[i]
 
     return np.sum(actual_points)
 
