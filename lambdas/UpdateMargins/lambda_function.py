@@ -45,8 +45,6 @@ def lambda_handler(event, context):
     Triggered by AdminEdit with event:
 
     event = {"year": yr}
-
-    TODO: bonus points not accounted for
     """
     year = event["year"]
 
