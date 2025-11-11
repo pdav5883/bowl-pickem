@@ -5,12 +5,12 @@ const { execSync } = require('child_process')
 
 // Get CloudFormation parameters
 const cfParams = Object.fromEntries(
-  execSync('./get-cf-params.sh', { encoding: 'utf-8' })
+  execSync('bash get-cf-params.sh', { encoding: 'utf-8' })
     .trim()
     .split('\n')
     .map(line => {
       const [key, value] = line.split('=')
-      return [key, JSON.stringify(value)]
+      return [key, JSON.stringify(value.trim())]
     })
 )
 
@@ -32,6 +32,10 @@ module.exports = {
       import: './src/scripts/scoreboard.js',
       dependOn: 'shared'
     },
+    navonly: {
+      import: './src/scripts/navonly.js',
+      dependOn: 'shared'
+    },
     shared: './src/scripts/shared.js'
   },
   
@@ -47,7 +51,7 @@ module.exports = {
       title: 'About',
       filename: 'about.html',
       template: './src/about.html',
-      chunks: ['shared', 'about']
+      chunks: ['shared', 'navonly']
     }),
     new HtmlWebpack({
       title: 'Admin',

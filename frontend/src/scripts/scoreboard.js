@@ -145,7 +145,7 @@ function populateGame(args){
       
       let yearspan = document.createElement("span")
       yearspan.textContent = year + "-" + (parseInt(year) + 1)
-      yearspan.setAttribute("class", "nowrap")
+      yearspan.setAttribute("class", "text-nowrap")
       title.appendChild(yearspan)
 
       let scores = populateScoreboard(game)
@@ -170,14 +170,20 @@ function populateScoreboard(game) {
   //     write pick (mark with winner loser)
   
   const table = document.getElementById("scoretable")
+  table.classList.add("text-center")
   
   // clear the table
   table.innerHTML = ""
+  const thead = document.createElement("thead")
+  table.appendChild(thead)
+  const tbody = document.createElement("tbody")
+  table.appendChild(tbody)
   
   // header row with player names
   let row = document.createElement("tr")
   let cell = document.createElement("th")
   cell.textContent = ""
+  cell.classList.add("px-2", "no-border")
   row.appendChild(cell)
 
   game.players.forEach((player) => {
@@ -190,7 +196,7 @@ function populateScoreboard(game) {
     player.game_correct = []
   })
 
-  table.appendChild(row)
+  thead.appendChild(row)
 
   // score row inserted later
 
@@ -199,8 +205,8 @@ function populateScoreboard(game) {
   // do all bowls except playoffs
   game.bowls.forEach((bowl, i) => {
     row = document.createElement("tr")
-    cell = document.createElement("th")
-    cell.setAttribute("class", "bowl-cell")
+    cell = document.createElement("td")
+    cell.classList.add("px-2")
 
     // name of bowl
     let spanBowl = document.createElement("span")
@@ -210,13 +216,18 @@ function populateScoreboard(game) {
       spanBowl.textContent += " [+" + bowl.bonus + "]"
     }
 
-    spanBowl.setAttribute("class", "bowl-span")
+    spanBowl.setAttribute("class", "fw-bold bowl-name")
     cell.appendChild(spanBowl)
     cell.innerHTML += "<BR>"
 	
     // head to head teams in bowl
     let spanTeam0 = document.createElement("span")
+    spanTeam0.classList.add("small")
     let spanTeam1 = document.createElement("span")
+    spanTeam1.classList.add("small")
+    let spanvs = document.createElement("span")
+    spanvs.classList.add("vs-separator")
+    spanvs.textContent = " vs "
     
     // the index of the parent game for upper and lower in this game
     // need to define here for so it can also be used by player
@@ -262,22 +273,22 @@ function populateScoreboard(game) {
     }
 
     if (bowl.result == 0) {
-      spanTeam0.setAttribute("class", "winner-span")
+      spanTeam0.classList.add("text-decoration-underline", "fw-bold")
     }
 
     else if (bowl.result == 1) {
-      spanTeam1.setAttribute("class", "winner-span")
+      spanTeam1.classList.add("text-decoration-underline", "fw-bold")
     }
 	
     cell.appendChild(spanTeam0)
-    cell.innerHTML += " vs "
+    cell.appendChild(spanvs)
     cell.appendChild(spanTeam1)
     cell.innerHTML += "<BR>"
 	
     // date of bowl
     let spanDate = document.createElement("span")
     spanDate.textContent = bowl.date[0].toString() + "/" + bowl.date[1].toString() + "/" + bowl.date[2].toString()
-    spanDate.setAttribute("class", "date-span")
+    spanDate.classList.add("small")
     cell.appendChild(spanDate)
 
     row.appendChild(cell)
@@ -285,6 +296,7 @@ function populateScoreboard(game) {
     // each players pick for game
     game.players.forEach(player => {
       cell = document.createElement("td")
+      cell.classList.add("align-middle")
 
       // text in pick cell
       if (player.picks[i] == null) {
@@ -321,11 +333,11 @@ function populateScoreboard(game) {
         }
         // pick is correct
         else if (bowl.result == player.picks[i]) {
-          cell.setAttribute("class", "win-cell")
+          cell.classList.add("table-success")
         } 
         // pick is wrong
         else {
-          cell.setAttribute("class", "loss-cell")
+          cell.classList.add("table-danger")
         }
         player.game_correct.push(null) // doesn't matter what it is
       }
@@ -338,7 +350,7 @@ function populateScoreboard(game) {
         }
         // parent game is wrong
         else if (player.game_correct[prev[player.picks[i]]] == false) {
-          cell.setAttribute("class", "loss-cell")
+          cell.classList.add("table-danger")
           player.game_correct.push(false)
         }
         // parent game is correct and this game not yet played
@@ -347,18 +359,18 @@ function populateScoreboard(game) {
         }
         // parent game is correct and this game is correct
         else if (bowl.result == player.picks[i]) {
-          cell.setAttribute("class", "win-cell")
+          cell.classList.add("table-success")
           player.game_correct.push(true)
         // parent game is correct and this game is wrong
         } 
         else {
-          cell.setAttribute("class", "loss-cell")
+          cell.classList.add("table-danger")
           player.game_correct.push(false)
         }
       }
       row.appendChild(cell)
     })
-    table.appendChild(row)
+    tbody.appendChild(row)
   })
 
   // final pass to add spaced header rows
@@ -371,7 +383,7 @@ function populateScoreboard(game) {
   let nameRow = table.children[0]
 
   breakRows.forEach((br) => {
-    table.insertBefore(nameRow.cloneNode(true), br)
+    tbody.insertBefore(nameRow.cloneNode(true), br)
   })
 
   const scores = calcScores(game)
@@ -379,19 +391,71 @@ function populateScoreboard(game) {
   // score row after header row
   row = document.createElement("tr")
   cell = document.createElement("td")
-  cell.setAttribute("class", "score-cell")
+  cell.classList.add("fs-5", "px-2")
   row.appendChild(cell)
 
   scores.forEach(score => {
     cell = document.createElement("td")
     cell.textContent = score
-    cell.setAttribute("class", "score-cell")
+    cell.classList.add("table-secondary","fw-bold", "fs-5")
     row.appendChild(cell)
   })
 
-  table.insertBefore(row, table.children[1])
+  thead.appendChild(row)
+
+  // Equalize column widths (all non-first columns should be same width)
+  equalizeColumnWidths()
 
   return scores
+}
+
+
+function equalizeColumnWidths() {
+  const table = document.getElementById("scoretable")
+  const rows = table.querySelectorAll("tr")
+  
+  if (rows.length === 0) return
+  
+  // Get all non-first-child cells from the first row to determine column count
+  const firstRow = rows[0]
+  const nonFirstCells = firstRow.querySelectorAll("th:not(:first-child), td:not(:first-child)")
+  
+  if (nonFirstCells.length === 0) return
+  
+  // First, reset all widths to auto to measure natural widths
+  rows.forEach(row => {
+    const cells = row.querySelectorAll("th:not(:first-child), td:not(:first-child)")
+    cells.forEach(cell => {
+      cell.style.width = "auto"
+    })
+  })
+  
+  // Measure the natural width of each column
+  const columnWidths = []
+  for (let i = 0; i < nonFirstCells.length; i++) {
+    let maxWidth = 0
+    rows.forEach(row => {
+      const cells = row.querySelectorAll("th:not(:first-child), td:not(:first-child)")
+      if (cells[i]) {
+        const width = cells[i].offsetWidth
+        if (width > maxWidth) {
+          maxWidth = width
+        }
+      }
+    })
+    columnWidths.push(maxWidth)
+  }
+  
+  // Find the maximum width among all non-first columns
+  const maxColumnWidth = Math.max(...columnWidths)
+  
+  // Apply this width to all non-first columns
+  rows.forEach(row => {
+    const cells = row.querySelectorAll("th:not(:first-child), td:not(:first-child)")
+    cells.forEach(cell => {
+      cell.style.width = `${maxColumnWidth}px`
+    })
+  })
 }
 
 
@@ -417,30 +481,34 @@ function populateLeaderboard(game, scores, showBestFinish) {
 
   // clear the table
   table.innerHTML = ""
+  const thead = document.createElement("thead")
+  table.appendChild(thead)
+  const tbody = document.createElement("tbody")
+  table.appendChild(tbody)
   
   // header row with player names
   let row = document.createElement("tr")
   let cell = document.createElement("th")
   let sup = null
-  cell.setAttribute("class", "leader-header")
-  cell.textContent = "Rank"
+  cell.textContent = "#"
+  cell.classList.add("text-center", "px-1")
   row.appendChild(cell)
   cell = document.createElement("th")
-  cell.setAttribute("class", "leader-header")
   cell.textContent = "Name"
+  cell.classList.add("text-center")
   row.appendChild(cell)
   cell = document.createElement("th")
-  cell.setAttribute("class", "leader-header")
   cell.textContent = "Score"
+  cell.classList.add("text-center")
   row.appendChild(cell)
   if (showBestFinish) {
     cell = document.createElement("th")
-    cell.setAttribute("class", "leader-header")
+    cell.classList.add("text-center")
     cell.textContent = "Best "
     row.appendChild(cell)
   }
 
-  table.appendChild(row)
+  thead.appendChild(row)
 
   // row for each player, in order
   let lastRank = -1
@@ -458,36 +526,35 @@ function populateLeaderboard(game, scores, showBestFinish) {
 
     row = document.createElement("tr")
     cell = document.createElement("td")
-    cell.setAttribute("class", "num-cell")
+    cell.classList.add("text-center", "fw-bold", "small")
     cell.textContent = rank
-    sup = document.createElement("super")
-    sup.textContent = ordinalSuper(rank)
-    cell.appendChild(sup)
     row.appendChild(cell)
 
     cell = document.createElement("td")
     cell.textContent = leader.name
+    cell.classList.add("px-5")
     row.appendChild(cell)
 
     cell = document.createElement("td")
-    cell.setAttribute("class", "num-cell")
+    cell.classList.add("text-center", "fw-bold")
     cell.textContent = leader.score
     row.appendChild(cell)
 
     if (showBestFinish) {
       cell = document.createElement("td")
-      cell.setAttribute("class", "small-text")
+      cell.classList.add("small", "text-center", "pl-2")
       cell.textContent = leader.best_finish
-      sup = document.createElement("super")
+      sup = document.createElement("sup")
       sup.textContent = ordinalSuper(leader.best_finish)
+      sup.classList.add("p-0")
       cell.appendChild(sup)
       const margin = document.createElement("span")
-      margin.textContent = " (" + (leader.max_margin >= 0 ? "+" : "") + leader.max_margin + ")"
+      margin.textContent = "(" + (leader.max_margin >= 0 ? "+" : "") + leader.max_margin + ")"
       cell.appendChild(margin)
       row.appendChild(cell)
     }
 
-    table.appendChild(row)
+    tbody.appendChild(row)
 
     lastScore = leader.score
   })
@@ -555,16 +622,16 @@ function ordinalSuper(num) {
 
 function addBestFinishPopup() {
   const popup = document.createElement("div")
-    popup.setAttribute("class", "popup")
+    popup.setAttribute("class", "position-relative d-inline-block")
     popup.setAttribute("id", "bestpopup")
+    popup.style.cursor = "pointer"
 
     popup.onclick = () => {
       const msg = document.getElementById("bestmsg")
-      msg.classList.toggle("show")
+      msg.classList.toggle("d-none")
     }
 
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg")
-    svg.setAttribute("class", "pop")
     svg.setAttribute("width", "16")
     svg.setAttribute("height", "16")
     svg.setAttribute("viewBox", "10 10 80 80")
@@ -583,8 +650,12 @@ function addBestFinishPopup() {
     popup.appendChild(svg)
 
     const span = document.createElement("span")
-    span.setAttribute("class", "first popuptext")
+    span.setAttribute("class", "d-none position-absolute bg-dark text-white text-center rounded p-2")
     span.setAttribute("id", "bestmsg")
+    span.style.width = "260px"
+    span.style.top = "115%"
+    span.style.left = "100%"
+    span.style.zIndex = "1050"
     span.textContent = "Shows each player's best possible final rank and how much they would win by (+) or lose by (-)"
     popup.appendChild(span)
 

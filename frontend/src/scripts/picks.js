@@ -127,7 +127,7 @@ function populatePickOptions(year, gid){
       
       let yearspan = document.createElement("span")
       yearspan.textContent = year + "-" + (parseInt(year) + 1)
-      yearspan.setAttribute("class", "nowrap")
+      yearspan.setAttribute("class", "text-nowrap")
       title.appendChild(yearspan)
 
       // clear the table
@@ -146,7 +146,6 @@ function populatePickOptions(year, gid){
       game.bowls.forEach((bowl, i) => {
         let row = document.createElement("tr")
         let cell = document.createElement("th")
-        cell.setAttribute("class", "bowl-cell")
 
         // name of bowl
         let spanBowl = document.createElement("span")
@@ -156,7 +155,7 @@ function populatePickOptions(year, gid){
           spanBowl.textContent += " [+" + bowl.bonus + "]"
         }
 
-        spanBowl.setAttribute("class", "bowl-span")
+        spanBowl.setAttribute("class", "fw-bold")
         cell.appendChild(spanBowl)
         cell.innerHTML += "<BR>"
 
@@ -196,7 +195,7 @@ function populatePickOptions(year, gid){
         // date of bowl
         let spanDate = document.createElement("span")
         spanDate.textContent = bowl.date[0].toString() + "/" + bowl.date[1].toString() + "/" + bowl.date[2].toString()
-        spanDate.setAttribute("class", "date-span")
+        spanDate.setAttribute("class", "small")
         cell.appendChild(spanDate)
 
         row.appendChild(cell)
@@ -253,7 +252,7 @@ function populatePickOptions(year, gid){
           cell = document.createElement("td")
           let dropdown = document.createElement("select")
           dropdown.setAttribute("name", "cat" + i)
-          dropdown.setAttribute("class", "cat-select")
+          dropdown.setAttribute("class", "form-select form-select-sm")
           dropdown.addEventListener("change", updateCategories)
           let opt = document.createElement("option")
 
@@ -284,7 +283,8 @@ function populatePickOptions(year, gid){
           cell = document.createElement("td")
           let scratch = document.createElement("input")
           scratch.setAttribute("type", "text")
-          scratch.setAttribute("class", "scratch-text")
+          scratch.setAttribute("class", "form-control form-control-sm")
+          scratch.style.width = "100px"
 
           cell.appendChild(scratch)
           row.appendChild(cell) 
