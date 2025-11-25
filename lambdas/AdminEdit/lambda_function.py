@@ -4,7 +4,7 @@ import boto3
 s3 = boto3.client("s3")
 lambda_client = boto3.client('lambda')
 obj_bucket = SUB_PrivateBucketName # type: ignore
-update_margins_function = SUB_LambdaBowlsUpdateMarginsName # type: ignore
+update_margins_function = SUB_LambdaUpdateMarginsName # type: ignore
 
 def lambda_handler(event, context):
     """

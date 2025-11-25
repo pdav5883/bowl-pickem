@@ -11,21 +11,25 @@ Parameters:
     Type: String
   LambdaReadPermissionName:
     Type: String
+  LambdaTriggerMarginsPermissionName:
+    Type: String
   LambdaAdminPermissionName:
+    Type: String
+  LambdaUserAuthPermissionName:
     Type: String
   PublicBucketName:
     Type: String
   PrivateBucketName:
     Type: String
-  LambdaBowlsUpdatePicksName:
+  LambdaUpdatePicksName:
     Type: String
-  LambdaBowlsGetScoreboardName:
+  LambdaGetScoreboardName:
     Type: String
-  LambdaBowlsAdminEditName:
+  LambdaAdminEditName:
     Type: String
-  LambdaBowlsAdminAuthName:
+  LambdaUserAuthName:
     Type: String
-  LambdaBowlsUpdateMarginsName:
+  LambdaUpdateMarginsName:
     Type: String
   ApiName:
     Type: String
@@ -33,11 +37,16 @@ Parameters:
     Type: String
   AdminRouteName:
     Type: String
+  BLRStackName:
+    Type: String
 Outputs:
   CloudFrontDistroId:
     Value: !Ref CloudFrontDistroBowls
   ApiId:
     Value: !Ref ApiGatewayBowls
+  BLRLambdaUserAuthArn:
+    Value: !ImportValue
+      Fn::Sub: ${BLRStackName}-LambdaUserAuthArn
 Resources:
 ############################
 #### Lambda 
@@ -47,7 +56,7 @@ Resources:
     UpdateReplacePolicy: "Delete"
     DeletionPolicy: "Delete"
     Properties:
-      FunctionName: !Ref LambdaBowlsUpdatePicksName
+      FunctionName: !Ref LambdaUpdatePicksName
       MemorySize: 128
       Description: ""
       TracingConfig:
@@ -77,7 +86,7 @@ Resources:
     UpdateReplacePolicy: "Delete"
     DeletionPolicy: "Delete"
     Properties:
-      FunctionName: !Ref LambdaBowlsGetScoreboardName
+      FunctionName: !Ref LambdaGetScoreboardName
       MemorySize: 128
       Description: ""
       TracingConfig:
@@ -107,7 +116,7 @@ Resources:
     UpdateReplacePolicy: "Delete"
     DeletionPolicy: "Delete"
     Properties:
-      FunctionName: !Ref LambdaBowlsAdminEditName
+      FunctionName: !Ref LambdaAdminEditName
       MemorySize: 128
       Description: ""
       TracingConfig:
@@ -132,12 +141,12 @@ Resources:
         Size: 512
       Architectures:
       - "x86_64"
-  LambdaBowlsAdminAuth:
+  LambdaBowlsUserAuth:
     Type: "AWS::Lambda::Function"
     UpdateReplacePolicy: "Delete"
     DeletionPolicy: "Delete"
     Properties:
-      FunctionName: !Ref LambdaBowlsAdminAuthName
+      FunctionName: !Ref LambdaUserAuthName 
       MemorySize: 128
       Description: ""
       TracingConfig:
@@ -151,13 +160,13 @@ Resources:
           def lambda_handler(event, context):
                 # upload code via lambda deploy script
                 return False
-      Role: !GetAtt RoleBowlsAdmin.Arn 
+      Role: !GetAtt RoleBowlsUserAuth.Arn 
       FileSystemConfigs: []
       Runtime: "python3.12"
       PackageType: "Zip"
       LoggingConfig:
         LogFormat: "Text"
-        LogGroup: !Ref LogBowlsLambdaAdminAuth
+        LogGroup: !Ref LogBowlsLambdaUserAuth
       EphemeralStorage:
         Size: 512
       Architectures:
@@ -167,7 +176,7 @@ Resources:
     UpdateReplacePolicy: "Delete"
     DeletionPolicy: "Delete"
     Properties:
-      FunctionName: !Ref LambdaBowlsUpdateMarginsName
+      FunctionName: !Ref LambdaUpdateMarginsName
       MemorySize: 128
       Description: ""
       TracingConfig:
@@ -243,11 +252,30 @@ Resources:
       Path: "/"
       ManagedPolicyArns:
       - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
-      - !GetAtt PolicyBowlsAdmin.PolicyArn
       - !GetAtt PolicyBowlsReadWrite.PolicyArn
+      - !GetAtt PolicyBowlsTriggerMargins.PolicyArn
       MaxSessionDuration: 3600
       RoleName: !Sub "role-lambda-${LambdaAdminPermissionName}"
-      Description: "Allows admin function to read ssm secret, read/write s3, and invoke lambdas"
+      Description: "Allows Lambda functions to call read/write bowl pickem s3"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+        - Action: "sts:AssumeRole"
+          Effect: "Allow"
+          Principal:
+            Service: "lambda.amazonaws.com"
+  RoleBowlsUserAuth:
+    Type: "AWS::IAM::Role"
+    UpdateReplacePolicy: "Delete"
+    DeletionPolicy: "Delete"
+    Properties:
+      Path: "/"
+      ManagedPolicyArns:
+      - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+      - !GetAtt PolicyBowlsUserAuth.PolicyArn
+      MaxSessionDuration: 3600
+      RoleName: !Sub "role-lambda-${LambdaUserAuthPermissionName}"
+      Description: ""
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -300,26 +328,41 @@ Resources:
           - "s3:ListBucket"
           Effect: "Allow"
           Sid: "VisualEditor0"
-  PolicyBowlsAdmin:
+  PolicyBowlsTriggerMargins:
     Type: "AWS::IAM::ManagedPolicy"
     UpdateReplacePolicy: "Delete"
     DeletionPolicy: "Delete"
     Properties:
-      ManagedPolicyName: !Sub "policy-lambda-${LambdaAdminPermissionName}"
+      ManagedPolicyName: !Sub "policy-lambda-${LambdaTriggerMarginsPermissionName}"
       Path: "/"
       Description: ""
       Groups: []
       PolicyDocument:
         Version: "2012-10-17"
         Statement:
-          - Resource: !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${SsmAdminSecretId}"
-            Action: "ssm:GetParameter"
-            Effect: "Allow"
-            Sid: "VisualEditor0"
-          - Resource: !GetAtt LambdaBowlsUpdateMargins.Arn
-            Action: "lambda:InvokeFunction"
-            Effect: "Allow"
-            Sid: "VisualEditor1"
+        - Resource:
+          - !GetAtt LambdaBowlsUpdateMargins.Arn
+          Action: "lambda:InvokeFunction"
+          Effect: "Allow"
+          Sid: "LambdaInvokePermission"
+  PolicyBowlsUserAuth:
+    Type: "AWS::IAM::ManagedPolicy"
+    UpdateReplacePolicy: "Delete"
+    DeletionPolicy: "Delete"
+    Properties:
+      ManagedPolicyName: !Sub "policy-lambda-${LambdaUserAuthPermissionName}"
+      Path: "/"
+      Description: ""
+      Groups: []
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          Resource:
+          - !ImportValue
+              Fn::Sub: ${BLRStackName}-LambdaUserAuthArn
+          Action: "lambda:InvokeFunction"
+          Effect: "Allow"
+          Sid: "LambdaInvokePermission"
 ############################
 #### S3 
 ############################
@@ -408,6 +451,8 @@ Resources:
       ApiId: !Ref ApiGatewayBowls
       RouteKey: !Sub "POST /${PrimaryRouteName}"
       Target: !Join ["/", ["integrations", !Ref ApiIntegrationBowlsUpdatePicks]]
+      AuthorizationType: "CUSTOM"
+      AuthorizerId: !Ref ApiAuthorizerBowlsUserAuth
   ApiRouteBowlsPickemOptions:
     Type: "AWS::ApiGatewayV2::Route"
     UpdateReplacePolicy: "Delete"
@@ -424,7 +469,7 @@ Resources:
       RouteKey: !Sub "POST /${AdminRouteName}"
       Target: !Join ["/", ["integrations", !Ref ApiIntegrationBowlsAdminEdit]]
       AuthorizationType: "CUSTOM"
-      AuthorizerId: !Ref ApiAuthorizerBowlsAdminAuth
+      AuthorizerId: !Ref ApiAuthorizerBowlsUserAuth
   ApiRouteBowlsAdminOptions:
     Type: "AWS::ApiGatewayV2::Route"
     UpdateReplacePolicy: "Delete"
@@ -462,15 +507,15 @@ Resources:
       IntegrationMethod: POST
       IntegrationUri: !Sub  "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaBowlsAdminEdit.Arn}/invocations"
       PayloadFormatVersion: "2.0"
-  ApiAuthorizerBowlsAdminAuth:
+  ApiAuthorizerBowlsUserAuth:
     Type: "AWS::ApiGatewayV2::Authorizer"
     UpdateReplacePolicy: "Delete"
     DeletionPolicy: "Delete"
     Properties:
       ApiId: !Ref ApiGatewayBowls
-      Name: !Ref LambdaBowlsAdminAuth
+      Name: !Ref LambdaBowlsUserAuth
       AuthorizerType: "REQUEST"
-      AuthorizerUri: !Sub  "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaBowlsAdminAuth.Arn}/invocations"
+      AuthorizerUri: !Sub  "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaBowlsUserAuth.Arn}/invocations"
       AuthorizerPayloadFormatVersion: "2.0"
       EnableSimpleResponses: true
       IdentitySource: 
@@ -502,14 +547,14 @@ Resources:
       Action: "lambda:InvokeFunction"
       SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiGatewayBowls}/*/*/${AdminRouteName}"
       Principal: "apigateway.amazonaws.com"
-  ApiTriggerPermissionBowlsAdminAuth:
+  ApiTriggerPermissionBowlsUserAuth:
     Type: "AWS::Lambda::Permission"
     UpdateReplacePolicy: "Delete"
     DeletionPolicy: "Delete"
     Properties:
-      FunctionName: !GetAtt LambdaBowlsAdminAuth.Arn
+      FunctionName: !GetAtt LambdaBowlsUserAuth.Arn
       Action: "lambda:InvokeFunction"
-      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiGatewayBowls}/authorizers/${ApiAuthorizerBowlsAdminAuth}"
+      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiGatewayBowls}/authorizers/${ApiAuthorizerBowlsUserAuth}"
       Principal: "apigateway.amazonaws.com"
 ############################
 #### CloudFront 
@@ -522,7 +567,7 @@ Resources:
       DistributionConfig:
         DefaultRootObject: "index.html"
         Origins:
-        - OriginAccessControlId: !Ref CloudFrontOACBowls
+        - OriginAccessControlId: "EWO8FEYV4CJHK" # TODO 
           DomainName: !GetAtt S3BowlsPublic.RegionalDomainName
           S3OriginConfig:
             OriginAccessIdentity: ""
@@ -548,17 +593,6 @@ Resources:
         - !Ref DeployedRootURL 
         IPV6Enabled: true
         HttpVersion: "http2"
-  CloudFrontOACBowls:
-    Type: "AWS::CloudFront::OriginAccessControl"
-    UpdateReplacePolicy: "Delete"
-    DeletionPolicy: "Delete"
-    Properties:
-      OriginAccessControlConfig:
-        SigningBehavior: "always"
-        Description: ""
-        SigningProtocol: "sigv4"
-        OriginAccessControlOriginType: "s3"
-        Name: !GetAtt S3BowlsPublic.RegionalDomainName
   S3BucketPolicyBowls:
     Type: "AWS::S3::BucketPolicy"
     UpdateReplacePolicy: "Retain"
@@ -611,33 +645,33 @@ Resources:
     UpdateReplacePolicy: "Delete"
     DeletionPolicy: "Delete"
     Properties:
-      LogGroupName: !Sub "/aws/lambda/${LambdaBowlsGetScoreboardName}"
+      LogGroupName: !Sub "/aws/lambda/${LambdaGetScoreboardName}"
       RetentionInDays: 7
   LogBowlsLambdaUpdatePicks:
     Type: "AWS::Logs::LogGroup"
     UpdateReplacePolicy: "Delete"
     DeletionPolicy: "Delete"
     Properties:
-      LogGroupName: !Sub "/aws/lambda/${LambdaBowlsUpdatePicksName}"
+      LogGroupName: !Sub "/aws/lambda/${LambdaUpdatePicksName}"
       RetentionInDays: 7
   LogBowlsLambdaAdminEdit:
     Type: "AWS::Logs::LogGroup"
     UpdateReplacePolicy: "Delete"
     DeletionPolicy: "Delete"
     Properties:
-      LogGroupName: !Sub "/aws/lambda/${LambdaBowlsAdminEditName}"
+      LogGroupName: !Sub "/aws/lambda/${LambdaAdminEditName}"
       RetentionInDays: 7
-  LogBowlsLambdaAdminAuth:
+  LogBowlsLambdaUserAuth:
     Type: "AWS::Logs::LogGroup"
     UpdateReplacePolicy: "Delete"
     DeletionPolicy: "Delete"
     Properties:
-      LogGroupName: !Sub "/aws/lambda/${LambdaBowlsAdminAuthName}"
+      LogGroupName: !Sub "/aws/lambda/${LambdaUserAuthName}"
       RetentionInDays: 7
   LogBowlsLambdaUpdateMargins:
     Type: "AWS::Logs::LogGroup"
     UpdateReplacePolicy: "Delete"
     DeletionPolicy: "Delete"
     Properties:
-      LogGroupName: !Sub "/aws/lambda/${LambdaBowlsUpdateMarginsName}"
+      LogGroupName: !Sub "/aws/lambda/${LambdaUpdateMarginsName}"
       RetentionInDays: 7
