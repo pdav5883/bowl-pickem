@@ -24,6 +24,9 @@ module.exports = {
       import: './src/scripts/admin.js',
       dependOn: 'shared'
     },
+    login: {
+      import: require.resolve('blr-shared-frontend/dist/login.js')
+    },
     picks: {
       import: './src/scripts/picks.js',
       dependOn: 'shared'
@@ -58,6 +61,13 @@ module.exports = {
       filename: 'admin.html',
       template: './src/admin.html',
       chunks: ['shared', 'admin']
+    }),
+    new HtmlWebpack({
+      title: "Login",
+      filename: "login.html",
+      template: require.resolve('blr-shared-frontend/src/login.html'),
+      chunks: ["navonly", "login"],
+      inject: true
     }),
     new HtmlWebpack({
       title: 'Picks',

@@ -1,5 +1,11 @@
 import { API_URL, NEXT_GAME } from "./constants.js"
 import { populateMenu } from "./shared.js"
+
+import {
+  getValidAccessToken,
+  getCookie
+} from "blr-shared-frontend"
+
 import $ from "jquery"
 
 // need to have keep these at global scope since year/gid
@@ -10,12 +16,12 @@ let gidArg
 let hasArgs
 let gameType
 
-$(document).ready(function() {
+$(function() {
   populateMenu()
   $("#yearsel").on("change", populateGameList)
   $("#subbutton1").on("click", submitPicks)
   $("#subbutton2").on("click", submitPicks)
-  $("#gobutton").on("click", changePickOptions)
+  $("#joinbutton").on("click", changePickOptions)
   $("#scorebutton").on("click", goToScoreboard)
   $("#remaininglist").hide()
   $("#scorebutton").hide()
@@ -32,13 +38,12 @@ function initSubmitPage() {
     $("#gamesel").hide()
     $("#yearlab").hide()
     $("#gamelab").hide()
-    $("#gobutton").hide()
+    $("#joinbutton").hide()
 
     yearArg = params.get("year")
     gidArg = params.get("gid")
     hasArgs = true
-
-    populatePickOptions(yearArg, gidArg)
+    attemptJoinGame(yearArg, gidArg)
   }
   
   else {
@@ -102,13 +107,36 @@ function populateGameList() {
   })
 }
 
-// need gid as arg to know if it's advanced
-function populatePickOptions(year, gid){
+function attemptJoinGame(year, gid) {
+  $("#remaininglist").hide()
+
+  // title of page
+  let title = document.getElementById("picktitle")
+  title.textContent = gid.replace(/-/g, " ") + " "
+  
+  let yearspan = document.createElement("span")
+  yearspan.textContent = year + "-" + (parseInt(year) + 1)
+  yearspan.setAttribute("class", "text-nowrap")
+  title.appendChild(yearspan)
+
+  // clear the table
+  let table = document.getElementById("picktable")
+  table.innerHTML = ""
+
+  const accessToken = getValidAccessToken()
+  if (!accessToken) {
+    $("#statustext").text("Please login to join a game")
+    return
+  }
+
+  const firstName = getCookie('blr-userFirstName')
+  const lastName = getCookie('blr-userLastName')
+  const pid = (firstName + " " + lastName).replace(" ", "__").lower()
+
+  $("#nametext").val(firstName + " " + lastName)
   $("#nametext").show()
   $("#namelab").show()
-  $("#subbutton1").show()
-  $("#subbutton2").show()
-  
+
   $.ajax({
     method: "GET",
     url: API_URL.primary,
@@ -116,187 +144,180 @@ function populatePickOptions(year, gid){
     crossDomain: true,
     success: function(game) {
       $("#statustext").text("")
-      $("#remaininglist").hide() // doing here to cover case with lock picks
-
-      // set global variables
-      gameType = game.type
-
-      // title of page
-      let title = document.getElementById("picktitle")
-      title.textContent = gid.replace(/-/g, " ") + " "
-      
-      let yearspan = document.createElement("span")
-      yearspan.textContent = year + "-" + (parseInt(year) + 1)
-      yearspan.setAttribute("class", "text-nowrap")
-      title.appendChild(yearspan)
-
-      // clear the table
-      let table = document.getElementById("picktable")
-      table.innerHTML = ""
-
       if (game.lock_picks) {
-        $("#statustext").text("Picks are locked for this game")
+        $("#statustext").text("Picks are locked for this game!")
         return
       }
 
-      if (gameType == "advanced") {
-        $("#remaininglist").show()
+      if (game.players.some(player => player.name === pid)) {
+        $("#statustext").text("You already submitted picks for this game!")
+        return
       }
-      
-      game.bowls.forEach((bowl, i) => {
-        let row = document.createElement("tr")
-        let cell = document.createElement("th")
-
-        // name of bowl
-        let spanBowl = document.createElement("span")
-        spanBowl.textContent = bowl.name
-
-        if (bowl.bonus > 0) {
-          spanBowl.textContent += " [+" + bowl.bonus + "]"
-        }
-
-        spanBowl.setAttribute("class", "fw-bold")
-        cell.appendChild(spanBowl)
-        cell.innerHTML += "<BR>"
-
-        let aTeam0
-        let aTeam1
-
-        // teams in bowl
-        if (bowl.hasOwnProperty("links")) {
-          aTeam0 = document.createElement("a")
-          aTeam1 = document.createElement("a")
-          aTeam0.href = bowl.links[0]
-          aTeam1.href = bowl.links[1]
-          aTeam0.target = "_blank"
-          aTeam1.target = "_blank"
-          aTeam0.rel = "noopener noreferrer"
-          aTeam1.rel = "noopener noreferrer"
-        }
-        
-        else {
-          aTeam0 = document.createElement("span")
-          aTeam1 = document.createElement("span")
-        }
-
-        aTeam0.textContent = bowl.teams[0]
-        aTeam1.textContent = bowl.teams[1]
-
-        if (i == game.bowls.length - 1) {
-          aTeam0.textContent = "?"
-          aTeam1.textContent = "?"
-        }
-
-        cell.appendChild(aTeam0)
-        cell.innerHTML += " vs "
-        cell.appendChild(aTeam1)
-        cell.innerHTML += "<BR>"
-	
-        // date of bowl
-        let spanDate = document.createElement("span")
-        spanDate.textContent = bowl.date[0].toString() + "/" + bowl.date[1].toString() + "/" + bowl.date[2].toString()
-        spanDate.setAttribute("class", "small")
-        cell.appendChild(spanDate)
-
-        row.appendChild(cell)
-
-        // pick options, with logic for CFP
-        cell = document.createElement("td")
-        let shortName = bowl.teams_short[0]
-	
-        if (i == game.bowls.length - 1) {
-          shortName = "?"
-        }
-
-        let nameSpan = document.createElement("span")
-        nameSpan.textContent = shortName
-        cell.appendChild(nameSpan)
-        cell.innerHTML += "<BR>"
-        let radio = document.createElement("input")
-        radio.setAttribute("type", "radio")
-        radio.setAttribute("name", "bowl" + i)
-        radio.setAttribute("value", 0)
-
-        if (i >= game.bowls.length - NEXT_GAME[yearArg].length) {
-          radio.addEventListener("change", updateBracket)
-        }
-	
-        cell.appendChild(radio)
-        row.appendChild(cell)
-
-        cell = document.createElement("td")
-        shortName = bowl.teams_short[1]
-
-        if (i == game.bowls.length - 1) {
-          shortName = "?"
-        }
-
-        nameSpan = document.createElement("span")
-        nameSpan.textContent = shortName
-        cell.appendChild(nameSpan)
-        cell.innerHTML += "<BR>"
-        radio = document.createElement("input")
-        radio.setAttribute("type", "radio")
-        radio.setAttribute("name", "bowl" + i)
-        radio.setAttribute("value", 1)
-	
-        if (i >= game.bowls.length - NEXT_GAME[yearArg].length) {
-          radio.addEventListener("change", updateBracket)
-        }
-	
-        cell.appendChild(radio)
-        row.appendChild(cell)
-	
-        if (gameType === "advanced") {
-          // category pick
-          cell = document.createElement("td")
-          let dropdown = document.createElement("select")
-          dropdown.setAttribute("name", "cat" + i)
-          dropdown.setAttribute("class", "form-select form-select-sm")
-          dropdown.addEventListener("change", updateCategories)
-          let opt = document.createElement("option")
-
-          // tournament games  always cat3
-          if (i >= game.bowls.length - NEXT_GAME[yearArg].length) {
-            opt.textContent = 3
-            opt.setAttribute("value", 3)
-            dropdown.appendChild(opt)
-          }
-          
-          else {
-            opt.textContent = "-"
-            opt.setAttribute("value", "")
-            dropdown.appendChild(opt)
-
-            for (let k = 1; k <=6; k++) {
-              opt = document.createElement("option")
-              opt.textContent = k
-              opt.setAttribute("value", k)
-              dropdown.appendChild(opt)
-            }
-          }
-
-          cell.appendChild(dropdown)
-          row.appendChild(cell)
-
-          // scratch field
-          cell = document.createElement("td")
-          let scratch = document.createElement("input")
-          scratch.setAttribute("type", "text")
-          scratch.setAttribute("class", "form-control form-control-sm")
-          scratch.style.width = "100px"
-
-          cell.appendChild(scratch)
-          row.appendChild(cell) 
-        }
-        table.appendChild(row)
-      })
-
-      if (gameType === "advanced") {
-        updateCategories()
-      }
+      populatePickOptions(game)
     }
   })
+  
+}
+
+// need gid as arg to know if it's advanced
+function populatePickOptions(game){
+  let table = document.getElementById("picktable")
+  if (game.type == "advanced") {
+    $("#remaininglist").show()
+  }
+  
+  game.bowls.forEach((bowl, i) => {
+    let row = document.createElement("tr")
+    let cell = document.createElement("th")
+
+    // name of bowl
+    let spanBowl = document.createElement("span")
+    spanBowl.textContent = bowl.name
+
+    if (bowl.bonus > 0) {
+      spanBowl.textContent += " [+" + bowl.bonus + "]"
+    }
+
+    spanBowl.setAttribute("class", "fw-bold")
+    cell.appendChild(spanBowl)
+    cell.innerHTML += "<BR>"
+
+    let aTeam0
+    let aTeam1
+
+    // teams in bowl
+    if (bowl.hasOwnProperty("links")) {
+      aTeam0 = document.createElement("a")
+      aTeam1 = document.createElement("a")
+      aTeam0.href = bowl.links[0]
+      aTeam1.href = bowl.links[1]
+      aTeam0.target = "_blank"
+      aTeam1.target = "_blank"
+      aTeam0.rel = "noopener noreferrer"
+      aTeam1.rel = "noopener noreferrer"
+    }
+    
+    else {
+      aTeam0 = document.createElement("span")
+      aTeam1 = document.createElement("span")
+    }
+
+    aTeam0.textContent = bowl.teams[0]
+    aTeam1.textContent = bowl.teams[1]
+
+    if (i == game.bowls.length - 1) {
+      aTeam0.textContent = "?"
+      aTeam1.textContent = "?"
+    }
+
+    cell.appendChild(aTeam0)
+    cell.innerHTML += " vs "
+    cell.appendChild(aTeam1)
+    cell.innerHTML += "<BR>"
+
+    // date of bowl
+    let spanDate = document.createElement("span")
+    spanDate.textContent = bowl.date[0].toString() + "/" + bowl.date[1].toString() + "/" + bowl.date[2].toString()
+    spanDate.setAttribute("class", "small")
+    cell.appendChild(spanDate)
+
+    row.appendChild(cell)
+
+    // pick options, with logic for CFP
+    cell = document.createElement("td")
+    let shortName = bowl.teams_short[0]
+
+    if (i == game.bowls.length - 1) {
+      shortName = "?"
+    }
+
+    let nameSpan = document.createElement("span")
+    nameSpan.textContent = shortName
+    cell.appendChild(nameSpan)
+    cell.innerHTML += "<BR>"
+    let radio = document.createElement("input")
+    radio.setAttribute("type", "radio")
+    radio.setAttribute("name", "bowl" + i)
+    radio.setAttribute("value", 0)
+
+    if (i >= game.bowls.length - NEXT_GAME[yearArg].length) {
+      radio.addEventListener("change", updateBracket)
+    }
+
+    cell.appendChild(radio)
+    row.appendChild(cell)
+
+    cell = document.createElement("td")
+    shortName = bowl.teams_short[1]
+
+    if (i == game.bowls.length - 1) {
+      shortName = "?"
+    }
+
+    nameSpan = document.createElement("span")
+    nameSpan.textContent = shortName
+    cell.appendChild(nameSpan)
+    cell.innerHTML += "<BR>"
+    radio = document.createElement("input")
+    radio.setAttribute("type", "radio")
+    radio.setAttribute("name", "bowl" + i)
+    radio.setAttribute("value", 1)
+
+    if (i >= game.bowls.length - NEXT_GAME[yearArg].length) {
+      radio.addEventListener("change", updateBracket)
+    }
+
+    cell.appendChild(radio)
+    row.appendChild(cell)
+
+    if (gameType === "advanced") {
+      // category pick
+      cell = document.createElement("td")
+      let dropdown = document.createElement("select")
+      dropdown.setAttribute("name", "cat" + i)
+      dropdown.setAttribute("class", "form-select form-select-sm")
+      dropdown.addEventListener("change", updateCategories)
+      let opt = document.createElement("option")
+
+      // tournament games  always cat3
+      if (i >= game.bowls.length - NEXT_GAME[yearArg].length) {
+        opt.textContent = 3
+        opt.setAttribute("value", 3)
+        dropdown.appendChild(opt)
+      }
+      
+      else {
+        opt.textContent = "-"
+        opt.setAttribute("value", "")
+        dropdown.appendChild(opt)
+
+        for (let k = 1; k <=6; k++) {
+          opt = document.createElement("option")
+          opt.textContent = k
+          opt.setAttribute("value", k)
+          dropdown.appendChild(opt)
+        }
+      }
+
+      cell.appendChild(dropdown)
+      row.appendChild(cell)
+
+      // scratch field
+      cell = document.createElement("td")
+      let scratch = document.createElement("input")
+      scratch.setAttribute("type", "text")
+      scratch.setAttribute("class", "form-control form-control-sm")
+      scratch.style.width = "100px"
+
+      cell.appendChild(scratch)
+      row.appendChild(cell) 
+    }
+    table.appendChild(row)
+  })
+
+  if (gameType === "advanced") {
+    updateCategories()
+  }
 }
 
 function updateBracketGame(gameIndex) {
