@@ -1,5 +1,20 @@
-import { API_URL, PREV_GAME } from "./constants.js"
-import { populateMenu } from "./shared.js"
+import {
+  API_URL,
+  PREV_GAME } from "./constants.js"
+
+import {
+  populateMenu,
+  populateGameList,
+  populateYears
+ } from "./shared.js"
+
+import {
+  initButtons,
+  spinnerOn,
+  spinnerOff,
+  getValidAccessToken
+} from "blr-shared-frontend"
+
 import $ from "jquery"
 
 // need to have keep these at global scope since year/gid
@@ -10,10 +25,18 @@ let typeArg
 let yearArg
 let gidArg
 
-$(document).ready(function() {
+$(function() {
   populateMenu()
+  initButtons(["gobutton", "submitbutton"])
+
   $("#yearsel").on("change", populateGameList)
-  $("#subbutton").on("click", submitEdits)
+  $("#submitbutton").on("click", async () => {
+    spinnerOn("submitbutton")
+
+    await submitEdits(() => {
+      spinnerOff("submitbutton")
+    })
+  })
   $("#gobutton").on("click", changeAdminPage)
   initAdminPage()
 })
@@ -22,55 +45,6 @@ $(document).ready(function() {
 function initAdminPage() {
   $("#statustext").text("")
   populateYears(true) // also populates games
-}
-
-
-function populateYears(defaultLatest) {
-  $.ajax({
-    method: "GET",
-    url: API_URL.primary,
-    data: {"qtype": "years"},
-    crossDomain: true,
-    success: function(years) {
-      let yearOpt
-
-      years.forEach((year) => {
-        yearOpt = document.createElement("option")
-        yearOpt.value = year
-        yearOpt.textContent = year
-        $("#yearsel").append(yearOpt)
-      })
-
-      // set to latest year
-      // populateGameList() will be called on .change()
-      if (defaultLatest) {
-        $("#yearsel").val(yearOpt.value).change()
-      }
-    }
-  })
-}
-
-
-function populateGameList() {
-  // need to clear options, or list will always grow
-  $("#gamesel").empty()
-
-  $.ajax({
-    method: "GET",
-    url: API_URL.primary,
-    data: {"qtype": "games", "year": $("#yearsel").val()},
-    crossDomain: true,
-    success: function(res) {
-      let game
-
-      Object.keys(res).forEach(gid => {
-        game = document.createElement("option")
-        game.value = gid
-        game.textContent = gid.replace(/-/g, " ")
-        $("#gamesel").append(game)
-      })
-    }
-  })
 }
 
 
@@ -268,17 +242,16 @@ function makeTextInput(id, numchar=12, current="") {
   return input
 }
 
-
-function submitEdits() {
+async function submitEdits(callback) {
   if (typeArg === "results") {
-    submitResultsEdits()
+    await submitResultsEdits(callback)
   }
   else if (typeArg === "game") {
-    submitGameEdits()
+    await submitGameEdits(callback)
   }
 }
 
-function submitGameEdits() {
+async function submitGameEdits(callback) {
   let table = document.getElementById("admintable")
 
   $("#statustext").text("")
@@ -307,13 +280,14 @@ function submitGameEdits() {
   $.ajax({
     type: "POST",
     url: API_URL.admin,
-    headers: {"authorization": $("#pwdtext").val()},
+    headers: { "authorization": await getValidAccessToken() },
     crossDomain: true,
     contentType: "application/json; charset=utf-8",
     data: JSON.stringify({"etype": "game", "year": yearArg, "gid": gidArg, "data": data}),
 
     success: function() {
       $("#statustext").text("Success!")
+      if (callback) callback()
     },
 
     error: function(err) {
@@ -323,12 +297,13 @@ function submitGameEdits() {
       else {
         $("#statustext").text("Error: unknown submission error")
       }
+      if (callback) callback()
     }
   })
 }
 
 
-function submitResultsEdits() {
+async function submitResultsEdits(callback) {
   let table = document.getElementById("admintable")
 
   $("#statustext").text("")
@@ -353,13 +328,14 @@ function submitResultsEdits() {
   $.ajax({
     type: "POST",
     url: API_URL.admin,
-    headers: {"authorization": $("#pwdtext").val()},
+    headers: {"authorization": await getValidAccessToken()},
     crossDomain: true,
     contentType: "application/json; charset=utf-8",
     data: JSON.stringify({"etype": "results", "year": yearArg, "data": data}),
 
     success: function() {
       $("#statustext").text("Success!")
+      if (callback) callback()
     },
 
     error: function(err) {
@@ -369,6 +345,7 @@ function submitResultsEdits() {
       else {
         $("#statustext").text("Error: unknown submission error")
       }
+      if (callback) callback()
     }
   })
 

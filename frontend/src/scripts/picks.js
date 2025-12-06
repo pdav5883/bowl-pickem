@@ -1,5 +1,8 @@
 import { API_URL, NEXT_GAME } from "./constants.js"
-import { populateMenu } from "./shared.js"
+import { populateMenu,
+  populateGameList,
+  populateYears
+ } from "./shared.js"
 
 import {
   getValidAccessToken,
@@ -21,7 +24,11 @@ $(function() {
   $("#yearsel").on("change", populateGameList)
   $("#subbutton1").on("click", submitPicks)
   $("#subbutton2").on("click", submitPicks)
-  $("#joinbutton").on("click", changePickOptions)
+  $("#joinbutton").on("click", async () => {
+    yearArg = $("#yearsel").val()
+    gidArg = $("#gamesel").val()
+    await attemptJoinGame(yearArg, gidArg)
+  })
   $("#scorebutton").on("click", goToScoreboard)
   $("#remaininglist").hide()
   $("#scorebutton").hide()
@@ -58,57 +65,9 @@ function initSubmitPage() {
   }
 }
 
-
-function populateYears(defaultLatest) {
-  $.ajax({
-    method: "GET",
-    url: API_URL.primary,
-    data: {"qtype": "years"},
-    crossDomain: true,
-    success: function(years) {
-      let yearOpt
-
-      years.forEach((year) => {
-        yearOpt = document.createElement("option")
-        yearOpt.value = year
-        yearOpt.textContent = year
-        $("#yearsel").append(yearOpt)
-      })
-
-      // set to latest year
-      // populateGameList() will be called on .change()
-      if (defaultLatest) {
-        $("#yearsel").val(yearOpt.value).change()
-      }
-    }
-  })
-}
-
-
-function populateGameList() {
-  // need to clear options, or list will always grow
-  $("#gamesel").empty()
-
-  $.ajax({
-    method: "GET",
-    url: API_URL.primary,
-    data: {"qtype": "games", "year": $("#yearsel").val()},
-    crossDomain: true,
-    success: function(res) {
-      let game
-
-      Object.keys(res).forEach(gid => {
-        game = document.createElement("option")
-        game.value = gid
-        game.textContent = gid.replace(/-/g, " ")
-        $("#gamesel").append(game)
-      })
-    }
-  })
-}
-
-function attemptJoinGame(year, gid) {
+async function attemptJoinGame(year, gid) {
   $("#remaininglist").hide()
+  $("statustext").text("")
 
   // title of page
   let title = document.getElementById("picktitle")
@@ -123,15 +82,20 @@ function attemptJoinGame(year, gid) {
   let table = document.getElementById("picktable")
   table.innerHTML = ""
 
-  const accessToken = getValidAccessToken()
+  const accessToken = await getValidAccessToken()
   if (!accessToken) {
-    $("#statustext").text("Please login to join a game")
-    return
+    $("#statustext").text("Sign In to join a game!")
+    // return // for testing, comment out
   }
 
-  const firstName = getCookie('blr-userFirstName')
-  const lastName = getCookie('blr-userLastName')
-  const pid = (firstName + " " + lastName).replace(" ", "__").lower()
+  // const firstName = getCookie('blr-userFirstName')
+  // const lastName = getCookie('blr-userLastName')
+  const firstName = "Test" // for testing, uncomment
+  const lastName = "User"  // for testing, uncomment
+
+  const pid = (firstName + " " + lastName).replace(" ", "__").toLowerCase()
+
+  
 
   $("#nametext").val(firstName + " " + lastName)
   $("#nametext").show()
@@ -486,16 +450,6 @@ function updateCategories() {
 
   // return true if all categories remaining are zero
   return catRemaining.every(item => item === 0)
-}
-
-
-function changePickOptions() {
-  $("#scorebutton").hide()
-  
-  yearArg = $("#yearsel").val()
-  gidArg = $("#gamesel").val()
-
-  populatePickOptions(yearArg, gidArg)
 }
 
 
