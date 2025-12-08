@@ -51,6 +51,27 @@
   white-space: nowrap;
 }
 
+#picktable th:first-child,
+#picktable td:first-child {
+  position: sticky;
+  left: 0;
+  background-color: white;
+  z-index: 5;
+  width: 1px; /* fit to content */
+  white-space: nowrap; /* bowls always on one line */
+}
+
+#picktable th:not(:first-child),
+#picktable td:not(:first-child) {
+  white-space: nowrap;
+  width: 1px; /* fit to content */
+}
+
+input[type="radio"] {
+  height: 20px;
+  width: 20px;
+}
+
 /* Bowl name display */
 .bowl-name {
   font-size: 0.875rem;

@@ -2,17 +2,18 @@
 This repo contains the frontend code and python lambda code for a College Football bowl picking web application. Currently the site is set up as a static site hosted in AWS S3, with a set of JSON data files containing picks and results. Whenever new picks are made a lambda call updates and republishes the data file. This eventually should turn into an actual database. 
 
 ## TODO
-- Confirm admin edit works
-  - 500 error when attempting POST to admin
-- Add a game test game to test new picks page
-- Update picks page
 - Confirm that submitPicks works
+- Get rid of sign in button
 - Update scoreboard page to show "next/prev 3 games, bracket
 - Use same logic for scoreboard name as bracket-revival
-- Add endpoint or document process for adding new game
-- Add "join as guest" option
+- Advanced picks
+- Advanced scoreboard
+
+
+## Long-term TODO
+- Add endpoint for adding new game
 - Use BLR utilities layer in lambdas
-- Add spinners to buttons
+- Use BLR login with guest sign in
 
 
 ## Lambdas
