@@ -18,9 +18,7 @@ def lambda_handler(event, context):
 
     user_id = event.get('queryStringParameters', {}).get('pid', '').replace(' ', '__').lower()
 
-    if event["rawPath"] == "/" + primary_route:
-        auth_type = "specificUser"
-    elif event["rawPath"] == "/" + admin_route:
+    if event["rawPath"] == "/" + admin_route:
         auth_type = "adminUser"
     else:
         print(f"Invalid route {event['rawPath']}")

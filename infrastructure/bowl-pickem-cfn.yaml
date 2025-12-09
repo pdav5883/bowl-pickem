@@ -451,8 +451,6 @@ Resources:
       ApiId: !Ref ApiGatewayBowls
       RouteKey: !Sub "POST /${PrimaryRouteName}"
       Target: !Join ["/", ["integrations", !Ref ApiIntegrationBowlsUpdatePicks]]
-      AuthorizationType: "CUSTOM"
-      AuthorizerId: !Ref ApiAuthorizerBowlsUserAuth
   ApiRouteBowlsPickemOptions:
     Type: "AWS::ApiGatewayV2::Route"
     UpdateReplacePolicy: "Delete"

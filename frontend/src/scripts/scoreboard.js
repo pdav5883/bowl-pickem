@@ -36,6 +36,7 @@ function initScoreboardPage() {
     populateYears(true)
   }
 
+  $("#bestFinishForm").hide()
   addBestFinishPopup()
 }
 
@@ -159,6 +160,13 @@ function populateScoreboard(game) {
   const scores = calcScores(game)
   createScoreRow(thead, scores)
   equalizeColumnWidths()
+
+  if (game.calc_margin) {
+    $("#bestFinishForm").show()
+  }
+  else {
+    $("#bestFinishForm").hide()
+  }
 
   return scores
 }

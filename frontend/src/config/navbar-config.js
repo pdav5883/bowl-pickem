@@ -29,5 +29,7 @@ export const navbarConfig = {
         { name: 'Bear Loves Rocks', url: 'https://home.bearloves.rocks' }
       ]
     }
-  ]
+  ],
+
+  hideSignin: true
 };

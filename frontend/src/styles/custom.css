@@ -16,8 +16,9 @@
    ================================= */
 
 /* Table borders and backgrounds */
-#scoretable td:not(:first-child) {
+#scoretable tbody td:not(:first-child) {
   border-left-width: var(--bs-border-width);
+  border-right-width: var(--bs-border-width);
 }
 
 #scoretable .table-secondary {

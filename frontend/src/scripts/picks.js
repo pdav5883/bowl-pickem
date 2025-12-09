@@ -23,7 +23,7 @@ let firstPlayoff
 
 $(function() {
   populateMenu()
-  initButtons(["joinbutton", "subbutton1", "subbutton2"])
+  initButtons(["joinbutton", "scorebutton", "subbutton1", "subbutton2"])
 
   $("#yearsel").on("change", populateGameList)
   $("#subbutton1").on("click", submitPicks)
@@ -416,6 +416,8 @@ function submitPicks() {
       spinnerOff("subbutton2")
       $("#joinform").show()
       $("#nameform").hide()
+      $("#subbutton1").hide()
+      $("#subbutton2").hide()
     },
 
     error: function(xhr) {

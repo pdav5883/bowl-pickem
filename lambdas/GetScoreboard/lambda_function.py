@@ -69,6 +69,7 @@ def handle_scoreboard(year, gid):
     bowls = json.loads(bowls_s3["Body"].read().decode("UTF-8"))
 
     game["bowls"] = bowls["bowls"]
+    game["calc_margin"] = bowls.get("calc_margin", False)
 
     # filter based on game flags
     if not game["show_results"]:
