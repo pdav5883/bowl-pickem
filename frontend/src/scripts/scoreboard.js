@@ -110,6 +110,9 @@ function populateGame(args) {
     crossDomain: true,
     success: function(game) {
       updateTitle(gid, year)
+
+      const renderNames = getRenderNames(game.players.map(player => player.name))
+      game.players.forEach((player, i) => player.renderName = renderNames[i])
       
       const scores = populateScoreboard(game)
       currentGame = game
@@ -180,7 +183,7 @@ function createHeaderRow(thead, players) {
 
   players.forEach((player) => {
     const playerCell = document.createElement("th")
-    playerCell.textContent = player.name
+    playerCell.textContent = player.renderName
     row.appendChild(playerCell)
 
     // Initialize tracking arrays for playoffs
@@ -453,7 +456,7 @@ function populateLeaderboard(game, scores, showBestFinish) {
   }
 
   const leaders = game.players.map((player, i) => ({
-    name: player.name,
+    name: player.renderName,
     score: scores[i],
     best_finish: player.best_finish,
     max_margin: player.max_margin
@@ -596,6 +599,38 @@ function calcScores(game) {
 // =================================
 // UTILITIES
 // =================================
+
+function getRenderNames(names) {
+  const renderNames = names.map(name => name.split(" ")[0]);
+  const lastNames = names.map(name => " " + name.split(" ")[1]);
+
+  for (let i = 0; i < renderNames.length; i++) {
+    let nameOk = false
+
+    while (!nameOk) {
+      nameOk = true
+      let origName = renderNames[i]
+      for (let j = 0; j < renderNames.length; j++) {
+        if (i == j) {
+          continue
+        }
+
+        if (origName == renderNames[j]) {
+          if (nameOk) {
+            renderNames[i] = origName + lastNames[i][0]
+            lastNames[i] = lastNames[i].substring(1)
+            nameOk = false
+          }
+
+          renderNames[j] = origName + lastNames[j][0]
+          lastNames[j] = lastNames[j].substring(1)
+        }
+      }
+    }
+  }
+  return renderNames;
+}
+
 
 function ordinalSuper(num) {
   if (num === 1) return "st"

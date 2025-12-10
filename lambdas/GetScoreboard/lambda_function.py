@@ -80,6 +80,8 @@ def handle_scoreboard(year, gid):
         for player in game["players"]:
             player["picks"] = [None] * len(player["picks"])
 
+    game["players"].sort(key=lambda p: p["name"].lower())
+
     return game 
 
 
