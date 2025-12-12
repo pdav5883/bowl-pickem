@@ -97,6 +97,7 @@ function attemptJoinGame(year, gid) {
       $("#nameform").show()
 
       $("#joinform").hide()
+      $("#scorebutton").hide()
       $("#subbutton1").show()
       $("#subbutton2").show()
       
@@ -121,13 +122,11 @@ function attemptJoinGame(year, gid) {
 }
 
 function populatePickOptions(game) {
+  gameType = game.type // store this to know whether to submit advanced or basic
+
   const table = document.getElementById("picktable")
   table.classList.add("text-center")
   table.innerHTML = ""
-
-  if (game.type == "advanced") {
-    $("#remainingform").show()
-  }
   
   const thead = document.createElement("thead")
   const tbody = document.createElement("tbody")
@@ -143,6 +142,10 @@ function populatePickOptions(game) {
     tbody.appendChild(row)
   })
 
+  if (game.type == "advanced") {
+    $("#remainingform").show()
+    updateCategories()
+  }
 }
 
 function createBowlRow(bowl, bowlIndex, game) {
@@ -150,9 +153,7 @@ function createBowlRow(bowl, bowlIndex, game) {
   const bowlCell = createBowlInfoCell(bowl, bowlIndex, game)
   row.appendChild(bowlCell)
 
-  const { cell0, cell1 } = createPickMatchup(bowl, bowlIndex, game)
-  row.appendChild(cell0)
-  row.appendChild(cell1)
+  createPickMatchup(bowl, bowlIndex, game).forEach((cell) => row.appendChild(cell))
 
   return row
 }
@@ -243,7 +244,6 @@ function getPlayoffTeamName(bowl, prevGameIndex, game, teamSlot, isShort=false) 
 
 function createPickMatchup(bowl, bowlIndex, game) {
   const cell0 = document.createElement("td")
-  cell0.classList.add("px-3", "px-lg-5", "align-middle")
   const name0 = document.createElement("span")
   name0.textContent = bowl.teams_short[0]
   cell0.appendChild(name0)
@@ -267,7 +267,6 @@ function createPickMatchup(bowl, bowlIndex, game) {
   })
 
   const cell1 = document.createElement("td")
-  cell1.classList.add("pe-3", "pe-lg-5", "align-middle")
   const name1 = document.createElement("span")
   name1.textContent = bowl.teams_short[1]
   cell1.appendChild(name1)
@@ -290,8 +289,68 @@ function createPickMatchup(bowl, bowlIndex, game) {
     radio1.checked = true
   })
 
-  // TODO: add advanced game type
-  return { cell0, cell1 }
+  const cells = [cell0, cell1]
+
+  if (game.type === "advanced") {
+    // category pick
+    const cell2 = document.createElement("td")
+    const dropdown = document.createElement("select")
+    dropdown.setAttribute("name", "cat" + bowlIndex)
+    dropdown.setAttribute("class", "form-select form-select")
+    dropdown.style.width = "60px"
+    dropdown.addEventListener("change", updateCategories)
+    let opt = document.createElement("option")
+
+    // tournament games  always cat3
+    if (bowlIndex >= firstPlayoff) {
+      opt.textContent = 3
+      opt.setAttribute("value", 3)
+      dropdown.appendChild(opt)
+    }
+    
+    else {
+      opt.textContent = "-"
+      opt.setAttribute("value", "")
+      dropdown.appendChild(opt)
+
+      for (let k = 1; k <=6; k++) {
+        opt = document.createElement("option")
+        opt.textContent = k
+        opt.setAttribute("value", k)
+        dropdown.appendChild(opt)
+      }
+    }
+
+    cell2.appendChild(dropdown)
+
+    // scratch field
+    const cell3 = document.createElement("td")
+    const scratch = document.createElement("input")
+    scratch.setAttribute("type", "text")
+    scratch.setAttribute("class", "form-control form-control-sm")
+    scratch.style.width = "80px"
+
+    cell3.appendChild(scratch)
+
+    cells.push(cell2, cell3)
+  }
+
+  stylePickCells(cells)
+
+  return cells
+}
+
+function stylePickCells(cells) {
+  if (cells.length == 2) {
+    cells[0].classList.add("px-3", "px-lg-5", "align-middle")
+    cells[1].classList.add("pe-3", "pe-lg-5", "align-middle")
+  }
+  else {
+    cells[0].classList.add("px-1", "px-lg-3", "align-middle")
+    cells[1].classList.add("px-1", "px-lg-3", "align-middle")
+    cells[2].classList.add("px-1", "px-lg-3", "align-middle")
+    cells[3].classList.add("pe-1", "pe-lg-3", "align-middle")
+  }
 }
 
 
@@ -464,9 +523,7 @@ function updateCategories() {
   })
 
   // populate categories remaining text
-  for (var i = 1; i <= 6; i++) {
-    remlist.children[i].children[0].textContent = catRemaining[i - 1]
-  }
+  Array.from(remlist.children).forEach((rem, i) => rem.children[0].textContent = catRemaining[i])
 
   // return true if all categories remaining are zero
   return catRemaining.every(item => item === 0)

@@ -43,12 +43,12 @@ function initScoreboardPage() {
 
 function editMode() {
   $("#editbutton").hide()
-  $("#yearsel, #gamesel, #yearlab, #gamelab, #gobutton").show()
+  $("#goform").show()
 }
 
 function displayMode() {
   $("#editbutton").show()
-  $("#yearsel, #gamesel, #yearlab, #gamelab, #gobutton").hide()
+  $("#goform").hide()
 }
 
 
@@ -327,6 +327,10 @@ function handlePlayoffPick(cell, bowl, bowlIndex, player, game, firstPlayoff) {
   } else {
     cell.textContent = player.short_winner[prevGame]
     player.short_winner.push(player.short_winner[prevGame])
+  }
+
+  if (game.type === "advanced") {
+    cell.textContent += " - " + player.categories[bowlIndex]
   }
 }
 

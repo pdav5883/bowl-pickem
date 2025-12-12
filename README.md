@@ -3,9 +3,6 @@ This repo contains the frontend code and python lambda code for a College Footba
 
 ## TODO
 - Update scoreboard page to show "next/prev 3 games, bracket
-- Advanced picks
-- Advanced scoreboard
-
 
 ## Long-term TODO
 - Add endpoint for adding new game
