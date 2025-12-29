@@ -12,29 +12,29 @@
 }
 
 /* =================================
-   SCOREBOARD TABLE
+   SCOREBOARD TABLES
    ================================= */
 
 /* Table borders and backgrounds */
-#scoretable tbody td:not(:first-child) {
+.results-table tbody td:not(:first-child) {
   border-left-width: var(--bs-border-width);
   border-right-width: var(--bs-border-width);
 }
 
-#scoretable .table-secondary {
+.table-secondary {
   background-color: #e9ecef !important;
 }
 
 /* Freeze top row and first column */
-#scoretable thead {
+.results-table thead {
   position: sticky;
   top: 0;
   background-color: white;
   z-index: 10;
 }
 
-#scoretable th:first-child,
-#scoretable td:first-child {
+.results-table th:first-child,
+.results-table td:first-child {
   position: sticky;
   left: 0;
   background-color: white;
@@ -42,13 +42,13 @@
   width: 1px; /* fit to content */
 }
 
-#scoretable thead th:first-child {
+.results-table thead th:first-child {
   z-index: 15; /* top-left corner needs highest z-index */
 }
 
 /* Column sizing */
-#scoretable th:not(:first-child),
-#scoretable td:not(:first-child) {
+.results-table th:not(:first-child),
+.results-table td:not(:first-child) {
   white-space: nowrap;
 }
 
@@ -88,8 +88,8 @@ input[type="radio"] {
    ================================= */
 
 @media (min-width: 768px) {
-  #scoretable th:first-child,
-  #scoretable td:first-child {
+  .results-table th:first-child,
+  .results-table td:first-child {
     white-space: nowrap;
   }
 

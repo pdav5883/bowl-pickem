@@ -9,14 +9,14 @@
 <body>
   <div id="nav-placeholder"></div>
   <div class="container mt-4">
-    <button id="editbutton" type="button" class="btn btn-outline-secondary btn-sm mb-3">Change Game</button>
-    <div id="goform" class="row mb-3">
+    <button id="editbutton" type="button" class="btn btn-link">Change Game</button>
+    <div id="goform" class="row">
       <div class="col-4 col-md-2 col-lg-1 mb-3">
         <label id="yearlab" for="yearsel" class="form-label">Year</label>
         <select id="yearsel" class="form-select">
         </select>
       </div>
-      <div class="col-9 col-md-4 col-lg-3">
+      <div class="col-9 col-md-4 col-lg-3 mb-3">
         <label id="gamelab" for="gamesel" class="form-label">Game ID</label>
         <div class="d-flex gap-2">
           <select id="gamesel" class="form-select">
@@ -42,8 +42,25 @@
       </div>
       <div id="bestFinishPopup" class="col-auto"></div>
     </div>
-    <div class="table-responsive">
-      <table id="scoretable" class="table w-auto">
+    <button id="nextntableshowhidebutton" class="btn btn-outline-primary mt-3" style="display: block" type="button" data-bs-toggle="collapse" data-bs-target="#nextntablesection">
+      <span id="nextntableshowhidetext">Show</span> Recent/Upcoming
+    </button>
+    <div id="nextntablesection" class="collapse table-responsive">
+      <table id="nextntable" class="table results-table w-auto">
+      </table>
+    </div>
+    <button id="playofftableshowhidebutton" class="btn btn-outline-primary mt-3" style="display: block" type="button" data-bs-toggle="collapse" data-bs-target="#playofftablesection">
+      <span id="playofftableshowhidetext">Show</span> Playoff Picks
+    </button>
+    <div id="playofftablesection" class="collapse table-responsive">
+      <table id="playofftable" class="table results-table w-auto">
+      </table>
+    </div>
+    <button id="scoretableshowhidebutton" class="btn btn-outline-primary mt-3" style="display: block" type="button" data-bs-toggle="collapse" data-bs-target="#scoretablesection">
+      <span id="scoretableshowhidetext">Show</span> Full Scoreboard
+    </button>
+    <div id="scoretablesection" class="collapse table-responsive">
+      <table id="scoretable" class="table results-table w-auto">
       </table>
     </div>
   </div>

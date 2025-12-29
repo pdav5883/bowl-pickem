@@ -89,6 +89,7 @@ function populateResultsTable(year) {
         // bowl date
         cell = row.insertCell()
         cell.textContent = bowl.date[0].toString() + "/" + bowl.date[1].toString() + "/" + bowl.date[2].toString()
+        cell.classList.add("small")
 
         let score0 = ""
         let score1 = ""
@@ -140,10 +141,13 @@ function populateResultsTable(year) {
         let team = document.createElement("label")
         team.setAttribute("for", "score0_" + i)
         team.textContent = team0
+        team.classList.add("small")
         let score = document.createElement("input")
         score.id = "score0_" + i
         score.type = "number"
+        score.size = 3
         score.value = score0
+        score.classList.add("form-control")
         cell.appendChild(team)
         cell.appendChild(score)
 
@@ -152,10 +156,13 @@ function populateResultsTable(year) {
         team = document.createElement("label")
         team.setAttribute("for", "score1_" + i)
         team.textContent = team1
+        team.classList.add("small")
         score = document.createElement("input")
         score.id = "score1_" + i
         score.type = "number"
+        score.size = 3
         score.value = score1
+        score.classList.add("form-control")
         cell.appendChild(team)
         cell.appendChild(score)
       })

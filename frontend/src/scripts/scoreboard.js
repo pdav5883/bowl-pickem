@@ -2,20 +2,46 @@ import { API_URL, PREV_GAME } from "./constants.js"
 import { populateMenu } from "./shared.js"
 import $ from "jquery"
 
+import {
+  initButtons,
+  spinnerOn,
+  spinnerOff,
+} from "blr-shared-frontend"
+
 let currentGame
 let currentScores
 
 $(function() {
+  $("#nextntableshowhidebutton").hide()
+  $("#playofftableshowhidebutton").hide()
+  $("#scoretableshowhidebutton").hide()
+
   populateMenu()
+  initButtons(["gobutton"])
+
   $("#yearsel").on("change", populateGameList)
-  $("#gobutton").on("click", changeGame)
-  $("#editbutton").on("click", function() {
+  $("#gobutton").on("click", () => {
+    populateGame()
+  })
+  $("#editbutton").on("click", () => {
     editMode()
     populateYears(true)
   })
-  $("#showBestFinish").on("change", function() {
+  $("#showBestFinish").on("change", () => {
     populateLeaderboard(currentGame, currentScores, $(this).is(":checked"))
   })
+
+  const tablelist = ["nextntable", "playofftable", "scoretable"]
+  tablelist.forEach((table) => {
+    $("#" + table + "showhidebutton").on("click", () => {
+      if ($("#" + table + "showhidebutton").hasClass("collapsed")) {
+        $("#" + table + "showhidetext").text("Show")
+      } else {
+        $("#" + table + "showhidetext").text("Hide")
+      }
+    })
+  })
+  
   initScoreboardPage()
 })
 
@@ -94,14 +120,11 @@ function populateGameList() {
   })
 }
 
-function changeGame() {
-  // Wrapper to avoid passing click event to populateGame
-  populateGame()
-}
-
 function populateGame(args) {
   const year = args === undefined ? $("#yearsel").val() : args.year
   const gid = args === undefined ? $("#gamesel").val() : args.gid
+
+  spinnerOn("gobutton")
 
   $.ajax({
     method: "GET",
@@ -109,18 +132,31 @@ function populateGame(args) {
     data: {"qtype": "scoreboard", "year": year, "gid": gid},
     crossDomain: true,
     success: function(game) {
+      currentGame = game
+
       updateTitle(gid, year)
+      localStorage.setItem("year", year)
+      localStorage.setItem("gid", gid)
 
       const renderNames = getRenderNames(game.players.map(player => player.name))
       game.players.forEach((player, i) => player.renderName = renderNames[i])
       
-      const scores = populateScoreboard(game)
-      currentGame = game
+      const scores = populateScoreboard(game, "scoretable")
       currentScores = scores
       populateLeaderboard(game, scores, $("#showBestFinish").is(":checked"))
 
-      localStorage.setItem("year", year)
-      localStorage.setItem("gid", gid)
+      populateScoreboard(game, "nextntable", currentScores, false, 3, 3) 
+      populateScoreboard(game, "playofftable", currentScores, true) 
+
+      $("#nextntableshowhidebutton").show()
+      $("#playofftableshowhidebutton").show()
+      $("#scoretableshowhidebutton").show()
+
+      $("#nextntableshowhidebutton").trigger("click")
+      spinnerOff("gobutton")
+    },
+    error: function(err) {
+      spinnerOff("gobutton")
     }
   })
 }
@@ -139,8 +175,9 @@ function updateTitle(gid, year) {
 // SCOREBOARD RENDERING
 // =================================
 
-function populateScoreboard(game) {
-  const table = document.getElementById("scoretable")
+// prevN, nextN, playoffs are optional args to only show the previous N games or the next N games (no playoffs)
+function populateScoreboard(game, tableName, scores, playoffOnly, prevN, nextN) {
+  const table = document.getElementById(tableName)
   table.classList.add("text-center")
   table.innerHTML = ""
   
@@ -152,15 +189,51 @@ function populateScoreboard(game) {
   createHeaderRow(thead, game.players)
   
   const firstPlayoff = game.bowls.length - PREV_GAME[game.year].length
+  let bowlIndices = []
+
+  if (playoffOnly === true) {
+
+    for (let j = firstPlayoff; j < game.bowls.length; j++) {
+      bowlIndices.push(j)
+    }
+  } else if (prevN !== undefined && nextN !== undefined) {
+    // assume that non-playoff bowls are sorted datetime-wise
+
+    // find the first game happening today or after today
+    const today = new Date()
+    let i
+    for (i = 0; i < firstPlayoff; i++) {
+      const deltaDay = 366 * (game.bowls[i].date[2] - today.getFullYear() % 100) +
+                       31 * (game.bowls[i].date[0] - today.getMonth() - 1) +
+                       1 * (game.bowls[i].date[1] - today.getDate()) +
+                       1 / 24 * (Math.floor(game.bowls[i].time / 100) - today.getHours()) +
+                       1 / 1440 * (game.bowls[i].time % 100 - today.getMinutes())
+      if (deltaDay >= 0) {
+        break
+      }
+    }
+
+    const firstInd = Math.max(0, i - prevN)
+    const lastInd = Math.min(firstPlayoff, i + nextN)
+    
+    for (let j = firstInd; j < lastInd; j++) {
+      bowlIndices.push(j)
+    }
+  } else {
+    bowlIndices = Array.from({ length: game.bowls.length }, (_, i) => i)
+  }
   
-  game.bowls.forEach((bowl, i) => {
-    const row = createBowlRow(bowl, i, game, firstPlayoff)
+  bowlIndices.forEach((i) => {
+    const row = createBowlRow(game.bowls[i], i, game, firstPlayoff)
     tbody.appendChild(row)
   })
 
   insertSpacedHeaderRows(tbody, table)
   
-  const scores = calcScores(game)
+  if (scores === undefined) {
+    scores = calcScores(game)
+  }
+  
   createScoreRow(thead, scores)
   equalizeColumnWidths()
 
@@ -295,15 +368,11 @@ function createPickCell(bowl, bowlIndex, player, game, firstPlayoff) {
   
   if (player.picks[bowlIndex] === null) {
     cell.textContent = "?"
-    player.short_winner.push(null)
-    if (isPlayoff) player.game_correct.push(null)
   } else if (!isPlayoff) {
     cell.textContent = bowl.teams_short[player.picks[bowlIndex]]
     if (game.type === "advanced") {
       cell.textContent += " - " + player.categories[bowlIndex]
     }
-    player.short_winner.push(null)
-    player.game_correct.push(null)
   } else {
     handlePlayoffPick(cell, bowl, bowlIndex, player, game, firstPlayoff)
   }
@@ -325,8 +394,8 @@ function handlePlayoffPick(cell, bowl, bowlIndex, player, game, firstPlayoff) {
     cell.textContent = bowl.teams_short[pickIndex]
     player.short_winner.push(bowl.teams_short[pickIndex])
   } else {
-    cell.textContent = player.short_winner[prevGame]
-    player.short_winner.push(player.short_winner[prevGame])
+    cell.textContent = player.short_winner[prevGame - firstPlayoff]
+    player.short_winner.push(player.short_winner[prevGame - firstPlayoff])
   }
 
   if (game.type === "advanced") {
@@ -352,7 +421,6 @@ function stylePlayoffPickCell(cell, bowl, bowlIndex, player, game, firstPlayoff)
   const pickIndex = player.picks[bowlIndex]
   
   if (pickIndex === null) {
-    player.game_correct.push(null)
     return
   }
 
@@ -363,7 +431,7 @@ function stylePlayoffPickCell(cell, bowl, bowlIndex, player, game, firstPlayoff)
   const prevGame = prevGames[pickIndex]
 
   // Parent game is wrong
-  if (player.game_correct[prevGame] === false) {
+  if (player.game_correct[prevGame - firstPlayoff] === false) {
     cell.classList.add("table-danger")
     player.game_correct.push(false)
   }
@@ -590,7 +658,7 @@ function calcScores(game) {
     game.players.forEach((player, j) => {
       if (player.picks[i] !== bowl.result) return
       
-      const isCorrect = i < firstPlayoff || player.game_correct[prevGames[bowl.result]] !== false
+      const isCorrect = i < firstPlayoff || player.game_correct[prevGames[bowl.result] - firstPlayoff] !== false
       if (isCorrect) {
         scores[j] += getPoints(i, j)
       }

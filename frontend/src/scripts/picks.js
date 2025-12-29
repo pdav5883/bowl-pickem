@@ -68,6 +68,7 @@ function initPicksPage() {
 
 function attemptJoinGame(year, gid) {
   $("#remainingform").hide()
+  $("#scorebutton").hide() // need this if you already submitted picks
   $("statustext").text("")
 
   $("#picktitle").text("")
