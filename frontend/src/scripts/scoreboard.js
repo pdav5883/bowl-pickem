@@ -24,7 +24,7 @@ $(function () {
     populateYears(true);
   });
   $("#showBestFinish").on("change", () => {
-    populateLeaderboard(currentGame, currentScores, $(this).is(":checked"));
+    populateLeaderboard(currentGame, currentScores, $("#showBestFinish").is(":checked"));
   });
 
   const tablelist = ["nextntable", "playofftable", "scoretable"];
@@ -152,7 +152,6 @@ function populateGame(args) {
       $("#playofftableshowhidebutton").show();
       $("#scoretableshowhidebutton").show();
 
-      $("#nextntableshowhidebutton").trigger("click");
       spinnerOff("gobutton");
     },
     error: function (err) {
@@ -206,16 +205,18 @@ function populateScoreboard(
     // assume that non-playoff bowls are sorted datetime-wise
 
     // find the first game happening today or after today
-    const today = new Date();
+    const now = new Date();
+    let gameTime;
     let i;
     for (i = 0; i < firstPlayoff; i++) {
-      const deltaDay =
-        366 * (game.bowls[i].date[2] - (today.getFullYear() % 100)) +
-        31 * (game.bowls[i].date[0] - today.getMonth() - 1) +
-        1 * (game.bowls[i].date[1] - today.getDate()) +
-        (1 / 24) * (Math.floor(game.bowls[i].time / 100) - today.getHours()) +
-        (1 / 1440) * ((game.bowls[i].time % 100) - today.getMinutes());
-      if (deltaDay >= 0) {
+      gameTime = new Date(
+        2000 + game.bowls[i].date[2],
+        game.bowls[i].date[0] - 1,
+        game.bowls[i].date[1],
+        Math.floor(game.bowls[i].time / 100),
+        game.bowls[i].time % 100
+      );
+      if (gameTime - now > 0) {
         break;
       }
     }
@@ -502,7 +503,7 @@ function stylePlayoffPickCell(
   // Parent game correct, this game correct
   else if (bowl.result === pickIndex) {
     cell.classList.add("table-success");
-    playe;
+    player.game_correct.push(true);
   }
   // Parent game correct, this game wrong
   else {
@@ -846,4 +847,3 @@ function createQuestionMarkSVG() {
 
   return svg;
 }
-
