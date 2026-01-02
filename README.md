@@ -1,8 +1,6 @@
 # Bowl Pickem
 This repo contains the frontend code and python lambda code for a College Football bowl picking web application. The app is set up as a static site hosted in AWS S3, with a set of JSON data files containing picks and results. Whenever new picks are made a lambda call updates and republishes the data file.
 
-## TODO
-
 ## Future Work
 - Move data to DB
 - Edit/view picks after made
@@ -12,13 +10,16 @@ This repo contains the frontend code and python lambda code for a College Footba
 - Add endpoint for adding new game
 - Use BLR utilities layer in lambdas
 - Use BLR login with guest sign in
+- Add link to bowl on picks page
+- Currently best finish for advanced games only works if there are two players.
 
 ## Lambdas
-- BowlsGetScoreboard: called from `{API}/pickem` `GET` requests. Reads the data files and returns information about game or results. See `lambdas/get_scoreboard`.
-- BowlsUpdateMargins: triggered by AdminEdit lambda when the `calc_margin` is set true in `results.json`. Updates the margins of victory that each player can possibly achieve.
-- BowlsUpdatePicks: called from `{API}/pickem` `POST` requests. Writes new picks to existing game file. See `lambdas/update_picks`.
-- BowlsAdminEdit: called from `{API}/admin `POST` requests. Allows adjustment of bowl scores and game status. Requires authorization to execute via API gateway authorizer lambda. See `lambdas/admin_edit`
-- BowlsUserAuth: called indirectly as lambda authorizer for BowlsAdminEdit. Passes call onto BLRUserAuth to check token against user pool.
+- **BowlsAdminEdit**: called from `{API}/admin` `POST` requests. Allows adjustment of bowl scores and game status. Requires authorization to execute via API gateway authorizer lambda. See `lambdas/admin_edit`
+- **BowlsGetScoreboard**: called from `{API}/pickem` `GET` requests. Reads the data files and returns information about game or results. See `lambdas/get_scoreboard`.
+- **BowlsUpdateMargins**: triggered by AdminEdit lambda when the `calc_margin` is set true in `results.json`. Updates the margins of victory that each player can possibly achieve.
+- **BowlsUserAuth**: authorizer for BowlsAdminEdit, calls BLRUserAuth to check token and user ID against user pool.
+- **BowlsUpdatePicks**: called from `{API}/pickem` `POST` requests. Writes new picks to existing game file. See `lambdas/update_picks`.
+
 
 ## Deployment
 ### Infrastructure
@@ -45,7 +46,7 @@ The plugin maps the placeholder to env variables of the process running the webp
     "teams": [a, b],
     "teams_short": [a, b],
     "date": [m, d, y],
-    time": hhmm,
+    "time": hhmm,
     "bonus": 0-n,
     "result": 0/1, null/None if not played
     "score": [x, y]
@@ -65,7 +66,6 @@ The plugin maps the placeholder to env variables of the process running the webp
     "name": name,
     "picks": [0/1,....]
     "category": [1-6,...] (optional)
-    "spread": [0-n,...] (optional)
   },...]
 }
 
