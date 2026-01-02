@@ -7,53 +7,34 @@ import numpy as np
 s3 = boto3.client("s3")
 obj_bucket = SUB_PrivateBucketName  # type: ignore
 
-# TODO: don't hardcode
 # next/prev games for 12 team playoffs. first entry is game, second index is upper/lower slot
 NEXT_GAMES = [
-    [4, 1],
-    [5, 1],
-    [6, 1],
-    [7, 1],
-    [8, 0],
-    [8, 1],
-    [9, 0],
-    [9, 1],
-    [10, 0],
-    [10, 1],
-    [None, None],
+    [4, 1], # play-in 1
+    [5, 1], # play-in 2
+    [6, 1], # play-in 3
+    [7, 1], # play-in 4
+    [8, 0], # quarter 1
+    [8, 1], # quarter 2
+    [9, 0], # quarter 3
+    [9, 1], # quarter 4
+    [10, 0], # semi 1
+    [10, 1], # semi 2
+    [None, None], # final
 ]
 PREV_GAMES = [
-    [None, None],
-    [None, None],
-    [None, None],
-    [None, None],
-    [None, 0],
-    [None, 1],
-    [None, 2],
-    [None, 3],
-    [4, 5],
-    [6, 7],
-    [8, 9],
+    [None, None], # play-in 1
+    [None, None], # play-in 2
+    [None, None], # play-in 3
+    [None, None], # play-in 4
+    [None, 0], # quarter 1
+    [None, 1], # quarter 2
+    [None, 2], # quarter 3
+    [None, 3], # quarter 4
+    [4, 5], # semi 1
+    [6, 7], # semi 2
+    [8, 9], # final
 ]
 PLAYOFF_BONUS = [1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 4]
-
-# next/prev games for 8 team playoff
-# NEXT_GAMES = [[3, 0], [3, 1], [4, 0], [4, 1],
-#               [5, 0], [5, 1],
-#               [6, 0], [6, 1],
-#               [None, None]]
-# PREV_GAMES = [[None, None], [None, None], [None, None], [None, None],
-#               [0, 1], [2, 3],
-#               [4, 5]]
-# PLAYOFF_BONUS = [1, 1, 1, 1, 2, 2, 3]
-
-
-# next/prev games for 4 team playoff
-# NEXT_GAMES = [[2, 0], [2, 1],
-#               [None, None]]
-# PREV_GAMES = [[None, None], [None, None],
-#               [0, 1]]
-# PLAYOFF_BONUS = [1, 1, 2]
 
 
 def lambda_handler(event, context):
@@ -244,8 +225,6 @@ def calc_non_playoff_max_scores_advanced(
     remaining_picks_matrix = picks_matrix[:, ~completed_games]
     remaining_categories_matrix = categories_matrix[:, ~completed_games]
 
-    # TODO: this method only works if there are two players in the competition
-    # go through each remaining game and see which result gets player 1 more points
     max_remaining = np.zeros(
         shape=(remaining_picks_matrix.shape[0], remaining_picks_matrix.shape[0])
     )

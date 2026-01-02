@@ -1,47 +1,133 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title><%= htmlWebpackPlugin.options.title %></title>
-  <link rel="icon" type="image/x-icon" href="./assets/favicon.ico">
-</head>
-<body>
-  <div id="nav-placeholder"></div>
-  <div class="container mt-4">
-    <h2 id="overview" class="mb-3">About bowl-pickem</h2>
-    <p>Not as prestigous as its March cousin, College Football Bowl Season is a historically under-utilized opportunity for a low-stakes competition with family, friends, and other acquaintances. For at least a decade our family printed out bowl schedules and marked them with pens like cave people, tallying up scores every few days when someone got tired enough of hearing questions about who was in the lead. No more. After a successful alpha release just in time for the 2022 Bowl Season, <em>bowl-pickem</em> is ready for 2023 and beyond with a simple picking page and a snazzy scoreboard that updates mostly in real time.</p>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title><%= htmlWebpackPlugin.options.title %></title>
+    <link rel="icon" type="image/x-icon" href="./assets/favicon.ico" />
+  </head>
+  <body>
+    <div id="nav-placeholder"></div>
+    <div class="container mt-4">
+      <h2 id="overview" class="mb-3">About bowl-pickem</h2>
+      <p>
+        Not as prestigous as its March cousin, College Football Bowl Season is a
+        historically under-utilized opportunity for a low-stakes competition
+        with family, friends, and other acquaintances. For at least a decade our
+        family printed out bowl schedules and marked them with pens like cave
+        people, tallying up scores every few days when someone got tired enough
+        of hearing questions about who was in the lead. No more. After a
+        successful alpha release just in time for the 2022 Bowl Season,
+        <em>bowl-pickem</em> is ready for 2023 and beyond with a simple picking
+        page and a snazzy scoreboard that updates mostly in real time.
+      </p>
 
-    <p class="mb-3">If you navigate to the <a href="/picks.html">Picks</a> page you'll see dropdowns that allow you to select the year you would like to make picks for, and the game you would like to join. If this game is accepting picks, then you'll fill out the form and submit it with your name to be added to the scoreboard.</p>
+      <p class="mb-3">
+        If you navigate to the <a href="/picks.html">Picks</a> page you'll see
+        dropdowns that allow you to select the year you would like to make picks
+        for, and the game you would like to join. If this game is accepting
+        picks, then you'll fill out the form and submit it with your name to be
+        added to the scoreboard.
+      </p>
 
-    <p class="mb-3">Visit the <a href="/">Scoreboard</a> page to see how your picks are doing against your fellow competitors. As games are played, the scoreboard and leaderboard will update. If the first bowl hasn't started yet then you won't see everyone's picks.</p>
+      <p class="mb-3">
+        Visit the <a href="/">Scoreboard</a> page to see how your picks are
+        doing against your fellow competitors. As games are played, the
+        scoreboard and leaderboard will update. If the first bowl hasn't started
+        yet then you won't see everyone's picks.
+      </p>
 
-    <p class="text-center mb-4">See the code running everything <a target="_blank" rel="noopener noreferrer" href="https://github.com/pdav5883/bowl-pickem">HERE</a>.</p>
+      <p class="text-center mb-4">
+        See the code running everything
+        <a
+          target="_blank"
+          rel="noopener noreferrer"
+          href="https://github.com/pdav5883/bowl-pickem"
+          >HERE</a
+        >.
+      </p>
 
-    <h3 id="rules" class="mb-3">Rules</h3>
+      <h3 id="rules" class="mb-3">Rules</h3>
 
-    <p>The rules couldn't be simpler - you pick a winner for each bowl, and if you are correct you get a point. All of the New Years Six bowls get a bonus point, and the National Championship gets two bonus points.</p>
-    
-    <h3 id="advanced" class="mb-3">Advanced Rules</h3>
+      <p>
+        The rules couldn't be simpler - you pick a winner for each bowl, and if
+        you are correct you get a point. All of the New Years Six bowls get a
+        bonus point, and the National Championship gets two bonus points.
+      </p>
 
-    <p>The site supports two game types: Basic, where you just pick a winner for each bowl (see rules above); and Advanced, where you pick the winner and assign the bowl a "Category" from 1 to 6. If you pick the winner correctly, you get points equal to the category you assigned for the bowl. You have a fixed number of picks for each category, so you want to save your Category 6 picks for the no-doubters. The semi-finals and finals are automatically Category 3 picks, with bonus points same as above.</p>
+      <h3 id="advanced" class="mb-3">Advanced Rules</h3>
 
-    <h3 id="details" class="mb-3">Under the Hood</h3>
+      <p>
+        The site supports two game types: Basic, where you just pick a winner
+        for each bowl (see rules above); and Advanced, where you pick the winner
+        and assign the bowl a "Category" from 1 to 6. If you pick the winner
+        correctly, you get points equal to the category you assigned for the
+        bowl. You have a fixed number of picks for each category, so you want to
+        save your Category 6 picks for the no-doubters. The semi-finals and
+        finals are automatically Category 3 picks, with bonus points same as
+        above.
+      </p>
 
-    <p>Relative to other BLR projects, <em>bowl-pickem</em> is pretty simple since there's not much interaction between you and the site once you submit your picks. Like all the other BLR projects, this one is statically hosted on AWS S3, using Cloudfront and Route 53 for content delivery.</p>
+      <h3 id="details" class="mb-3">Under the Hood</h3>
 
-    <p class="mb-3">API gateway is used to define a set of endpoints that the frontend scripts running in your browser can call to interact with the <em>bowl-pickem</em> data. The API integrates with two Lambda functions that do all of the heavy lifting for user interacting with the site, and two more that allow admin updates:</p>
+      <p>
+        Relative to other BLR projects, <em>bowl-pickem</em> is pretty simple
+        since there's not much interaction between you and the site once you
+        submit your picks. Like all the other BLR projects, this one is
+        statically hosted on AWS S3, using Cloudfront and Route 53 for content
+        delivery.
+      </p>
 
-    <ul class="mb-3">
-      <li><strong>BowlsGetScoreboard</strong>: Query information about bowls and picks so that your browser can compute scores and build the scoreboard.</li>
-      <li><strong>BowlsUpdatePicks</strong>: Validate picks submitted by users and add them to the game data.</li>
-      <li><strong>BowlsAdminEdit</strong>: Accept updates to bowl scores and game status.</li>
-      <li><strong>BowlsAdminAuth</strong>: Determines whether attemped admin edit is authorized by comparing secret to stored value.</li>
-    </ul>
+      <p class="mb-3">
+        API gateway is used to define a set of endpoints that the frontend
+        scripts running in your browser can call to interact with the
+        <em>bowl-pickem</em> data. The API integrates with two Lambda functions
+        that do all of the heavy lifting for user interacting with the site, and
+        two more that allow admin updates:
+      </p>
 
-    <p class="text-center mb-4">See the code <a href="https://github.com/pdav5883/bowl-pickem/tree/main/lambdas" target="_blank" rel="noopener noreferrer">HERE</a>.</p>
+      <ul class="mb-3">
+        <li>
+          <strong>BowlsGetScoreboard</strong>: Query information about bowls and
+          picks so that your browser can compute scores and build the
+          scoreboard.
+        </li>
+        <li>
+          <strong>BowlsUpdatePicks</strong>: Validate picks submitted by users
+          and add them to the game data.
+        </li>
+        <li>
+          <strong>BowlsAdminEdit</strong>: Accept updates to bowl scores and
+          game status.
+        </li>
+        <li>
+          <strong>BowlsAdminAuth</strong>: Determines whether attemped admin
+          edit is authorized by comparing secret to stored value.
+        </li>
+      </ul>
 
-    <p class="mb-3">Since the data for <em>bowl-pickem</em> is mostly static and I'm not expecting thousands of participants, I decided to use a super simple, inefficient, and not very robust "database" to store results and picks. Data is stored in a small set of JSON files on S3, which the Lambdas above either read or edit in order to perform their functions. This is compared to some of my other projects where data changes quite frequenty (or I just wanted to try something a bit fancier) and I set up an actual database in DynamoDB. It's much simpler this way, but it's not very efficient and doesn't have any protection against things like near simultaneous writes causing an overwrite.</p>
-  </div>
-</body>
+      <p class="text-center mb-4">
+        See the code
+        <a
+          href="https://github.com/pdav5883/bowl-pickem/tree/main/lambdas"
+          target="_blank"
+          rel="noopener noreferrer"
+          >HERE</a
+        >.
+      </p>
+
+      <p class="mb-3">
+        Since the data for <em>bowl-pickem</em> is mostly static and I'm not
+        expecting thousands of participants, I decided to use a super simple,
+        inefficient, and not very robust "database" to store results and picks.
+        Data is stored in a small set of JSON files on S3, which the Lambdas
+        above either read or edit in order to perform their functions. This is
+        compared to some of my other projects where data changes quite frequenty
+        (or I just wanted to try something a bit fancier) and I set up an actual
+        database in DynamoDB. It's much simpler this way, but it's not very
+        efficient and doesn't have any protection against things like near
+        simultaneous writes causing an overwrite.
+      </p>
+    </div>
+  </body>
 </html>

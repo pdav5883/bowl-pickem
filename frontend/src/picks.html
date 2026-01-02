@@ -1,54 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title><%= htmlWebpackPlugin.options.title %></title>
-  <link rel="icon" type="image/x-icon" href="./assets/favicon.ico">
-</head>
-<body>
-  <div id="nav-placeholder"></div>
-  <div class="container mt-4">
-    <h2 id="picktitle" class="mb-3"></h2>
-    <div id="joinform" class="row mb-3">
-      <div class="col-4 col-md-2 col-lg-1 mb-3">
-        <label id="yearlab" for="yearsel" class="form-label">Year</label>
-        <select id="yearsel" class="form-select">
-        </select>
-      </div>
-      <div class="col-9 col-md-4 col-lg-3">
-        <label id="gamelab" for="gamesel" class="form-label">Game ID</label>
-        <div class="d-flex gap-2">
-          <select id="gamesel" class="form-select">
-          </select>
-          <button id="joinbutton" type="button" class="btn btn-primary">Join</button>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title><%= htmlWebpackPlugin.options.title %></title>
+    <link rel="icon" type="image/x-icon" href="./assets/favicon.ico" />
+  </head>
+  <body>
+    <div id="nav-placeholder"></div>
+    <div class="container mt-4">
+      <h2 id="picktitle" class="mb-3"></h2>
+      <div id="joinform" class="row mb-3">
+        <div class="col-4 col-md-2 col-lg-1 mb-3">
+          <label id="yearlab" for="yearsel" class="form-label">Year</label>
+          <select id="yearsel" class="form-select"></select>
+        </div>
+        <div class="col-9 col-md-4 col-lg-3">
+          <label id="gamelab" for="gamesel" class="form-label">Game ID</label>
+          <div class="d-flex gap-2">
+            <select id="gamesel" class="form-select"></select>
+            <button id="joinbutton" type="button" class="btn btn-primary">
+              Join
+            </button>
+          </div>
         </div>
       </div>
-    </div>
-    <div id="nameform" class="row mb-3">
-      <div class="col-8 col-md-4 col-lg-3">
-        <label id="namelab" for="nametext" class="form-label">Your Name</label>
-        <input id="nametext" type="text" class="form-control"  placeholder="Robert Stoops">
+      <div id="nameform" class="row mb-3">
+        <div class="col-8 col-md-4 col-lg-3">
+          <label id="namelab" for="nametext" class="form-label"
+            >Your Name</label
+          >
+          <input
+            id="nametext"
+            type="text"
+            class="form-control"
+            placeholder="Robert Stoops"
+          />
+        </div>
       </div>
+      <div id="remainingform" class="mb-3">
+        <h5 class="fw-bold">Picks Remaining</h5>
+        <ul id="remaininglist" class="list-unstyled">
+          <li class="mb-1">Cat 1: <span class="fw-bold"></span></li>
+          <li class="mb-1">Cat 2: <span class="fw-bold"></span></li>
+          <li class="mb-1">Cat 3: <span class="fw-bold"></span></li>
+          <li class="mb-1">Cat 4: <span class="fw-bold"></span></li>
+          <li class="mb-1">Cat 5: <span class="fw-bold"></span></li>
+          <li class="mb-1">Cat 6: <span class="fw-bold"></span></li>
+        </ul>
+      </div>
+      <div class="mb-3">
+        <button id="subbutton1" type="button" class="btn btn-success">
+          Submit
+        </button>
+        <button id="scorebutton" type="button" class="btn btn-primary">
+          View Scoreboard
+        </button>
+      </div>
+      <p id="statustext"></p>
+      <table id="picktable" class="table table-striped w-auto"></table>
+      <button id="subbutton2" type="button" class="btn btn-success">
+        Submit
+      </button>
     </div>
-    <div id="remainingform" class="mb-3">
-      <h5 class="fw-bold">Picks Remaining</h5>
-      <ul id="remaininglist" class="list-unstyled">
-        <li class="mb-1">Cat 1: <span class="fw-bold"></span></li>
-        <li class="mb-1">Cat 2: <span class="fw-bold"></span></li>
-        <li class="mb-1">Cat 3: <span class="fw-bold"></span></li>
-        <li class="mb-1">Cat 4: <span class="fw-bold"></span></li>
-        <li class="mb-1">Cat 5: <span class="fw-bold"></span></li>
-        <li class="mb-1">Cat 6: <span class="fw-bold"></span></li>
-      </ul>
-    </div>
-    <div class="mb-3">
-      <button id="subbutton1" type="button" class="btn btn-success">Submit</button>
-      <button id="scorebutton" type="button" class="btn btn-primary">View Scoreboard</button>
-    </div>
-    <p id="statustext"></p>
-    <table id="picktable" class="table table-striped w-auto"></table>
-    <button id="subbutton2" type="button" class="btn btn-success">Submit</button>
-  </div>
-</body>
+  </body>
 </html>

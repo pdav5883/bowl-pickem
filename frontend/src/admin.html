@@ -1,40 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title><%= htmlWebpackPlugin.options.title %></title>
-  <link rel="icon" type="image/x-icon" href="./assets/favicon.ico">
-</head>
-<body>
-  <div id="nav-placeholder"></div>
-  <div class="container mt-4">
-    <h2 class="mb-3">Admin Dashboard</h2>
-    <div class="row mb-3">
-      <div class="col-md-2">
-        <label for="typesel" class="form-label">Edit</label>
-        <select id="typesel" class="form-select">
-	  <option value="results">Results</option>
-	  <option value="game">Game</option>
-        </select>
-      </div>
-      <div class="col-md-2">
-        <label id="yearlab" for="yearsel" class="form-label">Year</label>
-        <select id="yearsel" class="form-select">
-        </select>
-      </div>
-      <div class="col-md-6">
-        <label id="gamelab" for="gamesel" class="form-label">Game ID</label>
-        <div class="d-flex gap-2">
-          <select id="gamesel" class="form-select">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title><%= htmlWebpackPlugin.options.title %></title>
+    <link rel="icon" type="image/x-icon" href="./assets/favicon.ico" />
+  </head>
+  <body>
+    <div id="nav-placeholder"></div>
+    <div class="container mt-4">
+      <h2 class="mb-3">Admin Dashboard</h2>
+      <div class="row mb-3">
+        <div class="col-md-2">
+          <label for="typesel" class="form-label">Edit</label>
+          <select id="typesel" class="form-select">
+            <option value="results">Results</option>
+            <option value="game">Game</option>
           </select>
-          <button id="gobutton" type="button" class="btn btn-primary">Go</button>
-          <button id="submitbutton" type="button" class="btn btn-danger">Submit</button>
+        </div>
+        <div class="col-md-2">
+          <label id="yearlab" for="yearsel" class="form-label">Year</label>
+          <select id="yearsel" class="form-select"></select>
+        </div>
+        <div class="col-md-6">
+          <label id="gamelab" for="gamesel" class="form-label">Game ID</label>
+          <div class="d-flex gap-2">
+            <select id="gamesel" class="form-select"></select>
+            <button id="gobutton" type="button" class="btn btn-primary">
+              Go
+            </button>
+            <button id="submitbutton" type="button" class="btn btn-danger">
+              Submit
+            </button>
+          </div>
         </div>
       </div>
+      <p id="statustext"></p>
+      <table id="admintable" class="table table-striped table-hover"></table>
     </div>
-    <p id="statustext"></p>
-    <table id="admintable" class="table table-striped table-hover"></table>
-  </div>
-</body>
+  </body>
 </html>

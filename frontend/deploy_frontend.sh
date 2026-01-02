@@ -28,11 +28,11 @@ npm run build
 # Sync to AWS
 echo "Uploading frontend files to AWS..."
 aws s3 sync ./dist "s3://${CF_PARAMS[PublicBucketName]}" --cache-control="max-age=21600" \
-    --exclude="*" \
-    --include="*.html" \
-    --include="*.css" \
-    --include="*.js" \
-    --include="*.ico" \
-    --include="*.woff2"
+--exclude="*" \
+--include="*.html" \
+--include="*.css" \
+--include="*.js" \
+--include="*.ico" \
+--include="*.woff2"
 
 aws cloudfront create-invalidation --distribution-id "${CF_PARAMS[CloudFrontDistroId]}" --paths "/*" > /dev/null 2>&1

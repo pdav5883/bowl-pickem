@@ -1,8 +1,6 @@
-import { populateMenu } from "./shared.js"
-import $ from "jquery"
+import { populateMenu } from "./shared.js";
+import $ from "jquery";
 
-
-$(document).ready(function() {
-  populateMenu()
-})
-
+$(document).ready(function () {
+  populateMenu();
+});

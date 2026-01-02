@@ -43,12 +43,12 @@ Outputs:
   ApiId:
     Value: !Ref ApiGatewayBowls
   BLRLambdaUserAuthArn:
-    Value: !ImportValue 
+    Value: !ImportValue
       Fn::Sub: ${BLRStackName}-LambdaUserAuthArn
 Resources:
-############################
-#### Lambda 
-############################
+  ############################
+  #### Lambda
+  ############################
   LambdaBowlsUpdatePicks:
     Type: "AWS::Lambda::Function"
     UpdateReplacePolicy: "Delete"
@@ -67,17 +67,17 @@ Resources:
           def lambda_handler(event, context):
                 # upload code via lambda deploy script
                 return False
-      Role: !GetAtt RoleBowlsReadWrite.Arn 
+      Role: !GetAtt RoleBowlsReadWrite.Arn
       FileSystemConfigs: []
       Runtime: "python3.12"
       PackageType: "Zip"
       LoggingConfig:
         LogFormat: "Text"
-        LogGroup: !Ref LogBowlsLambdaUpdatePicks 
+        LogGroup: !Ref LogBowlsLambdaUpdatePicks
       EphemeralStorage:
         Size: 512
       Architectures:
-      - "x86_64"
+        - "x86_64"
   LambdaBowlsGetScoreboard:
     Type: "AWS::Lambda::Function"
     UpdateReplacePolicy: "Delete"
@@ -96,7 +96,7 @@ Resources:
           def lambda_handler(event, context):
                 # upload code via lambda deploy script
                 return False
-      Role: !GetAtt RoleBowlsRead.Arn 
+      Role: !GetAtt RoleBowlsRead.Arn
       FileSystemConfigs: []
       Runtime: "python3.12"
       PackageType: "Zip"
@@ -106,7 +106,7 @@ Resources:
       EphemeralStorage:
         Size: 512
       Architectures:
-      - "x86_64"
+        - "x86_64"
   LambdaBowlsAdminEdit:
     Type: "AWS::Lambda::Function"
     UpdateReplacePolicy: "Delete"
@@ -125,7 +125,7 @@ Resources:
           def lambda_handler(event, context):
                 # upload code via lambda deploy script
                 return False
-      Role: !GetAtt RoleBowlsAdmin.Arn 
+      Role: !GetAtt RoleBowlsAdmin.Arn
       FileSystemConfigs: []
       Runtime: "python3.12"
       PackageType: "Zip"
@@ -135,13 +135,13 @@ Resources:
       EphemeralStorage:
         Size: 512
       Architectures:
-      - "x86_64"
+        - "x86_64"
   LambdaBowlsUserAuth:
     Type: "AWS::Lambda::Function"
     UpdateReplacePolicy: "Delete"
     DeletionPolicy: "Delete"
     Properties:
-      FunctionName: !Ref LambdaUserAuthName 
+      FunctionName: !Ref LambdaUserAuthName
       MemorySize: 128
       TracingConfig:
         Mode: "PassThrough"
@@ -154,7 +154,7 @@ Resources:
           def lambda_handler(event, context):
                 # upload code via lambda deploy script
                 return False
-      Role: !GetAtt RoleBowlsUserAuth.Arn 
+      Role: !GetAtt RoleBowlsUserAuth.Arn
       FileSystemConfigs: []
       Runtime: "python3.12"
       PackageType: "Zip"
@@ -164,7 +164,7 @@ Resources:
       EphemeralStorage:
         Size: 512
       Architectures:
-      - "x86_64"
+        - "x86_64"
   LambdaBowlsUpdateMargins:
     Type: "AWS::Lambda::Function"
     UpdateReplacePolicy: "Delete"
@@ -184,7 +184,7 @@ Resources:
                 # upload code via lambda deploy script
                 return False
       Layers:
-      - arn:aws:lambda:us-east-1:336392948345:layer:AWSSDKPandas-Python312:15
+        - arn:aws:lambda:us-east-1:336392948345:layer:AWSSDKPandas-Python312:15
       Role: !GetAtt RoleBowlsReadWrite.Arn
       FileSystemConfigs: []
       Runtime: "python3.12"
@@ -195,10 +195,10 @@ Resources:
       EphemeralStorage:
         Size: 512
       Architectures:
-      - "x86_64"
-############################
-#### IAM 
-############################
+        - "x86_64"
+  ############################
+  #### IAM
+  ############################
   RoleBowlsReadWrite:
     Type: "AWS::IAM::Role"
     UpdateReplacePolicy: "Delete"
@@ -206,18 +206,18 @@ Resources:
     Properties:
       Path: "/"
       ManagedPolicyArns:
-      - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
-      - !GetAtt PolicyBowlsReadWrite.PolicyArn
+        - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+        - !GetAtt PolicyBowlsReadWrite.PolicyArn
       MaxSessionDuration: 3600
       RoleName: !Sub "role-lambda-${LambdaReadWritePermissionName}"
       Description: "Allows Lambda functions to call read/write bowl pickem s3"
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
-        - Action: "sts:AssumeRole"
-          Effect: "Allow"
-          Principal:
-            Service: "lambda.amazonaws.com"
+          - Action: "sts:AssumeRole"
+            Effect: "Allow"
+            Principal:
+              Service: "lambda.amazonaws.com"
   RoleBowlsRead:
     Type: "AWS::IAM::Role"
     UpdateReplacePolicy: "Delete"
@@ -225,18 +225,18 @@ Resources:
     Properties:
       Path: "/"
       ManagedPolicyArns:
-      - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
-      - !GetAtt PolicyBowlsRead.PolicyArn
+        - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+        - !GetAtt PolicyBowlsRead.PolicyArn
       MaxSessionDuration: 3600
       RoleName: !Sub "role-lambda-${LambdaReadPermissionName}"
       Description: "Allows Lambda functions to call read bowl pickem s3"
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
-        - Action: "sts:AssumeRole"
-          Effect: "Allow"
-          Principal:
-            Service: "lambda.amazonaws.com"
+          - Action: "sts:AssumeRole"
+            Effect: "Allow"
+            Principal:
+              Service: "lambda.amazonaws.com"
   RoleBowlsAdmin:
     Type: "AWS::IAM::Role"
     UpdateReplacePolicy: "Delete"
@@ -244,19 +244,19 @@ Resources:
     Properties:
       Path: "/"
       ManagedPolicyArns:
-      - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
-      - !GetAtt PolicyBowlsReadWrite.PolicyArn
-      - !GetAtt PolicyBowlsTriggerMargins.PolicyArn
+        - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+        - !GetAtt PolicyBowlsReadWrite.PolicyArn
+        - !GetAtt PolicyBowlsTriggerMargins.PolicyArn
       MaxSessionDuration: 3600
       RoleName: !Sub "role-lambda-${LambdaAdminPermissionName}"
       Description: "Allows Lambda functions to call read/write bowl pickem s3"
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
-        - Action: "sts:AssumeRole"
-          Effect: "Allow"
-          Principal:
-            Service: "lambda.amazonaws.com"
+          - Action: "sts:AssumeRole"
+            Effect: "Allow"
+            Principal:
+              Service: "lambda.amazonaws.com"
   RoleBowlsUserAuth:
     Type: "AWS::IAM::Role"
     UpdateReplacePolicy: "Delete"
@@ -264,18 +264,18 @@ Resources:
     Properties:
       Path: "/"
       ManagedPolicyArns:
-      - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
-      - !GetAtt PolicyBowlsUserAuth.PolicyArn
+        - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+        - !GetAtt PolicyBowlsUserAuth.PolicyArn
       MaxSessionDuration: 3600
       RoleName: !Sub "role-lambda-${LambdaUserAuthPermissionName}"
       Description: ""
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
-        - Action: "sts:AssumeRole"
-          Effect: "Allow"
-          Principal:
-            Service: "lambda.amazonaws.com"
+          - Action: "sts:AssumeRole"
+            Effect: "Allow"
+            Principal:
+              Service: "lambda.amazonaws.com"
   PolicyBowlsReadWrite:
     Type: "AWS::IAM::ManagedPolicy"
     UpdateReplacePolicy: "Delete"
@@ -288,17 +288,17 @@ Resources:
       PolicyDocument:
         Version: "2012-10-17"
         Statement:
-        - Resource:
-          - !GetAtt S3BowlsPublic.Arn
-          - !GetAtt S3BowlsPrivate.Arn
-          - !Sub "${S3BowlsPublic.Arn}/*"
-          - !Sub "${S3BowlsPrivate.Arn}/*"
-          Action:
-          - "s3:PutObject"
-          - "s3:GetObject"
-          - "s3:ListBucket"
-          Effect: "Allow"
-          Sid: "VisualEditor0"
+          - Resource:
+              - !GetAtt S3BowlsPublic.Arn
+              - !GetAtt S3BowlsPrivate.Arn
+              - !Sub "${S3BowlsPublic.Arn}/*"
+              - !Sub "${S3BowlsPrivate.Arn}/*"
+            Action:
+              - "s3:PutObject"
+              - "s3:GetObject"
+              - "s3:ListBucket"
+            Effect: "Allow"
+            Sid: "VisualEditor0"
   PolicyBowlsRead:
     Type: "AWS::IAM::ManagedPolicy"
     UpdateReplacePolicy: "Delete"
@@ -311,16 +311,16 @@ Resources:
       PolicyDocument:
         Version: "2012-10-17"
         Statement:
-        - Resource:
-          - !GetAtt S3BowlsPublic.Arn
-          - !GetAtt S3BowlsPrivate.Arn
-          - !Sub "${S3BowlsPublic.Arn}/*"
-          - !Sub "${S3BowlsPrivate.Arn}/*"
-          Action:
-          - "s3:GetObject"
-          - "s3:ListBucket"
-          Effect: "Allow"
-          Sid: "VisualEditor0"
+          - Resource:
+              - !GetAtt S3BowlsPublic.Arn
+              - !GetAtt S3BowlsPrivate.Arn
+              - !Sub "${S3BowlsPublic.Arn}/*"
+              - !Sub "${S3BowlsPrivate.Arn}/*"
+            Action:
+              - "s3:GetObject"
+              - "s3:ListBucket"
+            Effect: "Allow"
+            Sid: "VisualEditor0"
   PolicyBowlsTriggerMargins:
     Type: "AWS::IAM::ManagedPolicy"
     UpdateReplacePolicy: "Delete"
@@ -333,11 +333,11 @@ Resources:
       PolicyDocument:
         Version: "2012-10-17"
         Statement:
-        - Resource:
-          - !GetAtt LambdaBowlsUpdateMargins.Arn
-          Action: "lambda:InvokeFunction"
-          Effect: "Allow"
-          Sid: "LambdaInvokePermission"
+          - Resource:
+              - !GetAtt LambdaBowlsUpdateMargins.Arn
+            Action: "lambda:InvokeFunction"
+            Effect: "Allow"
+            Sid: "LambdaInvokePermission"
   PolicyBowlsUserAuth:
     Type: "AWS::IAM::ManagedPolicy"
     UpdateReplacePolicy: "Delete"
@@ -351,14 +351,14 @@ Resources:
         Version: "2012-10-17"
         Statement:
           Resource:
-          - !ImportValue
+            - !ImportValue
               Fn::Sub: ${BLRStackName}-LambdaUserAuthArn
           Action: "lambda:InvokeFunction"
           Effect: "Allow"
           Sid: "LambdaInvokePermission"
-############################
-#### S3 
-############################
+  ############################
+  #### S3
+  ############################
   S3BowlsPublic:
     Type: "AWS::S3::Bucket"
     UpdateReplacePolicy: "Retain"
@@ -369,15 +369,15 @@ Resources:
         IgnorePublicAcls: true
         BlockPublicPolicy: true
         BlockPublicAcls: true
-      BucketName: !Ref PublicBucketName 
+      BucketName: !Ref PublicBucketName
       OwnershipControls:
         Rules:
-        - ObjectOwnership: "BucketOwnerEnforced"
+          - ObjectOwnership: "BucketOwnerEnforced"
       BucketEncryption:
         ServerSideEncryptionConfiguration:
-        - BucketKeyEnabled: false
-          ServerSideEncryptionByDefault:
-            SSEAlgorithm: "AES256"
+          - BucketKeyEnabled: false
+            ServerSideEncryptionByDefault:
+              SSEAlgorithm: "AES256"
   S3BowlsPrivate:
     Type: "AWS::S3::Bucket"
     UpdateReplacePolicy: "Retain"
@@ -391,15 +391,15 @@ Resources:
       BucketName: !Ref PrivateBucketName
       OwnershipControls:
         Rules:
-        - ObjectOwnership: "BucketOwnerEnforced"
+          - ObjectOwnership: "BucketOwnerEnforced"
       BucketEncryption:
         ServerSideEncryptionConfiguration:
-        - BucketKeyEnabled: false
-          ServerSideEncryptionByDefault:
-            SSEAlgorithm: "AES256"
-############################
-#### API 
-############################
+          - BucketKeyEnabled: false
+            ServerSideEncryptionByDefault:
+              SSEAlgorithm: "AES256"
+  ############################
+  #### API
+  ############################
   ApiGatewayBowls:
     Type: "AWS::ApiGatewayV2::Api"
     UpdateReplacePolicy: "Delete"
@@ -411,13 +411,13 @@ Resources:
       CorsConfiguration:
         MaxAge: 1
         AllowOrigins:
-        - "*"
+          - "*"
         AllowCredentials: false
         ExposeHeaders: []
         AllowMethods:
-        - "*"
+          - "*"
         AllowHeaders:
-        - "*"
+          - "*"
       ProtocolType: "HTTP"
       Tags: {}
   ApiStageBowls:
@@ -435,7 +435,8 @@ Resources:
     Properties:
       ApiId: !Ref ApiGatewayBowls
       RouteKey: !Sub "GET /${PrimaryRouteName}"
-      Target: !Join ["/", ["integrations", !Ref ApiIntegrationBowlsGetScoreboard]]
+      Target:
+        !Join ["/", ["integrations", !Ref ApiIntegrationBowlsGetScoreboard]]
   ApiRouteBowlsUpdatePicks:
     Type: "AWS::ApiGatewayV2::Route"
     UpdateReplacePolicy: "Delete"
@@ -476,7 +477,7 @@ Resources:
       ApiId: !Ref ApiGatewayBowls
       IntegrationType: AWS_PROXY
       IntegrationMethod: POST
-      IntegrationUri: !Sub  "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaBowlsGetScoreboard.Arn}/invocations"
+      IntegrationUri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaBowlsGetScoreboard.Arn}/invocations"
       PayloadFormatVersion: "2.0"
   ApiIntegrationBowlsUpdatePicks:
     Type: "AWS::ApiGatewayV2::Integration"
@@ -486,7 +487,7 @@ Resources:
       ApiId: !Ref ApiGatewayBowls
       IntegrationType: AWS_PROXY
       IntegrationMethod: POST
-      IntegrationUri: !Sub  "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaBowlsUpdatePicks.Arn}/invocations"
+      IntegrationUri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaBowlsUpdatePicks.Arn}/invocations"
       PayloadFormatVersion: "2.0"
   ApiIntegrationBowlsAdminEdit:
     Type: "AWS::ApiGatewayV2::Integration"
@@ -496,7 +497,7 @@ Resources:
       ApiId: !Ref ApiGatewayBowls
       IntegrationType: AWS_PROXY
       IntegrationMethod: POST
-      IntegrationUri: !Sub  "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaBowlsAdminEdit.Arn}/invocations"
+      IntegrationUri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaBowlsAdminEdit.Arn}/invocations"
       PayloadFormatVersion: "2.0"
   ApiAuthorizerBowlsUserAuth:
     Type: "AWS::ApiGatewayV2::Authorizer"
@@ -506,11 +507,11 @@ Resources:
       ApiId: !Ref ApiGatewayBowls
       Name: !Ref LambdaBowlsUserAuth
       AuthorizerType: "REQUEST"
-      AuthorizerUri: !Sub  "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaBowlsUserAuth.Arn}/invocations"
+      AuthorizerUri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaBowlsUserAuth.Arn}/invocations"
       AuthorizerPayloadFormatVersion: "2.0"
       EnableSimpleResponses: true
-      IdentitySource: 
-      - "$request.header.Authorization"
+      IdentitySource:
+        - "$request.header.Authorization"
   ApiTriggerPermissionBowlsGetScoreboard:
     Type: "AWS::Lambda::Permission"
     UpdateReplacePolicy: "Delete"
@@ -547,9 +548,9 @@ Resources:
       Action: "lambda:InvokeFunction"
       SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiGatewayBowls}/authorizers/${ApiAuthorizerBowlsUserAuth}"
       Principal: "apigateway.amazonaws.com"
-############################
-#### CloudFront 
-############################
+  ############################
+  #### CloudFront
+  ############################
   CloudFrontDistroBowls:
     Type: "AWS::CloudFront::Distribution"
     UpdateReplacePolicy: "Delete"
@@ -558,11 +559,11 @@ Resources:
       DistributionConfig:
         DefaultRootObject: "index.html"
         Origins:
-        - OriginAccessControlId: "EWO8FEYV4CJHK" # TODO 
-          DomainName: !GetAtt S3BowlsPublic.RegionalDomainName
-          S3OriginConfig:
-            OriginAccessIdentity: ""
-          Id: !GetAtt S3BowlsPublic.RegionalDomainName
+          - OriginAccessControlId: "EWO8FEYV4CJHK"
+            DomainName: !GetAtt S3BowlsPublic.RegionalDomainName
+            S3OriginConfig:
+              OriginAccessIdentity: ""
+            Id: !GetAtt S3BowlsPublic.RegionalDomainName
         ViewerCertificate:
           MinimumProtocolVersion: "TLSv1.2_2021"
           SslSupportMethod: "sni-only"
@@ -570,18 +571,18 @@ Resources:
         DefaultCacheBehavior:
           Compress: true
           AllowedMethods:
-          - "HEAD"
-          - "GET"
+            - "HEAD"
+            - "GET"
           CachedMethods:
-          - "HEAD"
-          - "GET"
-          TargetOriginId: !GetAtt S3BowlsPublic.RegionalDomainName 
+            - "HEAD"
+            - "GET"
+          TargetOriginId: !GetAtt S3BowlsPublic.RegionalDomainName
           ViewerProtocolPolicy: "redirect-to-https"
           CachePolicyId: "658327ea-f89d-4fab-a63d-7e88639e58f6"
         Staging: false
         Enabled: true
         Aliases:
-        - !Ref DeployedRootURL 
+          - !Ref DeployedRootURL
         IPV6Enabled: true
         HttpVersion: "http2"
   S3BucketPolicyBowls:
@@ -593,19 +594,19 @@ Resources:
       PolicyDocument:
         Version: "2012-10-17"
         Statement:
-        - Condition:
-            StringEquals:
-              AWS:SourceArn: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistroBowls.Id}" 
-          Resource: !Sub "${S3BowlsPublic.Arn}/*"
-          Action: "s3:GetObject"
-          Effect: "Allow"
-          Principal:
-            Service: "cloudfront.amazonaws.com"
-          Sid: "AllowCloudFrontServicePrincipal"
+          - Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistroBowls.Id}"
+            Resource: !Sub "${S3BowlsPublic.Arn}/*"
+            Action: "s3:GetObject"
+            Effect: "Allow"
+            Principal:
+              Service: "cloudfront.amazonaws.com"
+            Sid: "AllowCloudFrontServicePrincipal"
         Id: "PolicyForCloudFrontPrivateContent"
-############################
-#### Route53 
-############################
+  ############################
+  #### Route53
+  ############################
   Route53ARecordBowls:
     Type: "AWS::Route53::RecordSet"
     UpdateReplacePolicy: "Delete"
@@ -623,14 +624,14 @@ Resources:
     DeletionPolicy: "Delete"
     Properties:
       Type: "AAAA"
-      Name: !Ref DeployedRootURL 
+      Name: !Ref DeployedRootURL
       HostedZoneId: !Ref HostedZoneId
       AliasTarget:
         DNSName: !GetAtt CloudFrontDistroBowls.DomainName
         HostedZoneId: "Z2FDTNDATAQYW2"
-############################
-#### Logs 
-############################
+  ############################
+  #### Logs
+  ############################
   LogBowlsLambdaGetScoreboard:
     Type: "AWS::Logs::LogGroup"
     UpdateReplacePolicy: "Delete"

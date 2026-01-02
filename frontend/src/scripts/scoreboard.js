@@ -24,7 +24,11 @@ $(function () {
     populateYears(true);
   });
   $("#showBestFinish").on("change", () => {
-    populateLeaderboard(currentGame, currentScores, $("#showBestFinish").is(":checked"));
+    populateLeaderboard(
+      currentGame,
+      currentScores,
+      $("#showBestFinish").is(":checked")
+    );
   });
 
   const tablelist = ["nextntable", "playofftable", "scoretable"];

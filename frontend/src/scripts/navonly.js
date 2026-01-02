@@ -1,5 +1,5 @@
-import $ from "jquery"
-import { initCommon } from "./shared.js"
-$(function() { 
-  initCommon()
-})
+import $ from "jquery";
+import { initCommon } from "./shared.js";
+$(function () {
+  initCommon();
+});
