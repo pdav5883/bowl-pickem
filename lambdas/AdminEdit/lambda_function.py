@@ -2,9 +2,10 @@ import json
 import boto3
 
 s3 = boto3.client("s3")
-lambda_client = boto3.client('lambda')
-obj_bucket = SUB_PrivateBucketName # type: ignore
-update_margins_function = SUB_LambdaUpdateMarginsName # type: ignore
+lambda_client = boto3.client("lambda")
+obj_bucket = SUB_PrivateBucketName  # type: ignore
+update_margins_function = SUB_LambdaUpdateMarginsName  # type: ignore
+
 
 def lambda_handler(event, context):
     """
@@ -19,7 +20,7 @@ def lambda_handler(event, context):
         If etype = results:
             data = {
                 "calc_margin": bool,
-                "bowls": [{"score": [..,..], "result": 0/1},...] in same order as bowls 
+                "bowls": [{"score": [..,..], "result": 0/1},...] in same order as bowls
             }
 
         If etype = game
@@ -28,16 +29,16 @@ def lambda_handler(event, context):
     body = json.loads(event["body"])
     etype = body["etype"]
     year = body["year"]
-    
+
     if etype == "results":
         new_results = body["data"]
         return update_results(year, new_results)
-    
+
     elif etype == "game":
         gid = body["gid"]
         new_game_data = body["data"]
         return update_game(year, gid, new_game_data)
-    
+
 
 def update_results(year, new_results):
     """
@@ -45,7 +46,7 @@ def update_results(year, new_results):
     """
     obj_key = year + "/results.json"
     data_s3 = s3.get_object(Bucket=obj_bucket, Key=obj_key)
-    
+
     old_data = json.loads(data_s3["Body"].read().decode("utf-8"))
 
     print(f"Updating {obj_key} with data:")
@@ -54,16 +55,21 @@ def update_results(year, new_results):
     # validation checks
     try:
         assert str(year) == str(old_data["year"]), "New year must match Old year"
-        assert len(new_results["bowls"]) == len(old_data["bowls"]),f"New length {len(new_results['bowls'])} must match Old length {len(old_data['bowls'])}"
+        assert len(new_results["bowls"]) == len(
+            old_data["bowls"]
+        ), f"New length {len(new_results['bowls'])} must match Old length {len(old_data['bowls'])}"
 
     except AssertionError as e:
         print("Error, validation failed")
         print(e)
-        
-        return {"statusCode": 400,
-                "body": str(e)}
 
-    new_data = {"year": str(year), "bowls": [], "calc_margin": new_results["calc_margin"]}
+        return {"statusCode": 400, "body": str(e)}
+
+    new_data = {
+        "year": str(year),
+        "bowls": [],
+        "calc_margin": new_results["calc_margin"],
+    }
 
     for old_bowl, new_result in zip(old_data["bowls"], new_results["bowls"]):
         new_bowl = dict(old_bowl)
@@ -78,19 +84,22 @@ def update_results(year, new_results):
     print(new_data)
 
     # update results.json file
-    response = s3.put_object(Body=bytes(json.dumps(new_data, indent=2).encode('UTF-8')), Bucket=obj_bucket, Key=obj_key)
+    response = s3.put_object(
+        Body=bytes(json.dumps(new_data, indent=2).encode("UTF-8")),
+        Bucket=obj_bucket,
+        Key=obj_key,
+    )
 
     if new_data["calc_margin"]:
         lambda_client.invoke(
-                        FunctionName=update_margins_function,
-                        InvocationType='Event',
-                        Payload=json.dumps({"year": year})
-                    )
-    
+            FunctionName=update_margins_function,
+            InvocationType="Event",
+            Payload=json.dumps({"year": year}),
+        )
+
         print(f"Triggered margin update")
 
-    return {"statusCode": 200,
-            "body": "Successful update"}
+    return {"statusCode": 200, "body": "Successful update"}
 
 
 def update_game(year, gid, new_game_data):
@@ -103,7 +112,7 @@ def update_game(year, gid, new_game_data):
     """
     obj_key = year + "/" + gid + ".json"
     data_s3 = s3.get_object(Bucket=obj_bucket, Key=obj_key)
-    
+
     game_data = json.loads(data_s3["Body"].read().decode("utf-8"))
 
     print(f"Updating {obj_key} with data:")
@@ -114,15 +123,16 @@ def update_game(year, gid, new_game_data):
         assert type(new_game_data["show_results"]) is bool, "Flag must be bool"
         assert type(new_game_data["show_picks"]) is bool, "Flag must be bool"
         assert type(new_game_data["lock_picks"]) is bool, "Flag must be bool"
-        assert len(game_data["players"]) == len(new_game_data["players"]), "Number of players must match"
-    
+        assert len(game_data["players"]) == len(
+            new_game_data["players"]
+        ), "Number of players must match"
+
     except AssertionError as e:
         print("Error, validation failed")
         print(e)
-        
-        return {"statusCode": 400,
-                "body": str(e)}
-    
+
+        return {"statusCode": 400, "body": str(e)}
+
     game_data["show_results"] = new_game_data["show_results"]
     game_data["show_picks"] = new_game_data["show_picks"]
     game_data["lock_picks"] = new_game_data["lock_picks"]
@@ -132,8 +142,10 @@ def update_game(year, gid, new_game_data):
         new_name = new_game_data["players"][old_name]
         player["name"] = new_name
 
-    response = s3.put_object(Body=bytes(json.dumps(game_data, indent=2).encode('UTF-8')), Bucket=obj_bucket, Key=obj_key)
+    response = s3.put_object(
+        Body=bytes(json.dumps(game_data, indent=2).encode("UTF-8")),
+        Bucket=obj_bucket,
+        Key=obj_key,
+    )
 
-    return {"statusCode": 200,
-            "body": "Successful update"}
-
+    return {"statusCode": 200, "body": "Successful update"}

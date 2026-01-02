@@ -4,7 +4,7 @@ import boto3
 from botocore.exceptions import ClientError
 
 s3 = boto3.client("s3")
-obj_bucket = SUB_PrivateBucketName # type: ignore
+obj_bucket = SUB_PrivateBucketName  # type: ignore
 
 
 def lambda_handler(event, context):
@@ -30,8 +30,7 @@ def lambda_handler(event, context):
     if qtype not in ("scoreboard", "bowls", "games", "years"):
         msg = f"Error: {qtype} is not a valid qtype"
         print(msg)
-        return {"statusCode": 400,
-                "body": msg}
+        return {"statusCode": 400, "body": msg}
 
     if qtype == "scoreboard":
         year = event["queryStringParameters"]["year"]
@@ -56,14 +55,13 @@ def handle_scoreboard(year, gid):
 
     try:
         game_s3 = s3.get_object(Bucket=obj_bucket, Key=game_key)
-    
+
     except ClientError as e:
         print(e)
-        return {"statusCode": 400,
-                "body": f"{gid} does not exist for {year}"}
+        return {"statusCode": 400, "body": f"{gid} does not exist for {year}"}
 
     game = json.loads(game_s3["Body"].read().decode("UTF-8"))
-    
+
     bowls_key = year + "/results.json"
     bowls_s3 = s3.get_object(Bucket=obj_bucket, Key=bowls_key)
     bowls = json.loads(bowls_s3["Body"].read().decode("UTF-8"))
@@ -82,7 +80,7 @@ def handle_scoreboard(year, gid):
 
     game["players"].sort(key=lambda p: p["name"].lower())
 
-    return game 
+    return game
 
 
 def handle_bowls(year):
@@ -96,9 +94,8 @@ def handle_bowls(year):
 
     except ClientError as e:
         print(e)
-        return {"statusCode": 400,
-                "body": f"{year}/results.json does not exist"}
-    
+        return {"statusCode": 400, "body": f"{year}/results.json does not exist"}
+
     results = json.loads(bowls_s3["Body"].read().decode("UTF-8"))
 
     return results
@@ -109,7 +106,9 @@ def handle_games(year):
     Return all games in a year with format:
         {gid: {"players": [list of players], "locked": true/false}...}
     """
-    year_keys = s3.list_objects(Bucket=obj_bucket, Prefix=str(year) + "/", Delimiter="/").get("Contents")
+    year_keys = s3.list_objects(
+        Bucket=obj_bucket, Prefix=str(year) + "/", Delimiter="/"
+    ).get("Contents")
     fnames = [yk.get("Key").split("/")[-1] for yk in year_keys]
     gids = [os.path.splitext(fn)[0] for fn in fnames if fn and fn != "results.json"]
 
@@ -133,7 +132,11 @@ def handle_years():
     Return list of years bucket
     """
     s3_subdirs = s3.list_objects(Bucket=obj_bucket, Delimiter="/").get("CommonPrefixes")
-    years = [subdir.get("Prefix")[:-1] for subdir in s3_subdirs if subdir.get("Prefix")[:-1].isnumeric()]
+    years = [
+        subdir.get("Prefix")[:-1]
+        for subdir in s3_subdirs
+        if subdir.get("Prefix")[:-1].isnumeric()
+    ]
     years.sort()
 
     return years

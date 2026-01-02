@@ -1,8 +1,6 @@
 Parameters:
   AcmSSLCertificateId:
     Type: String
-  SsmAdminSecretId:
-    Type: String
   HostedZoneId:
     Type: String
   DeployedRootURL:
@@ -45,7 +43,7 @@ Outputs:
   ApiId:
     Value: !Ref ApiGatewayBowls
   BLRLambdaUserAuthArn:
-    Value: !ImportValue
+    Value: !ImportValue 
       Fn::Sub: ${BLRStackName}-LambdaUserAuthArn
 Resources:
 ############################
@@ -58,7 +56,6 @@ Resources:
     Properties:
       FunctionName: !Ref LambdaUpdatePicksName
       MemorySize: 128
-      Description: ""
       TracingConfig:
         Mode: "PassThrough"
       Timeout: 3
@@ -88,7 +85,6 @@ Resources:
     Properties:
       FunctionName: !Ref LambdaGetScoreboardName
       MemorySize: 128
-      Description: ""
       TracingConfig:
         Mode: "PassThrough"
       Timeout: 3
@@ -118,7 +114,6 @@ Resources:
     Properties:
       FunctionName: !Ref LambdaAdminEditName
       MemorySize: 128
-      Description: ""
       TracingConfig:
         Mode: "PassThrough"
       Timeout: 3
@@ -148,7 +143,6 @@ Resources:
     Properties:
       FunctionName: !Ref LambdaUserAuthName 
       MemorySize: 128
-      Description: ""
       TracingConfig:
         Mode: "PassThrough"
       Timeout: 3
@@ -178,7 +172,6 @@ Resources:
     Properties:
       FunctionName: !Ref LambdaUpdateMarginsName
       MemorySize: 128
-      Description: ""
       TracingConfig:
         Mode: "PassThrough"
       Timeout: 3
@@ -598,7 +591,7 @@ Resources:
     Properties:
       Bucket: !Ref S3BowlsPublic
       PolicyDocument:
-        Version: "2008-10-17"
+        Version: "2012-10-17"
         Statement:
         - Condition:
             StringEquals:
