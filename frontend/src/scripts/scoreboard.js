@@ -709,6 +709,13 @@ function createBestFinishCell(leader) {
 
 function calcScores(game) {
   const scores = new Array(game.players.length).fill(0);
+
+  game.players.forEach((player, j) => {
+    if (player.bonus !== undefined) {
+      scores[j] = player.bonus
+    }
+  })
+  
   const firstPlayoff = game.bowls.length - PREV_GAME[game.year].length;
 
   const getPoints = (bowlIndex, playerIndex) => {

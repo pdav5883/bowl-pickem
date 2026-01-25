@@ -73,3 +73,5 @@ The plugin maps the placeholder to env variables of the process running the webp
 
 ## Notes
 Frontend cache time is controlled with object metadata in S3. Set system `Cache-Control` header `max-age=XX` field to desired cache time in seconds. Currently set for 6 hours for .html, .js and.css, no limit for images. This only matters if the files themselves change, since game/results data is grabbed every time with API calls.
+
+Tiebreaker is total point differential across non-playoff games. Run the `calc_tiebreaker.py` script for the game, then add a `bonus` field to the player entry in `game-name.json` with small value.
